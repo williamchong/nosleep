@@ -135,6 +135,83 @@
 <script setup>
 const wakeLock = useWakeLock()
 
+// SEO and Open Graph meta tags
+useSeoMeta({
+  title: 'NoSleep - Keep Your Device Awake',
+  description: 'Disable sleep temporarily on your device. Prevent your computer or mobile from going to sleep during downloads, renders, or presentations. No software installation required.',
+  keywords: 'no sleep, keep awake, prevent sleep, disable sleep, screen wake lock, device awake, computer awake, mobile awake',
+  author: 'William Chong',
+  ogTitle: 'NoSleep - Keep Your Device Awake',
+  ogDescription: 'Disable sleep temporarily on your device. Perfect for long downloads, renders, or presentations. Uses browser Wake Lock API - no software installation required.',
+  ogType: 'website',
+})
+
+// JSON-LD structured data for SEO
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify([
+      {
+        '@type': 'WebApplication',
+        name: 'NoSleep',
+        description: 'A web-based tool that lets you disable sleep temporarily on your computer or mobile device, preventing screen dimming and screensavers.',
+        url: 'https://nosleep.williamchong.cloud',
+        applicationCategory: 'UtilityApplication',
+        operatingSystem: 'Web Browser',
+        author: {
+          '@type': 'Person',
+          name: 'William Chong',
+          url: 'https://blog.williamchong.cloud'
+        },
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD'
+        }
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: 'What are the use cases for NoSleep?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'NoSleep is perfect for long file downloads or uploads, video/audio rendering and processing, code compilation and builds, data analysis and processing, presentations without interruption, streaming or recording sessions, and remote work monitoring tools.'
+            }
+          },
+          {
+            '@type': 'Question',
+            name: 'How does NoSleep work?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'This website uses the modern Screen Wake Lock API built into your browser. When activated, it sends a signal to your operating system to prevent sleep mode, screen dimming, and screensavers. The wake lock is automatically released when you close the tab, navigate away, or click the release button.'
+            }
+          },
+          {
+            '@type': 'Question',
+            name: 'Is NoSleep safe to use?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Yes, completely safe! This tool only uses standard web APIs and doesn\'t access your files, camera, microphone, or any personal data. It simply prevents your device from sleeping - the same as moving your mouse occasionally. No data is collected or transmitted.'
+            }
+          },
+          {
+            '@type': 'Question',
+            name: 'Which browsers support NoSleep?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Supported browsers include Chrome 84+ (Desktop & Mobile), Edge 84+, Safari 16.4+, Firefox (with polyfill), and most mobile browsers.'
+            }
+          }
+        ]
+      }
+    ])
+    }
+  ]
+})
+
 const buttonClasses = computed(() => {
   if (!wakeLock.isSupported.value) {
     return 'bg-gray-300 text-gray-500 cursor-not-allowed'
