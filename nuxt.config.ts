@@ -13,7 +13,7 @@ export default defineNuxtConfig({
     name: 'NoSleep',
   },
   gtag: {
-    id: undefined,
+    id: 'G-RCQBVKVP25',
   },
   i18n: {
     locales: [
