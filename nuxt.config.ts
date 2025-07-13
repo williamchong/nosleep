@@ -8,6 +8,10 @@ export default defineNuxtConfig({
     '@nuxtjs/sitemap',
     '@nuxtjs/tailwindcss',
   ],
+  site: {
+    url: 'https://nosleep.williamchong.cloud',
+    name: 'NoSleep',
+  },
   gtag: {
     id: undefined,
   },
