@@ -38,6 +38,71 @@
           </div>
         </div>
 
+        <!-- Timer Section -->
+        <div v-if="wakeLock.isSupported.value" class="space-y-2 text-center">
+          <!-- Timer Toggle -->
+          <button
+            class="text-sm text-gray-600 hover:text-gray-800 transition-colors inline-flex items-center space-x-1"
+            @click="showTimer = !showTimer"
+          >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/>
+            </svg>
+            <span>{{ wakeLock.timerActive.value ? 'Timer' : (showTimer ? 'Timer expires → allow sleep' : 'Timer') }}</span>
+            <svg class="w-3 h-3 transition-transform" :class="{ 'rotate-180': showTimer }" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+
+          <!-- Minimalist Timer UI -->
+          <div v-if="showTimer || wakeLock.timerActive.value" class="bg-gray-50 rounded-lg p-3 space-y-2">
+            <!-- Active Timer Display -->
+            <div v-if="wakeLock.timerActive.value" class="flex items-center justify-center space-x-4">
+              <div class="font-mono text-lg text-blue-600">
+                {{ wakeLock.formatTime(wakeLock.remainingTime.value) }}
+              </div>
+              <button
+                class="text-red-600 hover:text-red-800 text-sm"
+                @click="wakeLock.stopTimer()"
+              >
+                Cancel
+              </button>
+            </div>
+
+            <!-- Timer Setup -->
+            <div v-else class="space-y-2">
+              <div class="flex items-center justify-center space-x-2">
+                <input
+                  v-model.number="timerMinutes"
+                  type="number"
+                  min="1"
+                  max="480"
+                  placeholder="60"
+                  class="w-16 px-2 py-1 text-sm text-center border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                <span class="text-sm text-gray-600">min</span>
+                <button
+                  :disabled="!timerMinutes || timerMinutes < 1"
+                  class="px-3 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white text-sm rounded transition-colors"
+                  @click="startTimerWithInput"
+                >
+                  Start
+                </button>
+              </div>
+              <div class="flex justify-center space-x-1">
+                <button
+                  v-for="increment in [1, 5, 10, 30]"
+                  :key="increment"
+                  class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs rounded transition-colors"
+                  @click="timerMinutes = (timerMinutes || 0) + increment"
+                >
+                  +{{ increment }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="text-xs text-gray-400 space-y-2">
           <p>This will prevent your device from going to sleep</p>
           <p>Perfect for long downloads, renders, or presentations</p>
@@ -134,6 +199,8 @@
 
 <script setup>
 const wakeLock = useWakeLock()
+const timerMinutes = ref(60)
+const showTimer = ref(false)
 
 // SEO and Open Graph meta tags
 useSeoMeta({
@@ -238,6 +305,12 @@ const statusText = computed(() => {
   }
   return 'Your device can sleep normally. Click to keep awake.'
 })
+
+const startTimerWithInput = async () => {
+  if (timerMinutes.value && timerMinutes.value > 0) {
+    await wakeLock.startTimer(timerMinutes.value)
+  }
+}
 
 onMounted(async () => {
   if (wakeLock.isSupported.value) {
