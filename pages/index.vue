@@ -29,8 +29,8 @@
             </div>
           </button>
 
-          <div v-if="!wakeLock.isSupported.value" class="text-red-600 text-sm">
-            Wake Lock API is not supported in this browser
+          <div v-if="!wakeLock.isSupported.value" class="text-amber-600 text-sm">
+            Using video fallback method (Wake Lock API not supported)
           </div>
 
           <div v-else class="text-sm text-gray-500">
@@ -39,7 +39,7 @@
         </div>
 
         <!-- Timer Section -->
-        <div v-if="wakeLock.isSupported.value" class="space-y-2 text-center">
+        <div class="space-y-2 text-center">
           <!-- Timer Toggle -->
           <button
             class="text-sm text-gray-600 hover:text-gray-800 transition-colors inline-flex items-center space-x-1"
@@ -280,12 +280,15 @@ useHead({
 })
 
 const buttonClasses = computed(() => {
-  if (!wakeLock.isSupported.value) {
-    return 'bg-gray-300 text-gray-500 cursor-not-allowed'
+  if (wakeLock.isActive.value) {
+    if (wakeLock.usingVideoFallback.value) {
+      return 'bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-200 focus:ring-amber-300'
+    }
+    return 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-200 focus:ring-green-300'
   }
 
-  if (wakeLock.isActive.value) {
-    return 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-200 focus:ring-green-300'
+  if (!wakeLock.isSupported.value) {
+    return 'bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-200 focus:ring-amber-300'
   }
 
   return 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-200 focus:ring-red-300'
@@ -293,10 +296,10 @@ const buttonClasses = computed(() => {
 
 
 const buttonText = computed(() => {
-  if (!wakeLock.isSupported.value) {
-    return 'Not Supported'
+  if (wakeLock.isActive.value) {
+    return wakeLock.usingVideoFallback.value ? 'Device Awake (Video)' : 'Device Awake'
   }
-  return wakeLock.isActive.value ? 'Device Awake' : 'Device Sleeping'
+  return wakeLock.isSupported.value ? 'Device Sleeping' : 'Keep Awake (Fallback)'
 })
 
 const statusText = computed(() => {
