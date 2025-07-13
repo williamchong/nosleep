@@ -1,26 +1,31 @@
-# Nuxt 3 Starter Template
+# NoSleep Web App
 
-A pre-configured Nuxt 3 starter template with essential features.
+A web application that prevents computers and mobile devices from going to sleep, allowing long-running processes to continue uninterrupted without changing device power settings.
 
 ## Features
 
-- 🌍 i18n Internationalization
-- 📱 TailwindCSS Integration
-- 🔍 SEO Optimization & Sitemap
-- 📊 Google Analytics Setup
-- ✅ Testing Tools (Vitest)
-- 🔧 ESLint Code Quality
+- 🚫 Prevents device sleep/screen dimming
+- 📱 Cross-platform support (desktop & mobile)
+- 🌐 Web-based solution (no installation required)
+- 🔧 Simple one-click activation
+- 📊 Built with Nuxt 3 for optimal performance
 
-## Integrated Modules
+## How It Works
 
-| Module                                                            | Description                                              |
-| ----------------------------------------------------------------- | -------------------------------------------------------- |
-| [@nuxtjs/i18n](https://i18n.nuxtjs.org/)                          | Internationalization support for your Nuxt application   |
-| [@nuxtjs/tailwindcss](https://tailwindcss.nuxtjs.org/)            | TailwindCSS integration with zero configuration          |
-| [@nuxtjs/sitemap](https://sitemap.nuxtjs.org/)                    | Automatically generate sitemap for your Nuxt application |
-| [nuxt-gtag](https://nuxt.com/modules/gtag)                        | Google Analytics 4 integration                           |
-| [@nuxt/test-utils](https://nuxt.com/docs/getting-started/testing) | Official testing utilities for Nuxt applications         |
-| [@nuxt/eslint](https://eslint.nuxt.com/)                          | Official ESLint configuration and tooling                |
+This web app uses the [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API) to prevent your device from going to sleep. Simply visit the website and click the "Keep Awake" button to:
+
+- Prevent screen dimming/locking
+- Keep your device active during long downloads, renders, or processes
+- Avoid interrupting background tasks
+- No need to change system power settings
+
+## Browser Compatibility
+
+- ✅ Chrome/Chromium 84+
+- ✅ Edge 84+
+- ✅ Safari 16.4+
+- ✅ Firefox (via polyfill)
+- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
 
 ## Setup
 
@@ -108,37 +113,30 @@ yarn test
 bun run test
 ```
 
-## Configuration Guide
+## Usage
 
-### Google Analytics
+1. Start the development server (see instructions above)
+2. Open your browser to `http://localhost:3000`
+3. Click the "Keep Awake" button to prevent sleep
+4. Your device will stay active until you click "Release" or close the tab
 
-Configure your GA tracking ID in `nuxt.config.ts`:
+## Use Cases
 
-```ts
-gtag: {
-  id: "YOUR-GA-ID";
-}
-```
+- Long file downloads or uploads
+- Video/audio rendering processes
+- Code compilation and builds
+- Data processing and analysis
+- Streaming or recording sessions
+- Presentations without timeout
 
-### i18n Localization
+## Technical Details
 
-English is supported by default. Add more languages in `nuxt.config.ts`:
-
-```ts
-i18n: {
-  locales: [
-    {
-      code: "en",
-      language: "en-US",
-      file: "en-US.json",
-    },
-    // Add more languages...
-  ];
-}
-```
+Built with modern web technologies:
+- **Nuxt 3**: Full-stack framework for optimal performance
+- **Screen Wake Lock API**: Native browser sleep prevention
+- **Progressive Web App**: Can be installed for easy access
+- **Responsive Design**: Works on all device sizes
 
 For more information:
-
+- [Screen Wake Lock API Documentation](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API)
 - [Nuxt 3 Documentation](https://nuxt.com/docs)
-- [Nuxt i18n](https://i18n.nuxtjs.org/)
-- [Nuxt TailwindCSS](https://tailwindcss.nuxtjs.org/)
