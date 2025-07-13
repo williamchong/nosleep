@@ -22,6 +22,11 @@ export default defineNuxtConfig({
         language: 'en-US',
         file: 'en-US.json'
       },
+      {
+        code: 'zh',
+        language: 'zh-HK',
+        file: 'zh-HK.json'
+      },
     ],
     defaultLocale: 'en',
     lazy: true,
