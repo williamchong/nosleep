@@ -3,8 +3,8 @@
     <div class="min-h-[80vh] bg-gray-50 flex items-center justify-center p-4">
       <div class="max-w-md w-full text-center space-y-8">
         <div>
-          <h1 class="text-4xl font-bold text-gray-900 mb-2">NoSleep</h1>
-          <p class="text-gray-600">Keep your device awake</p>
+          <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ $t('header.title') }}</h1>
+          <p class="text-gray-600">{{ $t('header.subtitle') }}</p>
         </div>
 
         <div class="space-y-4">
@@ -30,7 +30,7 @@
           </button>
 
           <div v-if="!wakeLock.isSupported.value" class="text-amber-600 text-sm">
-            Using video fallback method (Wake Lock API not supported)
+            {{ $t('status.notSupported') }}
           </div>
 
           <div v-else class="text-sm text-gray-500">
@@ -48,7 +48,7 @@
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/>
             </svg>
-            <span>{{ wakeLock.timerActive.value ? 'Timer' : (showTimer ? 'Timer expires → allow sleep' : 'Timer') }}</span>
+            <span>{{ wakeLock.timerActive.value ? $t('timer.label') : (showTimer ? $t('timer.labelExpanded') : $t('timer.label')) }}</span>
             <svg class="w-3 h-3 transition-transform" :class="{ 'rotate-180': showTimer }" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
             </svg>
@@ -65,7 +65,7 @@
                 class="text-red-600 hover:text-red-800 text-sm"
                 @click="wakeLock.stopTimer()"
               >
-                Cancel
+                {{ $t('button.cancel') }}
               </button>
             </div>
 
@@ -80,13 +80,13 @@
                   placeholder="60"
                   class="w-16 px-2 py-1 text-sm text-center border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
-                <span class="text-sm text-gray-600">min</span>
+                <span class="text-sm text-gray-600">{{ $t('timer.minutes') }}</span>
                 <button
                   :disabled="!timerMinutes || timerMinutes < 1"
                   class="px-3 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white text-sm rounded transition-colors"
                   @click="startTimerWithInput"
                 >
-                  Start
+                  {{ $t('button.start') }}
                 </button>
               </div>
               <div class="flex justify-center space-x-1">
@@ -104,8 +104,8 @@
         </div>
 
         <div class="text-xs text-gray-400 space-y-2">
-          <p>This will prevent your device from going to sleep</p>
-          <p>Perfect for long downloads, renders, or presentations</p>
+          <p>{{ $t('description.tagline') }}</p>
+          <p>{{ $t('description.subtitle') }}</p>
         </div>
       </div>
     </div>
@@ -113,79 +113,55 @@
     <!-- Description Section -->
     <div class="max-w-4xl mx-auto mt-8 px-4 space-y-12">
       <section class="text-center space-y-4">
-        <h2 class="text-3xl font-bold text-gray-900">What Does This Site Do?</h2>
+        <h2 class="text-3xl font-bold text-gray-900">{{ $t('sections.whatDoesThisSiteDo.title') }}</h2>
         <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-          NoSleep is a web-based tool that prevents your computer or mobile device from going to sleep.
-          Features include customizable auto-sleep timers, animated visual feedback, and universal browser
-          compatibility with automatic fallback methods. Keep your device active during long processes
-          without changing system settings or installing software.
+          {{ $t('sections.whatDoesThisSiteDo.description') }}
         </p>
       </section>
 
       <!-- FAQ Section -->
       <section class="space-y-8">
-        <h2 class="text-3xl font-bold text-gray-900 text-center">Frequently Asked Questions</h2>
+        <h2 class="text-3xl font-bold text-gray-900 text-center">{{ $t('sections.faq.title') }}</h2>
 
         <div class="grid gap-6">
           <div class="bg-white rounded-lg p-6 shadow-sm border">
-            <h3 class="text-xl font-semibold text-gray-900 mb-3">What are the use cases?</h3>
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $t('sections.faq.useCases.question') }}</h3>
             <ul class="text-gray-600 space-y-2">
-              <li>• <strong>Timed tasks:</strong> Set 30-60 min timers for downloads/uploads</li>
-              <li>• <strong>Long processes:</strong> 2-4 hour timers for video rendering</li>
-              <li>• <strong>Development:</strong> 15-30 min timers for code compilation</li>
-              <li>• <strong>Presentations:</strong> Keep screen active without interruption</li>
-              <li>• <strong>Study sessions:</strong> Focus timers without device sleep</li>
-              <li>• <strong>Streaming:</strong> Live sessions and recording</li>
-              <li>• <strong>Monitoring:</strong> Dashboards and real-time tools</li>
+              <li v-for="(answer, index) in $tm('sections.faq.useCases.answers')" :key="index">• {{ $rt(answer) }}</li>
             </ul>
           </div>
 
           <div class="bg-white rounded-lg p-6 shadow-sm border">
-            <h3 class="text-xl font-semibold text-gray-900 mb-3">How does it work?</h3>
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $t('sections.faq.howItWorks.question') }}</h3>
+            <p class="text-gray-600">{{ $t('sections.faq.howItWorks.answer') }}</p>
+          </div>
+
+          <div class="bg-white rounded-lg p-6 shadow-sm border">
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $t('sections.faq.safety.question') }}</h3>
             <p class="text-gray-600">
-              This website uses the modern <strong>Screen Wake Lock API</strong> built into your browser.
-              For unsupported browsers, it automatically falls back to a video-based method for universal compatibility.
-              The auto-sleep timer lets you set custom durations (1-480 minutes) for automatic wake lock release.
-              Visual animations indicate when your device is being kept awake.
+              {{ $t('sections.faq.safety.answer') }}
             </p>
           </div>
 
           <div class="bg-white rounded-lg p-6 shadow-sm border">
-            <h3 class="text-xl font-semibold text-gray-900 mb-3">Is it safe to use?</h3>
-            <p class="text-gray-600">
-              Yes, completely safe! This tool only uses standard web APIs and doesn't access your
-              files, camera, microphone, or any personal data. It simply prevents your device from
-              sleeping - the same as moving your mouse occasionally. No data is collected or transmitted.
-            </p>
-          </div>
-
-          <div class="bg-white rounded-lg p-6 shadow-sm border">
-            <h3 class="text-xl font-semibold text-gray-900 mb-3">Which browsers support this?</h3>
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $t('sections.faq.browserSupport.question') }}</h3>
             <div class="text-gray-600">
-              <p class="mb-2"><strong>Native Wake Lock API:</strong></p>
+              <p class="mb-2"><strong>{{ $t('sections.faq.browserSupport.nativeApiTitle') }}</strong></p>
               <ul class="space-y-1 mb-4">
-                <li>• Chrome 84+ (Desktop & Mobile)</li>
-                <li>• Edge 84+</li>
-                <li>• Safari 16.4+</li>
-                <li>• Firefox (with polyfill)</li>
+                <li v-for="(browser, index) in $tm('sections.faq.browserSupport.nativeApiBrowsers')" :key="index">• {{ $rt(browser) }}</li>
               </ul>
-              <p class="mb-2"><strong>Video Fallback (Universal):</strong></p>
+              <p class="mb-2"><strong>{{ $t('sections.faq.browserSupport.fallbackTitle') }}</strong></p>
               <ul class="space-y-1">
-                <li>• All modern browsers</li>
-                <li>• Older browser versions</li>
-                <li>• All mobile browsers</li>
+                <li v-for="(browser, index) in $tm('sections.faq.browserSupport.fallbackBrowsers')" :key="index">• {{ $rt(browser) }}</li>
               </ul>
-              <p class="text-sm mt-2 italic">The app automatically detects your browser and uses the best available method.</p>
+              <p class="text-sm mt-2 italic">{{ $t('sections.faq.browserSupport.note') }}</p>
             </div>
           </div>
 
           <div class="bg-white rounded-lg p-6 shadow-sm border">
-            <h3 class="text-xl font-semibold text-gray-900 mb-3">How does the timer feature work?</h3>
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $t('sections.faq.timerFeature.question') }}</h3>
             <p class="text-gray-600">
-              Click the "Timer" option to set a custom duration (1-480 minutes) for automatic sleep.
-              Use the number input or quick increment buttons (+1, +5, +10, +30 minutes) to set your time.
-              The device will automatically allow sleep when the timer expires, perfect for timed tasks
-              like downloads, renders, or study sessions. You can cancel the timer anytime.
+              {{ $t('sections.faq.timerFeature.answer') }}
             </p>
           </div>
         </div>
@@ -193,10 +169,9 @@
 
       <!-- About Section -->
       <section class="text-center space-y-4 border-t pt-12">
-        <h2 class="text-2xl font-bold text-gray-900">About</h2>
+        <h2 class="text-2xl font-bold text-gray-900">{{ $t('sections.about.title') }}</h2>
         <p class="text-gray-600 max-w-xl mx-auto">
-          Built by William Chong as a simple, useful web tool.
-          Check out more projects and articles on my blog.
+          {{ $t('sections.about.description') }}
         </p>
         <a
           href="https://blog.williamchong.cloud"
@@ -207,7 +182,7 @@
           <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
           </svg>
-          Visit My Blog
+          {{ $t('sections.about.visitBlog') }}
         </a>
       </section>
     </div>
@@ -220,13 +195,15 @@ const timerMinutes = ref(60)
 const showTimer = ref(false)
 
 // SEO and Open Graph meta tags
+const { t } = useI18n()
+
 useSeoMeta({
-  title: 'NoSleep - Keep Your Device Awake with Timer',
-  description: 'Web-based tool to prevent device sleep with customizable auto-sleep timers, animated feedback, and universal browser support. Perfect for downloads, renders, and presentations.',
-  keywords: 'no sleep, keep awake, prevent sleep, sleep timer, device awake, screen wake lock, auto sleep, computer awake, mobile awake, wake lock timer',
-  author: 'William Chong',
-  ogTitle: 'NoSleep - Keep Your Device Awake with Timer',
-  ogDescription: 'Prevent device sleep with customizable timers and universal browser support. Features animated feedback and automatic fallback for older browsers.',
+  title: t('site.title'),
+  description: t('site.description'),
+  keywords: t('site.keywords'),
+  author: t('site.author'),
+  ogTitle: t('meta.ogTitle'),
+  ogDescription: t('meta.ogDescription'),
   ogType: 'website',
 })
 
@@ -238,14 +215,14 @@ useHead({
       children: JSON.stringify([
       {
         '@type': 'WebApplication',
-        name: 'NoSleep',
-        description: 'A web-based tool that prevents your computer or mobile device from going to sleep, featuring customizable auto-sleep timers, animated visual feedback, and universal browser compatibility with automatic fallback methods.',
+        name: t('site.name'),
+        description: t('meta.applicationDescription'),
         url: 'https://nosleep.williamchong.cloud',
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'Web Browser',
         author: {
           '@type': 'Person',
-          name: 'William Chong',
+          name: t('site.author'),
           url: 'https://blog.williamchong.cloud'
         },
         offers: {
@@ -259,42 +236,42 @@ useHead({
         mainEntity: [
           {
             '@type': 'Question',
-            name: 'What are the use cases for NoSleep?',
+            name: t('structuredData.faq.useCases.question'),
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'NoSleep supports timed tasks like 30-60 min timers for downloads/uploads, 2-4 hour timers for video rendering, 15-30 min timers for code compilation, presentations without interruption, study session focus timers, live streaming and recording, and real-time monitoring dashboards.'
+              text: t('structuredData.faq.useCases.answer')
             }
           },
           {
             '@type': 'Question',
-            name: 'How does NoSleep work?',
+            name: t('structuredData.faq.howItWorks.question'),
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'This website uses the modern Screen Wake Lock API built into your browser. For unsupported browsers, it automatically falls back to a video-based method for universal compatibility. The auto-sleep timer lets you set custom durations (1-480 minutes) for automatic wake lock release. Visual animations indicate when your device is being kept awake.'
+              text: t('structuredData.faq.howItWorks.answer')
             }
           },
           {
             '@type': 'Question',
-            name: 'Is NoSleep safe to use?',
+            name: t('structuredData.faq.safety.question'),
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Yes, completely safe! This tool only uses standard web APIs and doesn\'t access your files, camera, microphone, or any personal data. It simply prevents your device from sleeping - the same as moving your mouse occasionally. No data is collected or transmitted.'
+              text: t('structuredData.faq.safety.answer')
             }
           },
           {
             '@type': 'Question',
-            name: 'Which browsers support NoSleep?',
+            name: t('structuredData.faq.browserSupport.question'),
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Native Wake Lock API support includes Chrome 84+, Edge 84+, Safari 16.4+, and Firefox with polyfill. For universal compatibility, the app automatically falls back to a video-based method that works on all modern browsers and older browser versions.'
+              text: t('structuredData.faq.browserSupport.answer')
             }
           },
           {
             '@type': 'Question',
-            name: 'How does the timer feature work?',
+            name: t('structuredData.faq.timerFeature.question'),
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Click the Timer option to set a custom duration (1-480 minutes) for automatic sleep. Use the number input or quick increment buttons (+1, +5, +10, +30 minutes) to set your time. The device will automatically allow sleep when the timer expires, perfect for timed tasks like downloads, renders, or study sessions.'
+              text: t('structuredData.faq.timerFeature.answer')
             }
           }
         ]
@@ -322,16 +299,16 @@ const buttonClasses = computed(() => {
 
 const buttonText = computed(() => {
   if (wakeLock.isActive.value) {
-    return wakeLock.usingVideoFallback.value ? 'Device Awake (Video)' : 'Device Awake'
+    return wakeLock.usingVideoFallback.value ? t('button.deviceAwakeVideo') : t('button.deviceAwake')
   }
-  return wakeLock.isSupported.value ? 'Device Sleeping' : 'Keep Awake (Fallback)'
+  return wakeLock.isSupported.value ? t('button.deviceSleeping') : t('button.keepAwakeFallback')
 })
 
 const statusText = computed(() => {
   if (wakeLock.isActive.value) {
-    return 'Your device will stay awake. Click to allow sleep.'
+    return t('status.deviceAwake')
   }
-  return 'Your device can sleep normally. Click to keep awake.'
+  return t('status.deviceSleeping')
 })
 
 const startTimerWithInput = async () => {
