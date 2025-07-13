@@ -115,9 +115,10 @@
       <section class="text-center space-y-4">
         <h2 class="text-3xl font-bold text-gray-900">What Does This Site Do?</h2>
         <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-          NoSleep is a web-based tool that lets you disable sleep temporarily on your computer or mobile device,
-          preventing screen dimming and screensavers. It uses the browser's Screen Wake Lock API
-          to keep your device active without requiring any software installation or system setting changes.
+          NoSleep is a web-based tool that prevents your computer or mobile device from going to sleep.
+          Features include customizable auto-sleep timers, animated visual feedback, and universal browser
+          compatibility with automatic fallback methods. Keep your device active during long processes
+          without changing system settings or installing software.
         </p>
       </section>
 
@@ -129,13 +130,13 @@
           <div class="bg-white rounded-lg p-6 shadow-sm border">
             <h3 class="text-xl font-semibold text-gray-900 mb-3">What are the use cases?</h3>
             <ul class="text-gray-600 space-y-2">
-              <li>• Long file downloads or uploads</li>
-              <li>• Video/audio rendering and processing</li>
-              <li>• Code compilation and builds</li>
-              <li>• Data analysis and processing</li>
-              <li>• Presentations without interruption</li>
-              <li>• Streaming or recording sessions</li>
-              <li>• Remote work monitoring tools</li>
+              <li>• <strong>Timed tasks:</strong> Set 30-60 min timers for downloads/uploads</li>
+              <li>• <strong>Long processes:</strong> 2-4 hour timers for video rendering</li>
+              <li>• <strong>Development:</strong> 15-30 min timers for code compilation</li>
+              <li>• <strong>Presentations:</strong> Keep screen active without interruption</li>
+              <li>• <strong>Study sessions:</strong> Focus timers without device sleep</li>
+              <li>• <strong>Streaming:</strong> Live sessions and recording</li>
+              <li>• <strong>Monitoring:</strong> Dashboards and real-time tools</li>
             </ul>
           </div>
 
@@ -143,9 +144,9 @@
             <h3 class="text-xl font-semibold text-gray-900 mb-3">How does it work?</h3>
             <p class="text-gray-600">
               This website uses the modern <strong>Screen Wake Lock API</strong> built into your browser.
-              When activated, it sends a signal to your operating system to prevent sleep mode,
-              screen dimming, and screensavers. The wake lock is automatically released when you
-              close the tab, navigate away, or click the release button.
+              For unsupported browsers, it automatically falls back to a video-based method for universal compatibility.
+              The auto-sleep timer lets you set custom durations (1-480 minutes) for automatic wake lock release.
+              Visual animations indicate when your device is being kept awake.
             </p>
           </div>
 
@@ -161,15 +162,31 @@
           <div class="bg-white rounded-lg p-6 shadow-sm border">
             <h3 class="text-xl font-semibold text-gray-900 mb-3">Which browsers support this?</h3>
             <div class="text-gray-600">
-              <p class="mb-2">Supported browsers include:</p>
-              <ul class="space-y-1">
+              <p class="mb-2"><strong>Native Wake Lock API:</strong></p>
+              <ul class="space-y-1 mb-4">
                 <li>• Chrome 84+ (Desktop & Mobile)</li>
                 <li>• Edge 84+</li>
                 <li>• Safari 16.4+</li>
                 <li>• Firefox (with polyfill)</li>
-                <li>• Most mobile browsers</li>
               </ul>
+              <p class="mb-2"><strong>Video Fallback (Universal):</strong></p>
+              <ul class="space-y-1">
+                <li>• All modern browsers</li>
+                <li>• Older browser versions</li>
+                <li>• All mobile browsers</li>
+              </ul>
+              <p class="text-sm mt-2 italic">The app automatically detects your browser and uses the best available method.</p>
             </div>
+          </div>
+
+          <div class="bg-white rounded-lg p-6 shadow-sm border">
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">How does the timer feature work?</h3>
+            <p class="text-gray-600">
+              Click the "Timer" option to set a custom duration (1-480 minutes) for automatic sleep.
+              Use the number input or quick increment buttons (+1, +5, +10, +30 minutes) to set your time.
+              The device will automatically allow sleep when the timer expires, perfect for timed tasks
+              like downloads, renders, or study sessions. You can cancel the timer anytime.
+            </p>
           </div>
         </div>
       </section>
@@ -204,12 +221,12 @@ const showTimer = ref(false)
 
 // SEO and Open Graph meta tags
 useSeoMeta({
-  title: 'NoSleep - Keep Your Device Awake',
-  description: 'Disable sleep temporarily on your device. Prevent your computer or mobile from going to sleep during downloads, renders, or presentations. No software installation required.',
-  keywords: 'no sleep, keep awake, prevent sleep, disable sleep, screen wake lock, device awake, computer awake, mobile awake',
+  title: 'NoSleep - Keep Your Device Awake with Timer',
+  description: 'Web-based tool to prevent device sleep with customizable auto-sleep timers, animated feedback, and universal browser support. Perfect for downloads, renders, and presentations.',
+  keywords: 'no sleep, keep awake, prevent sleep, sleep timer, device awake, screen wake lock, auto sleep, computer awake, mobile awake, wake lock timer',
   author: 'William Chong',
-  ogTitle: 'NoSleep - Keep Your Device Awake',
-  ogDescription: 'Disable sleep temporarily on your device. Perfect for long downloads, renders, or presentations. Uses browser Wake Lock API - no software installation required.',
+  ogTitle: 'NoSleep - Keep Your Device Awake with Timer',
+  ogDescription: 'Prevent device sleep with customizable timers and universal browser support. Features animated feedback and automatic fallback for older browsers.',
   ogType: 'website',
 })
 
@@ -222,7 +239,7 @@ useHead({
       {
         '@type': 'WebApplication',
         name: 'NoSleep',
-        description: 'A web-based tool that lets you disable sleep temporarily on your computer or mobile device, preventing screen dimming and screensavers.',
+        description: 'A web-based tool that prevents your computer or mobile device from going to sleep, featuring customizable auto-sleep timers, animated visual feedback, and universal browser compatibility with automatic fallback methods.',
         url: 'https://nosleep.williamchong.cloud',
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'Web Browser',
@@ -245,7 +262,7 @@ useHead({
             name: 'What are the use cases for NoSleep?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'NoSleep is perfect for long file downloads or uploads, video/audio rendering and processing, code compilation and builds, data analysis and processing, presentations without interruption, streaming or recording sessions, and remote work monitoring tools.'
+              text: 'NoSleep supports timed tasks like 30-60 min timers for downloads/uploads, 2-4 hour timers for video rendering, 15-30 min timers for code compilation, presentations without interruption, study session focus timers, live streaming and recording, and real-time monitoring dashboards.'
             }
           },
           {
@@ -253,7 +270,7 @@ useHead({
             name: 'How does NoSleep work?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'This website uses the modern Screen Wake Lock API built into your browser. When activated, it sends a signal to your operating system to prevent sleep mode, screen dimming, and screensavers. The wake lock is automatically released when you close the tab, navigate away, or click the release button.'
+              text: 'This website uses the modern Screen Wake Lock API built into your browser. For unsupported browsers, it automatically falls back to a video-based method for universal compatibility. The auto-sleep timer lets you set custom durations (1-480 minutes) for automatic wake lock release. Visual animations indicate when your device is being kept awake.'
             }
           },
           {
@@ -269,7 +286,15 @@ useHead({
             name: 'Which browsers support NoSleep?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Supported browsers include Chrome 84+ (Desktop & Mobile), Edge 84+, Safari 16.4+, Firefox (with polyfill), and most mobile browsers.'
+              text: 'Native Wake Lock API support includes Chrome 84+, Edge 84+, Safari 16.4+, and Firefox with polyfill. For universal compatibility, the app automatically falls back to a video-based method that works on all modern browsers and older browser versions.'
+            }
+          },
+          {
+            '@type': 'Question',
+            name: 'How does the timer feature work?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Click the Timer option to set a custom duration (1-480 minutes) for automatic sleep. Use the number input or quick increment buttons (+1, +5, +10, +30 minutes) to set your time. The device will automatically allow sleep when the timer expires, perfect for timed tasks like downloads, renders, or study sessions.'
             }
           }
         ]
