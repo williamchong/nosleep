@@ -167,6 +167,7 @@ bun run test
 - **File operations**: Set 30-60 min timers for large downloads/uploads
 - **Rendering tasks**: Set 2-4 hour timers for video/audio processing
 - **Development**: Set 15-30 min timers for code compilation
+- **Vibe coding**: Long coding sessions with AI assistants like Claude Code
 - **Data processing**: Set custom timers for analysis jobs
 - **Study sessions**: Set focus timers without device interruption
 
