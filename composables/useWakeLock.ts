@@ -49,9 +49,23 @@ export const useWakeLock = () => {
         await videoElement.value.play()
         usingVideoFallback.value = true
         isActive.value = true
+
+        // Track fallback method usage
+        useTrackEvent('fallback_method_used', {
+          browser_info: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+          wake_lock_supported: false
+        })
+
         return true
       } catch (error) {
         console.error('Failed to start video fallback:', error)
+
+        // Track fallback error
+        useTrackEvent('wake_lock_error', {
+          error_message: error instanceof Error ? error.message : 'Unknown error',
+          method: 'video_fallback'
+        })
+
         return false
       }
     }
@@ -81,6 +95,13 @@ export const useWakeLock = () => {
         return true
       } catch (error) {
         console.error('Failed to acquire wake lock:', error)
+
+        // Track wake lock error
+        useTrackEvent('wake_lock_error', {
+          error_message: error instanceof Error ? error.message : 'Unknown error',
+          method: 'native_api'
+        })
+
         return false
       }
     } else {
@@ -121,6 +142,9 @@ export const useWakeLock = () => {
       remainingTime.value--
 
       if (remainingTime.value <= 0) {
+        // Track timer completion
+        useTrackEvent('timer_complete')
+
         release()
       }
     }, 1000)

@@ -12,7 +12,7 @@
             :disabled="!wakeLock.isSupported.value"
             class="w-full py-8 px-8 rounded-2xl text-2xl font-semibold transition-all duration-200 focus:outline-none focus:ring-4"
             :class="buttonClasses"
-            @click="wakeLock.toggle()"
+            @click="handleWakeLockToggle"
           >
             <div class="flex items-center justify-center space-x-3">
               <svg v-if="wakeLock.isSupported.value" class="w-8 h-8" :class="{ 'animate-pulse-glow': wakeLock.isActive.value }" fill="currentColor" viewBox="0 0 24 24">
@@ -43,7 +43,7 @@
           <!-- Timer Toggle -->
           <button
             class="text-sm text-gray-600 hover:text-gray-800 transition-colors inline-flex items-center space-x-1"
-            @click="showTimer = !showTimer"
+            @click="handleTimerToggle"
           >
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/>
@@ -63,7 +63,7 @@
               </div>
               <button
                 class="text-red-600 hover:text-red-800 text-sm"
-                @click="wakeLock.stopTimer()"
+                @click="handleTimerCancel"
               >
                 {{ $t('button.cancel') }}
               </button>
@@ -84,7 +84,7 @@
                 <button
                   :disabled="!timerMinutes || timerMinutes < 1"
                   class="px-3 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white text-sm rounded transition-colors"
-                  @click="startTimerWithInput"
+                  @click="handleTimerStart"
                 >
                   {{ $t('button.start') }}
                 </button>
@@ -94,7 +94,7 @@
                   v-for="increment in [1, 5, 10, 30]"
                   :key="increment"
                   class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs rounded transition-colors"
-                  @click="timerMinutes = (timerMinutes || 0) + increment"
+                  @click="handleTimerIncrement(increment)"
                 >
                   +{{ increment }}
                 </button>
@@ -178,6 +178,7 @@
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          @click="handleExternalLinkClick"
         >
           <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
@@ -311,16 +312,74 @@ const statusText = computed(() => {
   return t('status.deviceSleeping')
 })
 
-const startTimerWithInput = async () => {
+// GA4 Event handlers
+const handleWakeLockToggle = async () => {
+  await wakeLock.toggle()
+
+  // Track the wake lock toggle event
+  useTrackEvent('wake_lock_toggle', {
+    action: wakeLock.isActive.value ? 'activate' : 'deactivate',
+    method: wakeLock.usingVideoFallback.value ? 'video_fallback' : 'native_api',
+    supported: wakeLock.isSupported.value
+  })
+}
+
+const handleTimerToggle = () => {
+  showTimer.value = !showTimer.value
+
+  // Track timer UI toggle
+  useTrackEvent('timer_ui_toggle', {
+    action: showTimer.value ? 'expand' : 'collapse'
+  })
+}
+
+const handleTimerStart = async () => {
   if (timerMinutes.value && timerMinutes.value > 0) {
-    await wakeLock.startTimer(timerMinutes.value)
+    const success = await wakeLock.startTimer(timerMinutes.value)
+
+    // Track timer start event
+    if (success) {
+      useTrackEvent('timer_start', {
+        input_method: 'manual_input'
+      })
+    }
   }
 }
 
+const handleTimerCancel = () => {
+  wakeLock.stopTimer()
+
+  // Track timer cancel event
+  useTrackEvent('timer_cancel')
+}
+
+const handleTimerIncrement = (increment) => {
+  timerMinutes.value = (timerMinutes.value || 0) + increment
+
+  // Track quick increment usage
+  useTrackEvent('timer_quick_increment')
+}
+
+const handleExternalLinkClick = () => {
+  // Track external link clicks
+  useTrackEvent('external_link_click', {
+    link_url: 'https://blog.williamchong.cloud',
+    link_text: 'Visit My Blog'
+  })
+}
+
 onMounted(async () => {
+  let autoAcquireSuccess = false
+
   if (wakeLock.isSupported.value) {
-    await wakeLock.acquire()
+    autoAcquireSuccess = await wakeLock.acquire()
   }
+
+  // Track app initialization
+  useTrackEvent('app_initialized', {
+    wake_lock_supported: wakeLock.isSupported.value,
+    auto_acquire_success: autoAcquireSuccess
+  })
 })
 </script>
 
