@@ -17,9 +17,9 @@
   },
   "button": {
     "deviceAwake": "裝置喚醒",
-    "deviceAwakeVideo": "裝置喚醒（影片）",
+    "deviceAwakeVideo": "裝置喚醒",
     "deviceSleeping": "裝置休眠",
-    "keepAwakeFallback": "保持喚醒（備援）",
+    "keepAwakeFallback": "保持喚醒",
     "start": "開始",
     "cancel": "取消",
     "cancelTimer": "取消計時器"

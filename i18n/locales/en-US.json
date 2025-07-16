@@ -17,9 +17,9 @@
   },
   "button": {
     "deviceAwake": "Device Awake",
-    "deviceAwakeVideo": "Device Awake (Video)",
+    "deviceAwakeVideo": "Device Awake",
     "deviceSleeping": "Device Sleeping",
-    "keepAwakeFallback": "Keep Awake (Fallback)",
+    "keepAwakeFallback": "Keep Awake",
     "start": "Start",
     "cancel": "Cancel",
     "cancelTimer": "Cancel Timer"
