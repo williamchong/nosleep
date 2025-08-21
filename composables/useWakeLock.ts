@@ -17,26 +17,6 @@ export const useWakeLock = () => {
     isSupported.value = 'wakeLock' in navigator
   }
 
-  const handleVisibilityChange = async () => {
-    if (document.visibilityState === 'visible') {
-      // When page becomes visible again, try to re-acquire wake lock if we were active
-      if (isActive.value && !wakeLock.value && !usingVideoFallback.value) {
-        if (isSupported.value) {
-          await acquire()
-        } else {
-          await startVideoFallback()
-        }
-      }
-    } else {
-      // When page becomes hidden, the wake lock will be automatically released
-      // We'll fall back to video to maintain some level of wake functionality
-      if (isActive.value && wakeLock.value) {
-        // Wake lock will be released automatically, but we can start video fallback
-        await startVideoFallback()
-      }
-    }
-  }
-
   const createDummyVideo = () => {
     if (typeof document === 'undefined') return null
 
@@ -117,6 +97,7 @@ export const useWakeLock = () => {
           wakeLock.value = null
           // If we still want to stay active, fall back to video
           if (isActive.value && document.visibilityState === 'hidden') {
+            isActive.value = false
             await startVideoFallback()
           }
         })
@@ -141,9 +122,13 @@ export const useWakeLock = () => {
 
   const release = async () => {
     if (wakeLock.value) {
-      await wakeLock.value.release()
-      wakeLock.value = null
-      isActive.value = false
+      try {
+        await wakeLock.value.release()
+        wakeLock.value = null
+        isActive.value = false
+      } catch (error) {
+        console.error('Failed to release wake lock:', error)
+      }
     }
 
     if (usingVideoFallback.value) {
@@ -211,20 +196,10 @@ export const useWakeLock = () => {
 
   onMounted(() => {
     checkSupport()
-
-    // Listen for visibility changes to handle wake lock loss
-    if (typeof document !== 'undefined') {
-      document.addEventListener('visibilitychange', handleVisibilityChange)
-    }
   })
 
   onUnmounted(() => {
     release()
-
-    // Clean up event listener
-    if (typeof document !== 'undefined') {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
   })
 
   return {
