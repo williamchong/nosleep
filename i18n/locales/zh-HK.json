@@ -20,6 +20,7 @@
     "deviceAwakeVideo": "裝置喚醒",
     "deviceSleeping": "裝置休眠",
     "keepAwakeFallback": "保持喚醒",
+    "clickToKeepAwake": "點擊保持喚醒",
     "focusToPopup": "切換到彈出視窗",
     "start": "開始",
     "cancel": "取消",

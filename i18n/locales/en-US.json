@@ -20,6 +20,7 @@
     "deviceAwakeVideo": "Device Awake",
     "deviceSleeping": "Device Sleeping",
     "keepAwakeFallback": "Keep Awake",
+    "clickToKeepAwake": "Click to Keep Awake",
     "focusToPopup": "Switch to Popup Window",
     "start": "Start",
     "cancel": "Cancel",

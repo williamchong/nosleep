@@ -34,9 +34,6 @@ export const useWakeLock = () => {
 
     const video = document.createElement('video')
     video.setAttribute('loop', '')
-    video.setAttribute('muted', '')
-    video.setAttribute('playsinline', '')
-    video.setAttribute('autoplay', '')
     video.style.position = 'fixed'
     video.style.top = '-1px'
     video.style.left = '-1px'

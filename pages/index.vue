@@ -9,7 +9,6 @@
 
         <div class="space-y-4">
           <button
-            :disabled="!wakeLock.isSupported.value"
             class="w-full py-8 px-8 rounded-2xl text-2xl font-semibold transition-all duration-200 focus:outline-none focus:ring-4"
             :class="buttonClasses"
             @click="handleWakeLockToggle"
@@ -29,7 +28,7 @@
             </div>
           </button>
 
-          <div v-if="!wakeLock.isSupported.value" class="text-amber-600 text-sm">
+          <div v-if="!wakeLock.isSupported.value && wakeLock.isActive.value" class="text-amber-600 text-sm">
             {{ $t('status.notSupported') }}
           </div>
 
@@ -321,7 +320,8 @@ const buttonClasses = computed(() => {
   }
 
   if (!wakeLock.isSupported.value) {
-    return 'bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-200 focus:ring-amber-300'
+    // Inactive fallback mode - use red to show "ready to activate"
+    return 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-200 focus:ring-red-300'
   }
 
   return 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-200 focus:ring-red-300'
@@ -336,7 +336,8 @@ const buttonText = computed(() => {
   if (wakeLock.isActive.value) {
     return wakeLock.usingVideoFallback.value ? t('button.deviceAwakeVideo') : t('button.deviceAwake')
   }
-  return wakeLock.isSupported.value ? t('button.deviceSleeping') : t('button.keepAwakeFallback')
+  // Both supported and unsupported browsers show same inactive text
+  return t('button.clickToKeepAwake')
 })
 
 const statusText = computed(() => {
@@ -450,8 +451,13 @@ const openPopup = () => {
 onMounted(async () => {
   let autoAcquireSuccess = false
 
-  if (wakeLock.isSupported.value) {
+  // Try to auto-start wake lock (native or fallback)
+  try {
     autoAcquireSuccess = await wakeLock.acquire()
+  } catch (error) {
+    console.error('Auto-acquire error:', error)
+    // Auto-start failed, user will need to click manually
+    console.log('Auto-start failed, user interaction required')
   }
 
   // Track app initialization
