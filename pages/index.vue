@@ -103,18 +103,12 @@
           </div>
         </div>
 
-        <div class="text-xs text-gray-400 space-y-2">
-          <p>{{ $t('description.tagline') }}</p>
-          <p>{{ $t('description.subtitle') }}</p>
-        </div>
-
         <!-- Usage Instructions - only show for supported browsers -->
         <div v-if="wakeLock.isSupported.value && !wakeLock.isPopup.value" class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800 space-y-2">
           <div class="font-semibold text-blue-900">{{ $t('instructions.title') }}</div>
           <div class="space-y-1">
             <div>• {{ $t('instructions.keepTabFrontmost') }}</div>
             <div>• {{ $t('instructions.avoidBackgrounding') }}</div>
-            <div>• {{ $t('instructions.interactionRequired') }}</div>
           </div>
           <button
             class="mt-2 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"

@@ -15,36 +15,36 @@ A web application that prevents computers and mobile devices from going to sleep
 
 ## How It Works
 
-This web app uses the [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API) to prevent your device from going to sleep. For browsers that don't support the Wake Lock API, it provides a video-based fallback method that requires user interaction to activate.
+This web app uses your browser's built-in [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API) when available to keep your screen awake. For older browsers, it provides a backup method that needs you to click first. You can also open a dedicated popup window that syncs with the main page and stays on top to avoid accidentally hiding the tab.
 
 ### Core Functionality
-- **Instant activation**: Click the main button to prevent sleep
-- **Visual feedback**: Animated pulsing icon when device is kept awake  
-- **Auto-sleep timer**: Set custom durations (1-480 minutes) for automatic sleep
-- **Browser compatibility**: Fallback method available for unsupported browsers
+- **Instant activation**: Click the main button to keep your screen awake
+- **Visual feedback**: Animated pulsing icon shows when it's working
+- **Sleep timers**: Set custom durations (1-480 minutes) to automatically allow sleep again
+- **Dedicated popup**: Open a separate window that syncs and stays on top
+- **Smart sync**: Popup window controls sync back to the main page
 
 ### Key Benefits
-- Prevent screen dimming/locking
-- Keep your device active during long downloads, renders, or processes
-- Avoid interrupting background tasks
-- No need to change system power settings
-- Set timers to automatically allow sleep after a specified duration
+- Keep your screen on without changing system settings
+- Perfect for downloads, work sessions, presentations, or study time
+- Set timers to automatically return to normal sleep behavior
+- Use popup window to avoid accidentally losing focus
+- Synced controls work in both main page and popup window
 
 ## Browser Compatibility
 
-### Native Wake Lock API Support
-- ✅ Chrome/Chromium 84+
-- ✅ Edge 84+
-- ✅ Safari 16.4+
-- ✅ Firefox (with polyfill)
+### Best Experience (Built-in Support)
+- ✅ Chrome/Chromium 84+ (Computer & Phone)
+- ✅ Microsoft Edge 84+
+- ✅ Safari 16.4+ (Mac & iPhone/iPad)
+- ✅ Firefox (with additional setup)
 
-### Video Fallback Support (Universal)
-- ✅ All modern browsers
+### Basic Support (Backup Method)
+- ✅ Any modern browser
 - ✅ Older browser versions
-- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
-- ✅ Firefox (all versions)
+- ✅ All mobile browsers
 
-*The app detects browser capabilities and provides fallback options when native wake lock is unavailable.*
+*The app automatically detects your browser and adapts. Use the popup window for the most reliable experience across all browsers.*
 
 ## Setup
 
@@ -149,50 +149,60 @@ bun run test
 4. Your device will automatically sleep when the timer expires
 5. Cancel the timer anytime by clicking "Cancel"
 
-### Important Usage Tips
-- **Keep tab active**: Keep this browser tab in the foreground of the current window
-- **Use popup window**: Click "Open in Popup Window" to use in a dedicated window
-- **User interaction**: Video fallback (amber button) requires user interaction to activate
-- **Tab visibility**: Wake locks are automatically released when the tab becomes hidden or inactive
+### 📋 Best Practices
+- **Keep tab visible**: Keep this browser tab active and in the foreground
+- **Use dedicated popup**: Click "Open Dedicated Window" for a separate window that stays on top
+- **Amber button**: Click the amber/yellow button first if you see one (older browsers)
+- **Popup sync**: Controls in the popup window automatically sync with the main page
+- **Auto-release**: Screen wake stops if you switch tabs, minimize, or close the window
 
-### Visual Indicators
-- **Green button**: Device awake using native Wake Lock API
-- **Amber button**: Device awake using video fallback method
-- **Pulsing icon**: Animation shows when wake lock is active
-- **Timer countdown**: Real-time display of remaining time
+### 🎯 Visual Indicators
+- **🟢 Green button**: Screen awake using built-in browser support (best experience)
+- **🟡 Amber/Yellow button**: Screen awake using backup method (click first to activate)
+- **🔵 Blue button**: "Switch to Popup Window" (when popup is open)
+- **✨ Pulsing icon**: Animation shows when actively keeping screen awake
+- **⏰ Timer countdown**: Real-time display of remaining time
 
 ## Use Cases
 
-### Immediate Wake Lock
-- Presentations without screen timeout
-- Live streaming or recording sessions
-- Real-time monitoring dashboards
-- Video calls and conferences
+### 🚀 Instant Screen Wake
+- **Presentations**: Keep screen on during talks and demos
+- **Live streaming**: Prevent sleep during broadcasts or recording
+- **Monitoring**: Keep dashboards and real-time tools visible
+- **Video calls**: Stay visible during meetings and conferences
 
-### Timed Wake Lock
-- **File operations**: Set 30-60 min timers for large downloads/uploads
-- **Rendering tasks**: Set 2-4 hour timers for video/audio processing
+### ⏰ Timed Screen Wake  
+- **Downloads/Uploads**: Set 30-60 min timers for large file transfers
+- **Rendering & Processing**: Set 2-4 hour timers for video/audio work
 - **Development**: Set 15-30 min timers for code compilation
-- **Vibe coding**: Long coding sessions with AI assistants like Claude Code
-- **Data processing**: Set custom timers for analysis jobs
-- **Study sessions**: Set focus timers without device interruption
+- **Study Sessions**: Set focus timers for learning without interruption
+- **Work Sessions**: Long coding sessions with AI assistants like Claude Code
+- **Background Tasks**: Custom timers for any long-running processes
+
+### 🪟 Dedicated Popup Window
+- **Multi-tasking**: Keep wake controls in a separate window while working
+- **Background operation**: Popup stays on top and syncs with main page
+- **Accident prevention**: Less likely to accidentally close or hide the controls
 
 ## Technical Details
 
 Built with modern web technologies:
-- **Nuxt 3**: Full-stack framework for optimal performance
-- **Screen Wake Lock API**: Native browser sleep prevention (primary method)
-- **Video Fallback**: Invisible looping video for unsupported browsers
-- **Real-time Timer**: JavaScript intervals with automatic cleanup
-- **Animated UI**: CSS animations provide visual feedback
+- **Nuxt 3**: Full-stack framework for optimal performance and SEO
+- **Screen Wake Lock API**: Native browser sleep prevention (best method)
+- **Video Fallback**: Backup method for older browsers
+- **Cross-Window Sync**: Real-time synchronization between main page and popup
+- **Smart Timer System**: JavaScript intervals with automatic cleanup
+- **Animated Feedback**: CSS animations show when actively working
 - **Progressive Web App**: Can be installed for easy access
-- **Responsive Design**: Works on all device sizes
+- **Responsive Design**: Works perfectly on desktop, tablet, and mobile
 
-### Architecture
+### 🏗️ Architecture
 - **Composable-based**: Reusable `useWakeLock()` composable handles all functionality
-- **Reactive state**: Vue 3 reactivity for real-time UI updates
+- **Reactive state**: Vue 3 reactivity for real-time UI updates across windows
+- **Cross-window messaging**: `postMessage` API for secure popup ↔ main page sync
+- **Smart state management**: Parent window becomes read-only when popup is active
 - **Error handling**: Graceful fallbacks and user feedback
-- **Memory management**: Automatic cleanup of timers and video elements
+- **Memory management**: Automatic cleanup of timers, video elements, and event listeners
 
 For more information:
 - [Screen Wake Lock API Documentation](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API)

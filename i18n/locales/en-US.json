@@ -38,21 +38,16 @@
     "remaining": "remaining",
     "explanation": "Device will automatically be allowed to sleep when timer expires"
   },
-  "description": {
-    "tagline": "This will prevent your device from going to sleep",
-    "subtitle": "Perfect for long downloads, renders, or presentations"
-  },
   "instructions": {
     "title": "For Best Results",
-    "keepTabFrontmost": "Keep this browser tab in the foreground of current window",
-    "avoidBackgrounding": "Use popup window for dedicated wake lock window",
-    "interactionRequired": "Video fallback requires user interaction to start",
-    "openPopup": "Open in Popup Window"
+    "keepTabFrontmost": "Keep this tab visible and active in your browser",
+    "avoidBackgrounding": "Or use a dedicated popup window that stays on top",
+    "openPopup": "Open Dedicated Window"
   },
   "sections": {
     "whatDoesThisSiteDo": {
       "title": "What Does This Site Do?",
-      "description": "NoSleep is a web-based tool that prevents your computer or mobile device from going to sleep. Features include customizable auto-sleep timers, animated visual feedback, and browser compatibility with video fallback methods. Keep your device active during long processes without changing system settings or installing software."
+      "description": "NoSleep keeps your computer or phone screen awake when you need it. Set custom sleep timers, get visual feedback when it's working, and use the dedicated popup window to avoid accidentally putting your device to sleep. Perfect for downloads, work sessions, or presentations without changing your system settings."
     },
     "faq": {
       "title": "Frequently Asked Questions",
@@ -71,36 +66,36 @@
       },
       "howItWorks": {
         "question": "How does it work?",
-        "answer": "This website uses the modern Screen Wake Lock API built into your browser. For unsupported browsers, it provides a video-based fallback method that requires user interaction to activate. The auto-sleep timer lets you set custom durations (1-480 minutes) for automatic wake lock release. Visual animations indicate when your device is being kept awake."
+        "answer": "This website uses your browser's built-in screen wake feature when available. For older browsers, it uses a backup method that needs you to click first. You can set timers from 1-480 minutes to automatically let your device sleep again. The animated icons show when it's actively keeping your screen awake. Use the dedicated popup window to prevent accidentally closing the tab."
       },
       "safety": {
         "question": "Is it safe to use?",
         "answer": "Yes, completely safe! This tool only uses standard web APIs and doesn't access your files, camera, microphone, or any personal data. It simply prevents your device from sleeping - the same as moving your mouse occasionally. No data is collected or transmitted."
       },
       "browserSupport": {
-        "question": "Which browsers support this?",
-        "nativeApiTitle": "Native Wake Lock API:",
+        "question": "Which browsers work with this?",
+        "nativeApiTitle": "Best Experience (Built-in Support):",
         "nativeApiBrowsers": [
-          "Chrome 84+ (Desktop & Mobile)",
-          "Edge 84+",
-          "Safari 16.4+",
-          "Firefox (with polyfill)"
+          "Chrome 84+ (Computer & Phone)",
+          "Microsoft Edge 84+",
+          "Safari 16.4+ (Mac & iPhone)",
+          "Firefox (with additional setup)"
         ],
-        "fallbackTitle": "Video Fallback (Universal):",
+        "fallbackTitle": "Basic Support (All Others):",
         "fallbackBrowsers": [
-          "All modern browsers",
+          "Any modern browser",
           "Older browser versions",
           "All mobile browsers"
         ],
-        "note": "The app detects your browser capabilities and provides fallback options when native wake lock is unavailable."
+        "note": "The app automatically detects what your browser can do and adapts accordingly. Use the popup window for the most reliable experience."
       },
       "timerFeature": {
-        "question": "How does the timer feature work?",
-        "answer": "Click the \"Timer\" option to set a custom duration (1-480 minutes) for automatic sleep. Use the number input or quick increment buttons (+1, +5, +10, +30 minutes) to set your time. The device will automatically allow sleep when the timer expires, perfect for timed tasks like downloads, renders, or study sessions. You can cancel the timer anytime."
+        "question": "How do I set a sleep timer?",
+        "answer": "Click \"Timer\" to set how long you want your screen to stay awake (1-480 minutes). Type a number or use the quick buttons (+1, +5, +10, +30 minutes). Your device will automatically go back to normal sleep mode when time runs out - perfect for downloads, work sessions, or study time. Cancel anytime if you need to stop early."
       },
       "properUsage": {
-        "question": "How should I use this site for best results?",
-        "answer": "For optimal performance: keep this browser tab in the foreground of the current window, or use the popup window option for a dedicated wake lock window. Remember that video fallback (amber button) requires user interaction to activate. Wake locks are automatically released when the tab becomes hidden or inactive."
+        "question": "What's the best way to use this?",
+        "answer": "Keep this tab visible and active in your browser, OR click \"Open Dedicated Window\" to create a small popup that stays on top. The popup window syncs with this main page and is less likely to accidentally get hidden. If you see an amber/yellow button, click it first to activate. Switching tabs or minimizing will stop the wake lock."
       }
     },
     "about": {
@@ -117,7 +112,7 @@
       },
       "howItWorks": {
         "question": "How does NoSleep work?",
-        "answer": "This website uses the modern Screen Wake Lock API built into your browser. For unsupported browsers, it provides a video-based fallback method that requires user interaction to activate. The auto-sleep timer lets you set custom durations (1-480 minutes) for automatic wake lock release. Visual animations indicate when your device is being kept awake."
+        "answer": "This website uses your browser's built-in screen wake feature when available. For older browsers, it uses a backup method that needs you to click first. You can set timers from 1-480 minutes to automatically let your device sleep again. The animated icons show when it's actively keeping your screen awake. Use the dedicated popup window to prevent accidentally closing the tab."
       },
       "safety": {
         "question": "Is NoSleep safe to use?",
@@ -125,15 +120,15 @@
       },
       "browserSupport": {
         "question": "Which browsers support NoSleep?",
-        "answer": "Native Wake Lock API support includes Chrome 84+, Edge 84+, Safari 16.4+, and Firefox with polyfill. For broader compatibility, the app provides a video-based fallback method that works on browsers without native support."
+        "answer": "Best experience: Chrome 84+, Microsoft Edge 84+, Safari 16.4+, and Firefox with additional setup. Basic support: Any modern browser with a backup method. The app automatically detects your browser and adapts. Use the popup window for the most reliable experience."
       },
       "timerFeature": {
         "question": "How does the timer feature work?",
         "answer": "Click the Timer option to set a custom duration (1-480 minutes) for automatic sleep. Use the number input or quick increment buttons (+1, +5, +10, +30 minutes) to set your time. The device will automatically allow sleep when the timer expires, perfect for timed tasks like downloads, renders, or study sessions."
       },
       "properUsage": {
-        "question": "How should I use NoSleep for best results?",
-        "answer": "For optimal performance: keep this browser tab in the foreground of the current window, or use the popup window option for a dedicated wake lock window. Remember that video fallback requires user interaction to activate. Wake locks are automatically released when the tab becomes hidden or inactive."
+        "question": "What's the best way to use NoSleep?",
+        "answer": "Keep this tab visible and active in your browser, OR click \"Open Dedicated Window\" to create a small popup that stays on top. The popup window syncs with this main page and is less likely to accidentally get hidden. If you see an amber/yellow button, click it first to activate. Switching tabs or minimizing will stop the wake lock."
       }
     }
   }
