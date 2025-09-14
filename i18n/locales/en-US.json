@@ -1,14 +1,14 @@
 {
   "site": {
-    "title": "NoSleep - Keep Your Device Awake with Timer",
-    "description": "Web-based tool to prevent device sleep with customizable auto-sleep timers, animated feedback, and universal browser support. Perfect for downloads, renders, and presentations.",
-    "keywords": "no sleep, keep awake, prevent sleep, sleep timer, device awake, screen wake lock, auto sleep, computer awake, mobile awake, wake lock timer",
+    "title": "NoSleep: Prevent Screen Sleep | Custom Timer Tool for Downloads & Work",
+    "description": "Keep your screen awake during downloads, work sessions & presentations. Set custom sleep timers (1-480 min). Works on all browsers & devices. Free web tool.",
+    "keywords": "prevent computer sleep, screen timeout disable, download helper tool, presentation screen lock, no sleep, keep awake, prevent sleep, sleep timer, device awake, screen wake lock, auto sleep, computer awake, mobile awake, wake lock timer",
     "author": "William Chong",
     "name": "NoSleep"
   },
   "meta": {
-    "ogTitle": "NoSleep - Keep Your Device Awake with Timer",
-    "ogDescription": "Prevent device sleep with customizable timers and browser compatibility. Features animated feedback and video fallback for older browsers.",
+    "ogTitle": "NoSleep: Prevent Screen Sleep | Custom Timer Tool for Downloads & Work",
+    "ogDescription": "Keep your screen awake during downloads, work sessions & presentations. Set custom sleep timers (1-480 min). Works on all browsers & devices. Free web tool.",
     "applicationDescription": "A web-based tool that prevents your computer or mobile device from going to sleep, featuring customizable auto-sleep timers, animated visual feedback, and browser compatibility with video fallback methods."
   },
   "header": {
@@ -46,23 +46,28 @@
     "openPopup": "Open Dedicated Window"
   },
   "sections": {
-    "whatDoesThisSiteDo": {
-      "title": "What Does This Site Do?",
-      "description": "NoSleep keeps your computer or phone screen awake when you need it. Set custom sleep timers, get visual feedback when it's working, and use the dedicated popup window to avoid accidentally putting your device to sleep. Perfect for downloads, work sessions, or presentations without changing your system settings."
+    "howToUse": {
+      "title": "How to Use NoSleep - Simple 3-Step Guide",
+      "steps": [
+        "Click the red 'Click to Keep Awake' button to start",
+        "Optional: Set a custom timer (1-480 minutes) to auto-release wake lock",
+        "Keep this tab active or use the popup window for reliability"
+      ],
+      "note": "Your screen will stay awake until you click the button again or the timer expires."
     },
     "faq": {
       "title": "Frequently Asked Questions",
       "useCases": {
-        "question": "What are the use cases?",
+        "question": "Best Use Cases for Screen Wake Lock",
         "answers": [
-          "Timed tasks: Set 30-60 min timers for downloads/uploads",
-          "Long processes: 2-4 hour timers for video rendering",
-          "Development: 15-30 min timers for code compilation",
-          "Vibe coding: Extended coding sessions with AI assistants like Claude Code",
-          "Presentations: Keep screen active without interruption",
-          "Study sessions: Focus timers without device sleep",
-          "Streaming: Live sessions and recording",
-          "Monitoring: Dashboards and real-time tools"
+          "Downloads & uploads: Set 30-60 min timers to prevent interruptions",
+          "Work sessions: 15-30 min focus timers for coding and productivity",
+          "Presentations: Keep screen active during meetings and demos",
+          "Long processes: 2-4 hour timers for video rendering and builds",
+          "Streaming: Live sessions and recording without sleep interruption",
+          "Study sessions: Focus timers without device sleep distractions",
+          "Extended coding: AI-assisted development with tools like Claude Code",
+          "Monitoring: Keep dashboards and real-time tools visible"
         ]
       },
       "howItWorks": {
@@ -108,8 +113,8 @@
   "structuredData": {
     "faq": {
       "useCases": {
-        "question": "What are the use cases for NoSleep?",
-        "answer": "NoSleep supports timed tasks like 30-60 min timers for downloads/uploads, 2-4 hour timers for video rendering, 15-30 min timers for code compilation, presentations without interruption, study session focus timers, live streaming and recording, and real-time monitoring dashboards."
+        "question": "What are the best use cases for NoSleep screen wake lock?",
+        "answer": "NoSleep prevents screen sleep for downloads & uploads (30-60 min timers), work sessions with 15-30 min focus timers, presentations during meetings, long processes like video rendering (2-4 hours), streaming without interruption, study sessions, extended coding with AI tools, and monitoring dashboards."
       },
       "howItWorks": {
         "question": "How does NoSleep work?",

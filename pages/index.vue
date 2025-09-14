@@ -121,11 +121,18 @@
 
     <!-- Description Section -->
     <div v-if="!wakeLock.isPopup.value" class="max-w-4xl mx-auto mt-8 px-4 space-y-12">
-      <section class="text-center space-y-4">
-        <h2 class="text-3xl font-bold text-gray-900">{{ $t('sections.whatDoesThisSiteDo.title') }}</h2>
-        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-          {{ $t('sections.whatDoesThisSiteDo.description') }}
-        </p>
+      <!-- How to Use Section -->
+      <section class="bg-blue-50 rounded-xl p-8 space-y-6">
+        <h2 class="text-2xl font-bold text-gray-900 text-center">{{ $t('sections.howToUse.title') }}</h2>
+        <div class="max-w-2xl mx-auto">
+          <ol class="space-y-4">
+            <li v-for="(step, index) in $tm('sections.howToUse.steps')" :key="index" class="flex items-start space-x-3">
+              <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">{{ index + 1 }}</span>
+              <p class="text-gray-700 text-lg">{{ $rt(step) }}</p>
+            </li>
+          </ol>
+          <p class="text-sm text-gray-500 mt-4 text-center italic">{{ $t('sections.howToUse.note') }}</p>
+        </div>
       </section>
 
       <!-- FAQ Section -->
