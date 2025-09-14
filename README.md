@@ -149,6 +149,12 @@ bun run test
 4. Your device will automatically sleep when the timer expires
 5. Cancel the timer anytime by clicking "Cancel"
 
+### Important Usage Tips
+- **Keep tab active**: Keep this browser tab in the foreground of the current window
+- **Use popup window**: Click "Open in Popup Window" to use in a dedicated window
+- **User interaction**: Video fallback (amber button) requires user interaction to activate
+- **Tab visibility**: Wake locks are automatically released when the tab becomes hidden or inactive
+
 ### Visual Indicators
 - **Green button**: Device awake using native Wake Lock API
 - **Amber button**: Device awake using video fallback method

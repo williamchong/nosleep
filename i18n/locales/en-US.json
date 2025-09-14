@@ -20,6 +20,7 @@
     "deviceAwakeVideo": "Device Awake",
     "deviceSleeping": "Device Sleeping",
     "keepAwakeFallback": "Keep Awake",
+    "focusToPopup": "Switch to Popup Window",
     "start": "Start",
     "cancel": "Cancel",
     "cancelTimer": "Cancel Timer"
@@ -40,6 +41,13 @@
   "description": {
     "tagline": "This will prevent your device from going to sleep",
     "subtitle": "Perfect for long downloads, renders, or presentations"
+  },
+  "instructions": {
+    "title": "For Best Results",
+    "keepTabFrontmost": "Keep this browser tab in the foreground of current window",
+    "avoidBackgrounding": "Use popup window for dedicated wake lock window",
+    "interactionRequired": "Video fallback requires user interaction to start",
+    "openPopup": "Open in Popup Window"
   },
   "sections": {
     "whatDoesThisSiteDo": {
@@ -89,6 +97,10 @@
       "timerFeature": {
         "question": "How does the timer feature work?",
         "answer": "Click the \"Timer\" option to set a custom duration (1-480 minutes) for automatic sleep. Use the number input or quick increment buttons (+1, +5, +10, +30 minutes) to set your time. The device will automatically allow sleep when the timer expires, perfect for timed tasks like downloads, renders, or study sessions. You can cancel the timer anytime."
+      },
+      "properUsage": {
+        "question": "How should I use this site for best results?",
+        "answer": "For optimal performance: keep this browser tab in the foreground of the current window, or use the popup window option for a dedicated wake lock window. Remember that video fallback (amber button) requires user interaction to activate. Wake locks are automatically released when the tab becomes hidden or inactive."
       }
     },
     "about": {
@@ -118,6 +130,10 @@
       "timerFeature": {
         "question": "How does the timer feature work?",
         "answer": "Click the Timer option to set a custom duration (1-480 minutes) for automatic sleep. Use the number input or quick increment buttons (+1, +5, +10, +30 minutes) to set your time. The device will automatically allow sleep when the timer expires, perfect for timed tasks like downloads, renders, or study sessions."
+      },
+      "properUsage": {
+        "question": "How should I use NoSleep for best results?",
+        "answer": "For optimal performance: keep this browser tab in the foreground of the current window, or use the popup window option for a dedicated wake lock window. Remember that video fallback requires user interaction to activate. Wake locks are automatically released when the tab becomes hidden or inactive."
       }
     }
   }

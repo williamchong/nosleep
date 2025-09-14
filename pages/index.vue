@@ -107,11 +107,27 @@
           <p>{{ $t('description.tagline') }}</p>
           <p>{{ $t('description.subtitle') }}</p>
         </div>
+
+        <!-- Usage Instructions - only show for supported browsers -->
+        <div v-if="wakeLock.isSupported.value && !wakeLock.isPopup.value" class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800 space-y-2">
+          <div class="font-semibold text-blue-900">{{ $t('instructions.title') }}</div>
+          <div class="space-y-1">
+            <div>• {{ $t('instructions.keepTabFrontmost') }}</div>
+            <div>• {{ $t('instructions.avoidBackgrounding') }}</div>
+            <div>• {{ $t('instructions.interactionRequired') }}</div>
+          </div>
+          <button
+            class="mt-2 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+            @click="openPopup"
+          >
+            {{ wakeLock.hasActivePopup.value ? $t('button.focusToPopup') : $t('instructions.openPopup') }}
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Description Section -->
-    <div class="max-w-4xl mx-auto mt-8 px-4 space-y-12">
+    <div v-if="!wakeLock.isPopup.value" class="max-w-4xl mx-auto mt-8 px-4 space-y-12">
       <section class="text-center space-y-4">
         <h2 class="text-3xl font-bold text-gray-900">{{ $t('sections.whatDoesThisSiteDo.title') }}</h2>
         <p class="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -162,6 +178,13 @@
             <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $t('sections.faq.timerFeature.question') }}</h3>
             <p class="text-gray-600">
               {{ $t('sections.faq.timerFeature.answer') }}
+            </p>
+          </div>
+
+          <div class="bg-white rounded-lg p-6 shadow-sm border">
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $t('sections.faq.properUsage.question') }}</h3>
+            <p class="text-gray-600">
+              {{ $t('sections.faq.properUsage.answer') }}
             </p>
           </div>
         </div>
@@ -274,6 +297,14 @@ useHead({
               '@type': 'Answer',
               text: t('structuredData.faq.timerFeature.answer')
             }
+          },
+          {
+            '@type': 'Question',
+            name: t('structuredData.faq.properUsage.question'),
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: t('structuredData.faq.properUsage.answer')
+            }
           }
         ]
       }
@@ -283,6 +314,11 @@ useHead({
 })
 
 const buttonClasses = computed(() => {
+  // Focus to popup button - use blue to indicate action
+  if (wakeLock.hasActivePopup.value && !wakeLock.isPopup.value) {
+    return 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-200 focus:ring-blue-300'
+  }
+  
   if (wakeLock.isActive.value) {
     if (wakeLock.usingVideoFallback.value) {
       return 'bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-200 focus:ring-amber-300'
@@ -299,6 +335,10 @@ const buttonClasses = computed(() => {
 
 
 const buttonText = computed(() => {
+  if (wakeLock.hasActivePopup.value && !wakeLock.isPopup.value) {
+    return t('button.focusToPopup')
+  }
+  
   if (wakeLock.isActive.value) {
     return wakeLock.usingVideoFallback.value ? t('button.deviceAwakeVideo') : t('button.deviceAwake')
   }
@@ -314,6 +354,15 @@ const statusText = computed(() => {
 
 // GA4 Event handlers
 const handleWakeLockToggle = async () => {
+  // If parent has active popup, focus to popup instead
+  if (wakeLock.hasActivePopup.value && !wakeLock.isPopup.value) {
+    if (wakeLock.popupRef.value && !wakeLock.popupRef.value.closed) {
+      wakeLock.popupRef.value.focus()
+      useTrackEvent('popup_focus', { method: 'main_button' })
+    }
+    return
+  }
+  
   await wakeLock.toggle()
 
   // Track the wake lock toggle event
@@ -366,6 +415,42 @@ const handleExternalLinkClick = () => {
     link_url: 'https://blog.williamchong.cloud',
     link_text: 'Visit My Blog'
   })
+}
+
+const openPopup = () => {
+  // If popup already exists, focus to it instead
+  if (wakeLock.hasActivePopup.value && wakeLock.popupRef.value && !wakeLock.popupRef.value.closed) {
+    wakeLock.popupRef.value.focus()
+    useTrackEvent('popup_focus', { method: 'popup_button' })
+    return
+  }
+  
+  const currentUrl = window.location.href
+  const popup = window.open(
+    currentUrl,
+    'nosleep-popup',
+    'width=400,height=600,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,status=no'
+  )
+  
+  if (popup) {
+    popup.focus()
+    
+    // Store popup reference for syncing
+    wakeLock.popupRef.value = popup
+    
+    // Initial sync to popup (one-time only)
+    setTimeout(() => {
+      wakeLock.initialSyncToPopup()
+    }, 1000)
+    
+    // Track popup open event
+    useTrackEvent('popup_opened', {
+      method: 'button_click'
+    })
+  } else {
+    // Popup blocked, show instructions
+    alert('Popup blocked. Please allow popups for this site and try again.')
+  }
 }
 
 onMounted(async () => {
