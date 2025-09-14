@@ -112,6 +112,11 @@ export const useWakeLock = () => {
       return false
     }
 
+    // Popup windows only use native wake lock, no video fallback
+    if (isPopup.value && !isSupported.value) {
+      return false
+    }
+
     if (isSupported.value) {
       // Stop video fallback if it's running since we're using native wake lock
       if (usingVideoFallback.value) {
@@ -136,7 +141,7 @@ export const useWakeLock = () => {
         return false
       }
     } else {
-      // Fallback to video method for unsupported browsers
+      // Fallback to video method for unsupported browsers (parent window only)
       const result = await startVideoFallback()
       if (result && (isPopup.value || !hasActivePopup.value)) {
         syncWakeLockState()
@@ -161,7 +166,8 @@ export const useWakeLock = () => {
       }
     }
 
-    if (usingVideoFallback.value) {
+    // Only handle video fallback in parent windows
+    if (!isPopup.value && usingVideoFallback.value) {
       stopVideoFallback()
       isActive.value = false
     }
@@ -171,6 +177,24 @@ export const useWakeLock = () => {
     // Only sync if we're in popup or parent has no active popup
     if (isPopup.value || !hasActivePopup.value) {
       syncWakeLockState()
+    }
+  }
+
+  // Force release parent lock when popup opens (bypasses popup active check)
+  const forceReleaseParent = async () => {
+    if (isPopup.value) return // Only for parent windows
+
+    if (wakeLock.value) {
+      try {
+        await wakeLock.value.release()
+        wakeLock.value = null
+      } catch (error) {
+        console.error('Failed to release parent wake lock:', error)
+      }
+    }
+
+    if (usingVideoFallback.value) {
+      stopVideoFallback()
     }
   }
 
@@ -257,7 +281,7 @@ export const useWakeLock = () => {
     const message = {
       type: 'wake-lock-sync',
       isActive: isActive.value,
-      usingVideoFallback: usingVideoFallback.value,
+      usingVideoFallback: isPopup.value ? false : usingVideoFallback.value, // Popup never uses video fallback
       timerActive: timerActive.value,
       remainingTime: remainingTime.value
     }
@@ -274,7 +298,7 @@ export const useWakeLock = () => {
       const message = {
         type: 'wake-lock-initial-sync',
         isActive: isActive.value,
-        usingVideoFallback: usingVideoFallback.value,
+        usingVideoFallback: false, // Popup never uses video fallback
         timerActive: timerActive.value,
         remainingTime: remainingTime.value
       }
@@ -288,7 +312,7 @@ export const useWakeLock = () => {
     // Handle initial sync from parent to popup
     if (event.data.type === 'wake-lock-initial-sync' && isPopup.value) {
       isActive.value = event.data.isActive
-      usingVideoFallback.value = event.data.usingVideoFallback
+      // Don't sync usingVideoFallback to popup - popup never uses video fallback
       timerActive.value = event.data.timerActive
       remainingTime.value = event.data.remainingTime
       return
@@ -296,41 +320,41 @@ export const useWakeLock = () => {
 
     // Handle sync from popup to parent
     if (event.data.type === 'wake-lock-sync' && !isPopup.value) {
+      // Update state from popup (don't sync video fallback state since popup never uses it)
       isActive.value = event.data.isActive
-      usingVideoFallback.value = event.data.usingVideoFallback
       timerActive.value = event.data.timerActive
       remainingTime.value = event.data.remainingTime
+
+      // Parent doesn't need to maintain its own wake lock while popup is active
+      // All wake lock management is handled by the popup
       return
     }
 
     // Handle popup closed notification
     if (event.data.type === 'popup-closed' && !isPopup.value) {
+      const wasActive = isActive.value
       popupRef.value = null
 
-      // Refresh wake lock status after popup closes
+      // Reacquire wake lock in parent if popup was managing an active lock
       nextTick(async () => {
-        // Safely check if wake lock is released
-        let wakeLockReleased = false
+        if (wasActive) {
+          // Popup was keeping device awake, now parent needs to take over
+          await acquire()
+        }
+
+        // Clean up any stale wake lock state
         if (wakeLock.value) {
           try {
-            wakeLockReleased = wakeLock.value.released || false
+            const wakeLockReleased = wakeLock.value.released || false
+            if (wakeLockReleased) {
+              isActive.value = false
+              wakeLock.value = null
+            }
           } catch (error) {
             console.error(error)
-            // If accessing .released fails, assume it's released
-            wakeLockReleased = true
-          }
-        }
-
-        if (wakeLock.value && wakeLockReleased) {
-          isActive.value = false
-          wakeLock.value = null
-        }
-
-        // Check if we still have a valid wake lock
-        if (isActive.value && !wakeLock.value && isSupported.value) {
-          const success = await establishNativeWakeLock()
-          if (!success) {
+            // If accessing .released fails, clean up
             isActive.value = false
+            wakeLock.value = null
           }
         }
       })
@@ -381,6 +405,7 @@ export const useWakeLock = () => {
     stopTimer,
     formatTime,
     syncWakeLockState,
-    initialSyncToPopup
+    initialSyncToPopup,
+    forceReleaseParent
   }
 }

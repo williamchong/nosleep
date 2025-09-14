@@ -436,6 +436,12 @@ const openPopup = () => {
     // Initial sync to popup (one-time only)
     setTimeout(() => {
       wakeLock.initialSyncToPopup()
+
+      // Always release parent lock after syncing state to popup
+      // Popup will take over all wake lock management
+      setTimeout(async () => {
+        await wakeLock.forceReleaseParent()
+      }, 100)
     }, 1000)
 
     // Track popup open event
