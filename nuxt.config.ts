@@ -34,6 +34,7 @@ export default defineNuxtConfig({
         file: 'ja-JP.json'
       },
     ],
+    strategy: 'prefix_and_default',
     defaultLocale: 'en',
     lazy: true,
   },
