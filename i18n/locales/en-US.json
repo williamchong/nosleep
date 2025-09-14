@@ -8,8 +8,8 @@
   },
   "meta": {
     "ogTitle": "NoSleep - Keep Your Device Awake with Timer",
-    "ogDescription": "Prevent device sleep with customizable timers and universal browser support. Features animated feedback and automatic fallback for older browsers.",
-    "applicationDescription": "A web-based tool that prevents your computer or mobile device from going to sleep, featuring customizable auto-sleep timers, animated visual feedback, and universal browser compatibility with automatic fallback methods."
+    "ogDescription": "Prevent device sleep with customizable timers and browser compatibility. Features animated feedback and video fallback for older browsers.",
+    "applicationDescription": "A web-based tool that prevents your computer or mobile device from going to sleep, featuring customizable auto-sleep timers, animated visual feedback, and browser compatibility with video fallback methods."
   },
   "header": {
     "title": "NoSleep",
@@ -44,7 +44,7 @@
   "sections": {
     "whatDoesThisSiteDo": {
       "title": "What Does This Site Do?",
-      "description": "NoSleep is a web-based tool that prevents your computer or mobile device from going to sleep. Features include customizable auto-sleep timers, animated visual feedback, and universal browser compatibility with automatic fallback methods. Keep your device active during long processes without changing system settings or installing software."
+      "description": "NoSleep is a web-based tool that prevents your computer or mobile device from going to sleep. Features include customizable auto-sleep timers, animated visual feedback, and browser compatibility with video fallback methods. Keep your device active during long processes without changing system settings or installing software."
     },
     "faq": {
       "title": "Frequently Asked Questions",
@@ -63,7 +63,7 @@
       },
       "howItWorks": {
         "question": "How does it work?",
-        "answer": "This website uses the modern Screen Wake Lock API built into your browser. For unsupported browsers, it automatically falls back to a video-based method for universal compatibility. The auto-sleep timer lets you set custom durations (1-480 minutes) for automatic wake lock release. Visual animations indicate when your device is being kept awake."
+        "answer": "This website uses the modern Screen Wake Lock API built into your browser. For unsupported browsers, it provides a video-based fallback method that requires user interaction to activate. The auto-sleep timer lets you set custom durations (1-480 minutes) for automatic wake lock release. Visual animations indicate when your device is being kept awake."
       },
       "safety": {
         "question": "Is it safe to use?",
@@ -84,7 +84,7 @@
           "Older browser versions",
           "All mobile browsers"
         ],
-        "note": "The app automatically detects your browser and uses the best available method."
+        "note": "The app detects your browser capabilities and provides fallback options when native wake lock is unavailable."
       },
       "timerFeature": {
         "question": "How does the timer feature work?",
@@ -105,7 +105,7 @@
       },
       "howItWorks": {
         "question": "How does NoSleep work?",
-        "answer": "This website uses the modern Screen Wake Lock API built into your browser. For unsupported browsers, it automatically falls back to a video-based method for universal compatibility. The auto-sleep timer lets you set custom durations (1-480 minutes) for automatic wake lock release. Visual animations indicate when your device is being kept awake."
+        "answer": "This website uses the modern Screen Wake Lock API built into your browser. For unsupported browsers, it provides a video-based fallback method that requires user interaction to activate. The auto-sleep timer lets you set custom durations (1-480 minutes) for automatic wake lock release. Visual animations indicate when your device is being kept awake."
       },
       "safety": {
         "question": "Is NoSleep safe to use?",
@@ -113,7 +113,7 @@
       },
       "browserSupport": {
         "question": "Which browsers support NoSleep?",
-        "answer": "Native Wake Lock API support includes Chrome 84+, Edge 84+, Safari 16.4+, and Firefox with polyfill. For universal compatibility, the app automatically falls back to a video-based method that works on all modern browsers and older browser versions."
+        "answer": "Native Wake Lock API support includes Chrome 84+, Edge 84+, Safari 16.4+, and Firefox with polyfill. For broader compatibility, the app provides a video-based fallback method that works on browsers without native support."
       },
       "timerFeature": {
         "question": "How does the timer feature work?",

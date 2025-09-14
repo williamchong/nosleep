@@ -93,13 +93,9 @@ export const useWakeLock = () => {
         wakeLock.value = await navigator.wakeLock.request('screen')
         isActive.value = true
 
-        wakeLock.value.addEventListener('release', async () => {
+        wakeLock.value.addEventListener('release', () => {
           wakeLock.value = null
-          // If we still want to stay active, fall back to video
-          if (isActive.value && document.visibilityState === 'hidden') {
-            isActive.value = false
-            await startVideoFallback()
-          }
+          isActive.value = false
         })
 
         return true

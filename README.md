@@ -15,13 +15,13 @@ A web application that prevents computers and mobile devices from going to sleep
 
 ## How It Works
 
-This web app uses the [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API) to prevent your device from going to sleep. For browsers that don't support the Wake Lock API, it automatically falls back to a video-based method for maximum compatibility.
+This web app uses the [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API) to prevent your device from going to sleep. For browsers that don't support the Wake Lock API, it provides a video-based fallback method that requires user interaction to activate.
 
 ### Core Functionality
 - **Instant activation**: Click the main button to prevent sleep
 - **Visual feedback**: Animated pulsing icon when device is kept awake  
 - **Auto-sleep timer**: Set custom durations (1-480 minutes) for automatic sleep
-- **Universal compatibility**: Fallback method works on all browsers
+- **Browser compatibility**: Fallback method available for unsupported browsers
 
 ### Key Benefits
 - Prevent screen dimming/locking
@@ -44,7 +44,7 @@ This web app uses the [Screen Wake Lock API](https://developer.mozilla.org/en-US
 - ✅ Mobile browsers (iOS Safari, Chrome Mobile)
 - ✅ Firefox (all versions)
 
-*The app automatically detects browser capabilities and uses the most appropriate method.*
+*The app detects browser capabilities and provides fallback options when native wake lock is unavailable.*
 
 ## Setup
 
