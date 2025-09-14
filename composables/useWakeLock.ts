@@ -9,7 +9,7 @@ export const useWakeLock = () => {
   const usingVideoFallback = ref(false)
 
   // Cross-window communication
-  const isPopup = ref(typeof window !== 'undefined' && window.opener !== null)
+  const isPopup = ref(false)
   const popupRef = ref<Window | null>(null)
   const hasActivePopup = computed(() => popupRef.value !== null && !popupRef.value.closed)
 
@@ -366,6 +366,9 @@ export const useWakeLock = () => {
 
     // Set up cross-window communication
     if (typeof window !== 'undefined') {
+      // Set isPopup based on window.opener
+      isPopup.value = window.opener !== null
+
       window.addEventListener('message', handleMessage)
 
       // If this is a popup, notify parent when closing
