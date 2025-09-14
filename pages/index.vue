@@ -312,7 +312,7 @@ const buttonClasses = computed(() => {
   if (wakeLock.hasActivePopup.value && !wakeLock.isPopup.value) {
     return 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-200 focus:ring-blue-300'
   }
-  
+
   if (wakeLock.isActive.value) {
     if (wakeLock.usingVideoFallback.value) {
       return 'bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-200 focus:ring-amber-300'
@@ -332,7 +332,7 @@ const buttonText = computed(() => {
   if (wakeLock.hasActivePopup.value && !wakeLock.isPopup.value) {
     return t('button.focusToPopup')
   }
-  
+
   if (wakeLock.isActive.value) {
     return wakeLock.usingVideoFallback.value ? t('button.deviceAwakeVideo') : t('button.deviceAwake')
   }
@@ -356,7 +356,7 @@ const handleWakeLockToggle = async () => {
     }
     return
   }
-  
+
   await wakeLock.toggle()
 
   // Track the wake lock toggle event
@@ -418,25 +418,25 @@ const openPopup = () => {
     useTrackEvent('popup_focus', { method: 'popup_button' })
     return
   }
-  
+
   const currentUrl = window.location.href
   const popup = window.open(
     currentUrl,
     'nosleep-popup',
     'width=400,height=600,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,status=no'
   )
-  
+
   if (popup) {
     popup.focus()
-    
+
     // Store popup reference for syncing
     wakeLock.popupRef.value = popup
-    
+
     // Initial sync to popup (one-time only)
     setTimeout(() => {
       wakeLock.initialSyncToPopup()
     }, 1000)
-    
+
     // Track popup open event
     useTrackEvent('popup_opened', {
       method: 'button_click'

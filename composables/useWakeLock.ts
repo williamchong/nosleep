@@ -1,4 +1,5 @@
 export const useWakeLock = () => {
+  const route = useRoute()
   const isSupported = ref(false)
   const isActive = ref(false)
   const wakeLock = ref<WakeLockSentinel | null>(null)
@@ -19,6 +20,12 @@ export const useWakeLock = () => {
   const timerInterval = ref<NodeJS.Timeout | null>(null)
 
   const checkSupport = () => {
+    // Check for debug query parameter to force video fallback
+    if (route.query.fallback === '1') {
+      isSupported.value = false
+      return
+    }
+
     isSupported.value = 'wakeLock' in navigator
   }
 
