@@ -7,6 +7,11 @@ export const useWakeLock = () => {
   const videoElement = ref<HTMLVideoElement | null>(null)
   const usingVideoFallback = ref(false)
 
+  // Cross-window communication
+  const isPopup = ref(typeof window !== 'undefined' && window.opener !== null)
+  const popupRef = ref<Window | null>(null)
+  const hasActivePopup = computed(() => popupRef.value !== null && !popupRef.value.closed)
+
   // Timer functionality
   const timerActive = ref(false)
   const timerDuration = ref(0) // in minutes
@@ -82,41 +87,66 @@ export const useWakeLock = () => {
     usingVideoFallback.value = false
   }
 
-  const acquire = async () => {
-    if (isSupported.value) {
-      try {
-        // Stop video fallback if it's running since we're using native wake lock
-        if (usingVideoFallback.value) {
-          stopVideoFallback()
-        }
+  // Helper function to establish native wake lock
+  const establishNativeWakeLock = async () => {
+    try {
+      wakeLock.value = await navigator.wakeLock.request('screen')
+      wakeLock.value.addEventListener('release', () => {
+        wakeLock.value = null
+        isActive.value = false
+      })
+      return true
+    } catch (error) {
+      console.error('Failed to establish wake lock:', error)
+      return false
+    }
+  }
 
-        wakeLock.value = await navigator.wakeLock.request('screen')
+  const acquire = async () => {
+    // Don't allow parent to change state when popup is active
+    if (!isPopup.value && hasActivePopup.value) {
+      return false
+    }
+
+    if (isSupported.value) {
+      // Stop video fallback if it's running since we're using native wake lock
+      if (usingVideoFallback.value) {
+        stopVideoFallback()
+      }
+
+      const success = await establishNativeWakeLock()
+      if (success) {
         isActive.value = true
 
-        wakeLock.value.addEventListener('release', () => {
-          wakeLock.value = null
-          isActive.value = false
-        })
-
+        // Only sync if we're in popup or parent has no active popup
+        if (isPopup.value || !hasActivePopup.value) {
+          syncWakeLockState()
+        }
         return true
-      } catch (error) {
-        console.error('Failed to acquire wake lock:', error)
-
+      } else {
         // Track wake lock error
         useTrackEvent('wake_lock_error', {
-          error_message: error instanceof Error ? error.message : 'Unknown error',
+          error_message: 'Failed to establish native wake lock',
           method: 'native_api'
         })
-
         return false
       }
     } else {
       // Fallback to video method for unsupported browsers
-      return await startVideoFallback()
+      const result = await startVideoFallback()
+      if (result && (isPopup.value || !hasActivePopup.value)) {
+        syncWakeLockState()
+      }
+      return result
     }
   }
 
   const release = async () => {
+    // Don't allow parent to change state when popup is active
+    if (!isPopup.value && hasActivePopup.value) {
+      return
+    }
+
     if (wakeLock.value) {
       try {
         await wakeLock.value.release()
@@ -133,10 +163,20 @@ export const useWakeLock = () => {
     }
 
     stopTimer()
+
+    // Only sync if we're in popup or parent has no active popup
+    if (isPopup.value || !hasActivePopup.value) {
+      syncWakeLockState()
+    }
   }
 
   const startTimer = async (minutes: number) => {
     if (minutes <= 0) return false
+
+    // Don't allow parent to change state when popup is active
+    if (!isPopup.value && hasActivePopup.value) {
+      return false
+    }
 
     // Start wake lock if not active
     if (!isActive.value) {
@@ -151,6 +191,11 @@ export const useWakeLock = () => {
     timerInterval.value = setInterval(() => {
       remainingTime.value--
 
+      // Only sync timer updates if we're in popup or parent has no active popup
+      if (isPopup.value || !hasActivePopup.value) {
+        syncWakeLockState()
+      }
+
       if (remainingTime.value <= 0) {
         // Track timer completion
         useTrackEvent('timer_complete')
@@ -159,16 +204,26 @@ export const useWakeLock = () => {
       }
     }, 1000)
 
+    // Initial sync after starting timer
+    syncWakeLockState()
     return true
   }
 
   const stopTimer = () => {
+    // Don't allow parent to change state when popup is active
+    if (!isPopup.value && hasActivePopup.value) {
+      return
+    }
+
     if (timerInterval.value) {
       clearInterval(timerInterval.value)
       timerInterval.value = null
     }
     timerActive.value = false
     remainingTime.value = 0
+
+    // Sync timer stop across windows
+    syncWakeLockState()
   }
 
   const formatTime = (seconds: number) => {
@@ -188,14 +243,121 @@ export const useWakeLock = () => {
     } else {
       await acquire()
     }
+
+    // Sync with popup or parent
+    syncWakeLockState()
+  }
+
+  // Cross-window state synchronization
+  const syncWakeLockState = () => {
+    const message = {
+      type: 'wake-lock-sync',
+      isActive: isActive.value,
+      usingVideoFallback: usingVideoFallback.value,
+      timerActive: timerActive.value,
+      remainingTime: remainingTime.value
+    }
+
+    // If this is a popup, always send to parent
+    if (isPopup.value && window.opener && !window.opener.closed) {
+      window.opener.postMessage(message, window.location.origin)
+    }
+  }
+
+  // Initial sync from parent to popup only
+  const initialSyncToPopup = () => {
+    if (popupRef.value && !popupRef.value.closed) {
+      const message = {
+        type: 'wake-lock-initial-sync',
+        isActive: isActive.value,
+        usingVideoFallback: usingVideoFallback.value,
+        timerActive: timerActive.value,
+        remainingTime: remainingTime.value
+      }
+      popupRef.value.postMessage(message, window.location.origin)
+    }
+  }
+
+  const handleMessage = (event: MessageEvent) => {
+    if (event.origin !== window.location.origin) return
+
+    // Handle initial sync from parent to popup
+    if (event.data.type === 'wake-lock-initial-sync' && isPopup.value) {
+      isActive.value = event.data.isActive
+      usingVideoFallback.value = event.data.usingVideoFallback
+      timerActive.value = event.data.timerActive
+      remainingTime.value = event.data.remainingTime
+      return
+    }
+
+    // Handle sync from popup to parent
+    if (event.data.type === 'wake-lock-sync' && !isPopup.value) {
+      isActive.value = event.data.isActive
+      usingVideoFallback.value = event.data.usingVideoFallback
+      timerActive.value = event.data.timerActive
+      remainingTime.value = event.data.remainingTime
+      return
+    }
+
+    // Handle popup closed notification
+    if (event.data.type === 'popup-closed' && !isPopup.value) {
+      popupRef.value = null
+
+      // Refresh wake lock status after popup closes
+      nextTick(async () => {
+        // Safely check if wake lock is released
+        let wakeLockReleased = false
+        if (wakeLock.value) {
+          try {
+            wakeLockReleased = wakeLock.value.released || false
+          } catch (error) {
+            console.error(error)
+            // If accessing .released fails, assume it's released
+            wakeLockReleased = true
+          }
+        }
+
+        if (wakeLock.value && wakeLockReleased) {
+          isActive.value = false
+          wakeLock.value = null
+        }
+
+        // Check if we still have a valid wake lock
+        if (isActive.value && !wakeLock.value && isSupported.value) {
+          const success = await establishNativeWakeLock()
+          if (!success) {
+            isActive.value = false
+          }
+        }
+      })
+    }
   }
 
   onMounted(() => {
     checkSupport()
+
+    // Set up cross-window communication
+    if (typeof window !== 'undefined') {
+      window.addEventListener('message', handleMessage)
+
+      // If this is a popup, notify parent when closing
+      if (isPopup.value) {
+        window.addEventListener('beforeunload', () => {
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({ type: 'popup-closed' }, window.location.origin)
+          }
+        })
+      }
+    }
   })
 
   onUnmounted(() => {
     release()
+
+    // Clean up event listeners
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('message', handleMessage)
+    }
   })
 
   return {
@@ -205,11 +367,16 @@ export const useWakeLock = () => {
     timerActive: readonly(timerActive),
     timerDuration: readonly(timerDuration),
     remainingTime: readonly(remainingTime),
+    isPopup: readonly(isPopup),
+    popupRef,
+    hasActivePopup: readonly(hasActivePopup),
     acquire,
     release,
     toggle,
     startTimer,
     stopTimer,
-    formatTime
+    formatTime,
+    syncWakeLockState,
+    initialSyncToPopup
   }
 }
