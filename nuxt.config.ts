@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     id: 'G-RCQBVKVP25',
   },
   i18n: {
+    baseUrl: 'https://nosleep.williamchong.cloud',
     locales: [
       {
         code: 'en',
