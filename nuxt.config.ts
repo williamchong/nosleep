@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxtjs/sitemap',
     '@nuxtjs/tailwindcss',
+    '@nuxtjs/device'
   ],
   site: {
     url: 'https://nosleep.williamchong.cloud',

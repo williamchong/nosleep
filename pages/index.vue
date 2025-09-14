@@ -102,8 +102,8 @@
           </div>
         </div>
 
-        <!-- Usage Instructions - only show for supported browsers -->
-        <div v-if="wakeLock.isSupported.value && !wakeLock.isPopup.value" class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800 space-y-2">
+        <!-- Usage Instructions - only show for supported browsers and not on mobile -->
+        <div v-if="wakeLock.isSupported.value && !wakeLock.isPopup.value && !$device.isMobile" class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800 space-y-2">
           <div class="font-semibold text-blue-900">{{ $t('instructions.title') }}</div>
           <div class="space-y-1">
             <div>• {{ $t('instructions.keepTabFrontmost') }}</div>
@@ -210,6 +210,9 @@
 const wakeLock = useWakeLock()
 const timerMinutes = ref(60)
 const showTimer = ref(false)
+
+// Device detection using @nuxtjs/device
+const { $device } = useNuxtApp()
 
 // SEO and Open Graph meta tags
 const { t } = useI18n()
