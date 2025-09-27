@@ -7,15 +7,19 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxtjs/sitemap',
     '@nuxtjs/tailwindcss',
-    '@nuxtjs/device'
+    '@nuxtjs/device',
+    '@sentry/nuxt/module'
   ],
+
   site: {
     url: 'https://nosleep.williamchong.cloud',
     name: 'NoSleep',
   },
+
   gtag: {
     id: 'G-RCQBVKVP25',
   },
+
   i18n: {
     baseUrl: 'https://nosleep.williamchong.cloud',
     locales: [
@@ -39,6 +43,18 @@ export default defineNuxtConfig({
     defaultLocale: 'en',
     lazy: true,
   },
+
   compatibilityDate: '2024-11-01',
-  devtools: { enabled: true }
+  devtools: { enabled: true },
+
+  sentry: {
+    sourceMapsUploadOptions: {
+      org: 'williamchong',
+      project: 'nosleep'
+    }
+  },
+
+  sourcemap: {
+    client: 'hidden'
+  }
 })
