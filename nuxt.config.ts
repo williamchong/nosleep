@@ -8,8 +8,17 @@ export default defineNuxtConfig({
     '@nuxtjs/sitemap',
     '@nuxtjs/tailwindcss',
     '@nuxtjs/device',
-    '@sentry/nuxt/module'
+    '@sentry/nuxt/module',
+    '@nuxt/scripts'
   ],
+
+  scripts: {
+    registry: {
+      clarity: {
+        id: 'tkuamds40i'
+      }
+    }
+  },
 
   site: {
     url: 'https://nosleep.williamchong.cloud',
