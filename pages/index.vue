@@ -222,6 +222,7 @@ const showTimer = ref(false)
 const { $device } = useNuxtApp()
 
 const { t } = useI18n()
+const { trackEvent } = useAnalytics()
 
 const buttonClasses = computed(() => {
   // Focus to popup button - use blue to indicate action
@@ -270,7 +271,7 @@ const handleWakeLockToggle = async () => {
   if (wakeLock.hasActivePopup.value && !wakeLock.isPopup.value) {
     if (wakeLock.popupRef.value && !wakeLock.popupRef.value.closed) {
       wakeLock.popupRef.value.focus()
-      useTrackEvent('popup_focus_from_main_button')
+      trackEvent('popup_focus_from_main_button')
     }
     return
   }
@@ -281,7 +282,7 @@ const handleWakeLockToggle = async () => {
   // Create descriptive event name based on state
   const action = wakeLock.isActive.value ? 'activate' : 'deactivate'
   const method = wakeLock.usingVideoFallback.value ? 'video_fallback' : 'native_api'
-  useTrackEvent(`wake_lock_${action}_${method}`)
+  trackEvent(`wake_lock_${action}_${method}`)
 }
 
 const handleTimerToggle = () => {
@@ -289,7 +290,7 @@ const handleTimerToggle = () => {
 
   // Track timer UI toggle
   const action = showTimer.value ? 'expand' : 'collapse'
-  useTrackEvent(`timer_ui_${action}`)
+  trackEvent(`timer_ui_${action}`)
 }
 
 const handleTimerStart = async () => {
@@ -298,7 +299,7 @@ const handleTimerStart = async () => {
 
     // Track timer start event
     if (success) {
-      useTrackEvent('timer_start_manual_input')
+      trackEvent('timer_start_manual_input')
     }
   }
 }
@@ -307,26 +308,26 @@ const handleTimerCancel = () => {
   wakeLock.stopTimer()
 
   // Track timer cancel event
-  useTrackEvent('timer_cancel')
+  trackEvent('timer_cancel')
 }
 
 const handleTimerIncrement = (increment) => {
   timerMinutes.value = (timerMinutes.value || 0) + increment
 
   // Track quick increment usage
-  useTrackEvent(`timer_quick_increment_${increment}min`)
+  trackEvent(`timer_quick_increment_${increment}min`)
 }
 
 const handleExternalLinkClick = () => {
   // Track external link clicks
-  useTrackEvent('external_link_click_blog')
+  trackEvent('external_link_click_blog')
 }
 
 const openPopup = () => {
   // If popup already exists, focus to it instead
   if (wakeLock.hasActivePopup.value && wakeLock.popupRef.value && !wakeLock.popupRef.value.closed) {
     wakeLock.popupRef.value.focus()
-    useTrackEvent('popup_focus_from_popup_button')
+    trackEvent('popup_focus_from_popup_button')
     return
   }
 
@@ -355,13 +356,13 @@ const openPopup = () => {
     }, 1000)
 
     // Track popup open event
-    useTrackEvent('popup_opened_button_click')
+    trackEvent('popup_opened_button_click')
   } else {
     // Popup blocked, show instructions
     alert('Popup blocked. Please allow popups for this site and try again.')
 
     // Track popup blocked event
-    useTrackEvent('popup_blocked_by_browser')
+    trackEvent('popup_blocked_by_browser')
   }
 }
 
@@ -376,7 +377,7 @@ onMounted(async () => {
 
     // Track auto-acquire failure
     const eventName = wakeLock.isSupported.value ? 'auto_acquire_failed_native_api' : 'auto_acquire_failed_video_fallback'
-    useTrackEvent(eventName)
+    trackEvent(eventName)
 
     // Auto-start failed, user will need to click manually
     console.log('Auto-start failed, user interaction required')
@@ -386,7 +387,7 @@ onMounted(async () => {
   // Create descriptive event name based on initialization state
   const supportStatus = wakeLock.isSupported.value ? 'supported' : 'unsupported'
   const acquireStatus = autoAcquireSuccess ? 'success' : 'failed'
-  useTrackEvent(`app_init_${supportStatus}_auto_${acquireStatus}`)
+  trackEvent(`app_init_${supportStatus}_auto_${acquireStatus}`)
 })
 </script>
 

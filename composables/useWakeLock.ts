@@ -1,5 +1,6 @@
 export const useWakeLock = () => {
   const route = useRoute()
+  const { trackEvent } = useAnalytics()
   const isSupported = ref(false)
   const isActive = ref(false)
   const wakeLock = ref<WakeLockSentinel | null>(null)
@@ -61,14 +62,14 @@ export const useWakeLock = () => {
         isActive.value = true
 
         // Track fallback method usage
-        useTrackEvent('video_fallback_method_activated')
+        trackEvent('video_fallback_method_activated')
 
         return true
       } catch (error) {
         console.error('Failed to start video fallback:', error)
 
         // Track video fallback error
-        useTrackEvent('video_fallback_activation_failed')
+        trackEvent('video_fallback_activation_failed')
 
         return false
       }
@@ -92,7 +93,7 @@ export const useWakeLock = () => {
       wakeLock.value.addEventListener('release', () => {
         // Track wake lock automatic release
         const timerStatus = timerActive.value ? 'with_timer' : 'without_timer'
-        useTrackEvent(`wakelock_auto_released_${timerStatus}`)
+        trackEvent(`wakelock_auto_released_${timerStatus}`)
 
         wakeLock.value = null
         isActive.value = false
@@ -102,7 +103,7 @@ export const useWakeLock = () => {
       console.error('Failed to establish wake lock:', error)
 
       // Track native wake lock acquisition failure
-      useTrackEvent('wake_lock_acquire_failed_native_api')
+      trackEvent('wake_lock_acquire_failed_native_api')
 
       return false
     }
@@ -136,7 +137,7 @@ export const useWakeLock = () => {
         return true
       } else {
         // Track wake lock error
-        useTrackEvent('wake_lock_establish_failed_native_api')
+        trackEvent('wake_lock_establish_failed_native_api')
         return false
       }
     } else {
@@ -225,7 +226,7 @@ export const useWakeLock = () => {
 
       if (remainingTime.value <= 0) {
         // Track timer completion
-        useTrackEvent('timer_expired_auto_release')
+        trackEvent('timer_expired_auto_release')
 
         release()
       }
@@ -308,7 +309,7 @@ export const useWakeLock = () => {
   const handleMessage = (event: MessageEvent) => {
     if (event.origin !== window.location.origin) {
       // Track potential security issue - message from wrong origin
-      useTrackEvent('cross_window_message_origin_mismatch')
+      trackEvent('cross_window_message_origin_mismatch')
       return
     }
 
@@ -331,7 +332,7 @@ export const useWakeLock = () => {
       // Track sync received from popup
       const activeStatus = event.data.isActive ? 'active' : 'inactive'
       const timerStatus = event.data.timerActive ? 'with_timer' : 'without_timer'
-      useTrackEvent(`popup_sync_received_${activeStatus}_${timerStatus}`)
+      trackEvent(`popup_sync_received_${activeStatus}_${timerStatus}`)
 
       // Parent doesn't need to maintain its own wake lock while popup is active
       // All wake lock management is handled by the popup
@@ -346,7 +347,7 @@ export const useWakeLock = () => {
       // Track popup closed event
       const activeStatus = wasActive ? 'was_active' : 'was_inactive'
       const timerStatus = timerActive.value ? 'with_timer' : 'without_timer'
-      useTrackEvent(`popup_closed_${activeStatus}_${timerStatus}`)
+      trackEvent(`popup_closed_${activeStatus}_${timerStatus}`)
 
       // Reacquire wake lock in parent if popup was managing an active lock
       nextTick(async () => {
@@ -357,7 +358,7 @@ export const useWakeLock = () => {
           // Track wake lock handoff from popup back to parent
           const method = isSupported.value ? 'native_api' : 'video_fallback'
           const result = reacquireSuccess ? 'success' : 'failed'
-          useTrackEvent(`wakelock_reacquire_${method}_${result}`)
+          trackEvent(`wakelock_reacquire_${method}_${result}`)
         }
 
         // Clean up any stale wake lock state
@@ -372,7 +373,7 @@ export const useWakeLock = () => {
             console.error(error)
 
             // Track wake lock state cleanup error
-            useTrackEvent('wake_lock_state_cleanup_error')
+            trackEvent('wake_lock_state_cleanup_error')
 
             // If accessing .released fails, clean up
             isActive.value = false
