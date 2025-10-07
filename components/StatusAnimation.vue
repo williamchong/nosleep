@@ -13,6 +13,7 @@
       v-if="!prefersReducedMotion"
       ref="lottieContainer"
       class="w-full h-full"
+      :style="rotationStyle"
     />
     <!-- Static fallback for reduced motion -->
     <div v-else class="w-full h-full flex items-center justify-center">
@@ -38,6 +39,8 @@ defineEmits(['toggle'])
 const lottieContainer = ref(null)
 const animationInstance = ref(null)
 const prefersReducedMotion = ref(false)
+const rotationDegree = ref(0)
+const opacity = ref(1)
 
 const { t } = useI18n()
 
@@ -45,6 +48,12 @@ const containerClasses = computed(() => {
   const base = 'hover:scale-105'
   return props.isActive ? `${base} filter drop-shadow-2xl` : base
 })
+
+const rotationStyle = computed(() => ({
+  transform: `rotate(${rotationDegree.value}deg)`,
+  opacity: opacity.value,
+  transition: 'transform 1s ease-in-out, opacity 0.5s ease-in-out'
+}))
 
 const ariaLabel = computed(() => {
   if (props.isActive) {
@@ -75,9 +84,19 @@ const loadAnimation = (path) => {
   })
 }
 
-// Watch for state changes and reload animation
+// Watch for state changes and reload animation with rotation and fade
 watch(() => props.isActive, () => {
-  loadAnimation(currentAnimationPath.value)
+  // Start fade out
+  opacity.value = 0
+
+  // Rotate 360 degrees on every toggle
+  rotationDegree.value += 360
+
+  // Swap animation at 180 degrees (halfway through rotation) and fade in
+  setTimeout(() => {
+    loadAnimation(currentAnimationPath.value)
+    opacity.value = 1
+  }, 500) // Half of the 1000ms rotation duration
 })
 
 onMounted(() => {
