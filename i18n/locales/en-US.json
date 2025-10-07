@@ -29,21 +29,37 @@
   "status": {
     "notSupported": "Using video fallback method (Wake Lock API not supported)",
     "deviceAwake": "Your device will stay awake. Click to allow sleep.",
-    "deviceSleeping": "Your device can sleep normally. Click to keep awake."
+    "deviceSleeping": "Your device can sleep normally. Click to keep awake.",
+    "ariaLabelAwake": "Device is awake - Click sun to allow sleep",
+    "ariaLabelSleep": "Device is sleeping - Click moon to keep awake"
   },
   "timer": {
-    "label": "Timer",
-    "labelExpanded": "Timer expires → allow sleep",
+    "label": "Set Timer",
+    "labelExpanded": "Hide Timer Options",
     "timerFormat": "Timer: {time}",
     "minutes": "min",
     "remaining": "remaining",
-    "explanation": "Device will automatically be allowed to sleep when timer expires"
+    "explanation": "Device will automatically be allowed to sleep when timer expires",
+    "untilStopped": "Until Stopped",
+    "hour": "Hour",
+    "hours": "Hours",
+    "custom": "Custom",
+    "customDuration": "Custom Duration",
+    "startInfinite": "Start (No Timer)",
+    "startWithDuration": "Start Timer ({minutes} min)"
   },
   "instructions": {
     "title": "For Best Results",
     "keepTabFrontmost": "Keep this tab visible and active in your browser",
     "avoidBackgrounding": "Or use a dedicated popup window that stays on top",
     "openPopup": "Open Dedicated Window"
+  },
+  "floatingWindow": {
+    "title": "Pro-Tip: Ensure Continuous Wakefulness",
+    "subtitle": "Keeps Device Awake Reliably",
+    "openButton": "Open Floating Window (Recommended)",
+    "focusButton": "Focus to Floating Window",
+    "alternative": "(Alternatively: Keep this tab always active)"
   },
   "sections": {
     "howToUse": {

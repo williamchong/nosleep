@@ -1,121 +1,75 @@
 <template>
   <div>
-    <div class="min-h-[80vh] bg-gray-50 flex items-center justify-center p-4">
-      <div class="max-w-md w-full text-center space-y-8">
+    <div
+      class="min-h-[80vh] flex items-center justify-center p-4 transition-all duration-700"
+      :class="backgroundClasses"
+    >
+      <div class="max-w-2xl w-full text-center space-y-8">
         <div>
-          <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ $t('header.title') }}</h1>
-          <p class="text-gray-600">{{ $t('header.subtitle') }}</p>
+          <h1 class="text-4xl font-bold mb-2 text-gray-900">{{ $t('header.title') }}</h1>
+          <p class="text-lg text-gray-600">{{ $t('header.subtitle') }}</p>
         </div>
 
-        <div class="space-y-4">
-          <button
-            class="w-full py-8 px-8 rounded-2xl text-2xl font-semibold transition-all duration-200 focus:outline-none focus:ring-4"
-            :class="buttonClasses"
-            @click="handleWakeLockToggle"
-          >
-            <div class="flex items-center justify-center space-x-3">
-              <svg v-if="wakeLock.isSupported.value" class="w-8 h-8" :class="{ 'animate-pulse-glow': wakeLock.isActive.value }" fill="currentColor" viewBox="0 0 24 24">
-                <!-- Awake/Eye Open Icon -->
-                <path v-if="wakeLock.isActive.value" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                <!-- Sleeping/Moon Icon -->
-                <path v-else d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336a8.025 8.025 0 0 1-2.064-7.723A1 1 0 0 0 9.73 2.034a10.014 10.014 0 0 0-4.489 2.582c-3.898 3.898-3.898 10.243 0 14.143a9.937 9.937 0 0 0 7.072 2.93 9.93 9.93 0 0 0 7.07-2.929 10.007 10.007 0 0 0 2.583-4.491 1.001 1.001 0 0 0-1.224-1.224z"/>
-              </svg>
-              <!-- Not Supported Icon -->
-              <svg v-else class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
-              <span>{{ buttonText }}</span>
-            </div>
-          </button>
+        <!-- Status Animation (Sun/Moon) - Interactive -->
+        <StatusAnimation
+          :is-active="wakeLock.isActive.value"
+          @toggle="handleWakeLockToggle"
+        />
 
-          <div v-if="!wakeLock.isSupported.value && wakeLock.isActive.value" class="text-amber-600 text-sm">
-            {{ $t('status.notSupported') }}
-          </div>
+        <!-- Main Toggle Button -->
+        <button
+          class="w-full py-8 px-8 rounded-2xl text-2xl font-semibold transition-all duration-200 focus:outline-none focus:ring-4"
+          :class="buttonClasses"
+          @click="handleWakeLockToggle"
+        >
+          {{ buttonText }}
+        </button>
 
-          <div v-else class="text-sm text-gray-500">
-            {{ statusText }}
-          </div>
+        <!-- Status Text -->
+        <div class="text-sm text-gray-700">
+          {{ actionStatement }}
         </div>
 
-        <!-- Timer Section -->
-        <div class="space-y-2 text-center">
-          <!-- Timer Toggle -->
+        <!-- Video Fallback Notice -->
+        <div v-if="!wakeLock.isSupported.value && wakeLock.isActive.value" class="text-amber-600 text-sm">
+          {{ $t('status.notSupported') }}
+        </div>
+
+        <!-- Timer Section - Subtle, Secondary Control -->
+        <div class="pt-4 border-t border-gray-200">
           <button
-            class="text-sm text-gray-600 hover:text-gray-800 transition-colors inline-flex items-center space-x-1"
-            @click="handleTimerToggle"
+            class="text-sm text-gray-600 hover:text-gray-800 transition-colors inline-flex items-center space-x-1 mb-3"
+            @click="toggleTimerSection"
           >
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/>
             </svg>
-            <span>{{ wakeLock.timerActive.value ? $t('timer.label') : (showTimer ? $t('timer.labelExpanded') : $t('timer.label')) }}</span>
-            <svg class="w-3 h-3 transition-transform" :class="{ 'rotate-180': showTimer }" fill="currentColor" viewBox="0 0 20 20">
+            <span>{{ wakeLock.timerActive.value ? $t('timer.label') : (showTimerSection ? $t('timer.labelExpanded') : $t('timer.label')) }}</span>
+            <svg class="w-3 h-3 transition-transform" :class="{ 'rotate-180': showTimerSection }" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
             </svg>
           </button>
 
-          <!-- Minimalist Timer UI -->
-          <div v-if="showTimer || wakeLock.timerActive.value" class="bg-gray-50 rounded-lg p-3 space-y-2">
-            <!-- Active Timer Display -->
-            <div v-if="wakeLock.timerActive.value" class="flex items-center justify-center space-x-4">
-              <div class="font-mono text-lg text-blue-600">
-                {{ wakeLock.formatTime(wakeLock.remainingTime.value) }}
-              </div>
-              <button
-                class="text-red-600 hover:text-red-800 text-sm"
-                @click="handleTimerCancel"
-              >
-                {{ $t('button.cancel') }}
-              </button>
-            </div>
-
-            <!-- Timer Setup -->
-            <div v-else class="space-y-2">
-              <div class="flex items-center justify-center space-x-2">
-                <input
-                  v-model.number="timerMinutes"
-                  type="number"
-                  min="1"
-                  max="480"
-                  placeholder="60"
-                  class="w-16 px-2 py-1 text-sm text-center border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                <span class="text-sm text-gray-600">{{ $t('timer.minutes') }}</span>
-                <button
-                  :disabled="!timerMinutes || timerMinutes < 1"
-                  class="px-3 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white text-sm rounded transition-colors"
-                  @click="handleTimerStart"
-                >
-                  {{ $t('button.start') }}
-                </button>
-              </div>
-              <div class="flex justify-center space-x-1">
-                <button
-                  v-for="increment in [1, 5, 10, 30]"
-                  :key="increment"
-                  class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs rounded transition-colors"
-                  @click="handleTimerIncrement(increment)"
-                >
-                  +{{ increment }}
-                </button>
-              </div>
-            </div>
+          <!-- Timer Control Component - Collapsible -->
+          <div v-if="showTimerSection || wakeLock.timerActive.value">
+            <TimerControl
+              :timer-active="wakeLock.timerActive.value"
+              :remaining-time="wakeLock.remainingTime.value"
+              :format-time="wakeLock.formatTime"
+              @start="handleTimerStart"
+              @cancel="handleTimerCancel"
+            />
           </div>
         </div>
 
-        <!-- Usage Instructions - only show for supported browsers and not on mobile -->
-        <div v-if="wakeLock.isSupported.value && !wakeLock.isPopup.value && !$device.isMobile" class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800 space-y-2">
-          <div class="font-semibold text-blue-900">{{ $t('instructions.title') }}</div>
-          <div class="space-y-1">
-            <div>• {{ $t('instructions.keepTabFrontmost') }}</div>
-            <div>• {{ $t('instructions.avoidBackgrounding') }}</div>
-          </div>
-          <button
-            class="mt-2 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
-            @click="openPopup"
-          >
-            {{ wakeLock.hasActivePopup.value ? $t('button.focusToPopup') : $t('instructions.openPopup') }}
-          </button>
-        </div>
+        <!-- Floating Window CTA -->
+        <FloatingWindowCTA
+          :has-active-popup="wakeLock.hasActivePopup.value"
+          :is-popup="wakeLock.isPopup.value"
+          :is-supported="wakeLock.isSupported.value"
+          :is-mobile="$device.isMobile"
+          @open-window="openPopup"
+        />
       </div>
     </div>
 
@@ -215,8 +169,7 @@
 
 <script setup>
 const wakeLock = useWakeLock()
-const timerMinutes = ref(60)
-const showTimer = ref(false)
+const showTimerSection = ref(false)
 
 // Device detection using @nuxtjs/device
 const { $device } = useNuxtApp()
@@ -224,6 +177,24 @@ const { $device } = useNuxtApp()
 const { t } = useI18n()
 const { trackEvent } = useAnalytics()
 
+// Background gradient classes based on active state (subtle change)
+const backgroundClasses = computed(() => {
+  if (wakeLock.isActive.value) {
+    return 'bg-gradient-to-br from-orange-50 to-yellow-50'
+  }
+  return 'bg-gradient-to-br from-blue-100 to-indigo-100'
+})
+
+
+// Action statement text
+const actionStatement = computed(() => {
+  if (wakeLock.isActive.value) {
+    return t('status.deviceAwake')
+  }
+  return t('status.deviceSleeping')
+})
+
+// Button classes (reusing from old design)
 const buttonClasses = computed(() => {
   // Focus to popup button - use blue to indicate action
   if (wakeLock.hasActivePopup.value && !wakeLock.isPopup.value) {
@@ -245,24 +216,16 @@ const buttonClasses = computed(() => {
   return 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-200 focus:ring-red-300'
 })
 
-
 const buttonText = computed(() => {
   if (wakeLock.hasActivePopup.value && !wakeLock.isPopup.value) {
     return t('button.focusToPopup')
   }
 
   if (wakeLock.isActive.value) {
-    return wakeLock.usingVideoFallback.value ? t('button.deviceAwakeVideo') : t('button.deviceAwake')
+    return wakeLock.usingVideoFallback.value ? t('button.deviceAwake') : t('button.deviceAwake')
   }
   // Both supported and unsupported browsers show same inactive text
   return t('button.clickToKeepAwake')
-})
-
-const statusText = computed(() => {
-  if (wakeLock.isActive.value) {
-    return t('status.deviceAwake')
-  }
-  return t('status.deviceSleeping')
 })
 
 // GA4 Event handlers
@@ -279,47 +242,31 @@ const handleWakeLockToggle = async () => {
   await wakeLock.toggle()
 
   // Track the wake lock toggle event
-  // Create descriptive event name based on state
   const action = wakeLock.isActive.value ? 'activate' : 'deactivate'
   const method = wakeLock.usingVideoFallback.value ? 'video_fallback' : 'native_api'
-  trackEvent(`wake_lock_${action}_${method}`)
+  const iconType = wakeLock.isActive.value ? 'sun' : 'moon'
+  trackEvent(`${iconType}_click_${action}_${method}`)
 }
 
-const handleTimerToggle = () => {
-  showTimer.value = !showTimer.value
-
-  // Track timer UI toggle
-  const action = showTimer.value ? 'expand' : 'collapse'
-  trackEvent(`timer_ui_${action}`)
-}
-
-const handleTimerStart = async () => {
-  if (timerMinutes.value && timerMinutes.value > 0) {
-    const success = await wakeLock.startTimer(timerMinutes.value)
-
-    // Track timer start event
-    if (success) {
-      trackEvent('timer_start_manual_input')
-    }
+const handleTimerStart = async (minutes) => {
+  const success = await wakeLock.startTimer(minutes)
+  if (success) {
+    trackEvent('timer_start_preset')
   }
 }
 
 const handleTimerCancel = () => {
   wakeLock.stopTimer()
-
-  // Track timer cancel event
   trackEvent('timer_cancel')
 }
 
-const handleTimerIncrement = (increment) => {
-  timerMinutes.value = (timerMinutes.value || 0) + increment
-
-  // Track quick increment usage
-  trackEvent(`timer_quick_increment_${increment}min`)
+const toggleTimerSection = () => {
+  showTimerSection.value = !showTimerSection.value
+  const action = showTimerSection.value ? 'expand' : 'collapse'
+  trackEvent(`timer_section_${action}`)
 }
 
 const handleExternalLinkClick = () => {
-  // Track external link clicks
   trackEvent('external_link_click_blog')
 }
 
@@ -327,7 +274,7 @@ const openPopup = () => {
   // If popup already exists, focus to it instead
   if (wakeLock.hasActivePopup.value && wakeLock.popupRef.value && !wakeLock.popupRef.value.closed) {
     wakeLock.popupRef.value.focus()
-    trackEvent('popup_focus_from_popup_button')
+    trackEvent('popup_focus_from_cta_button')
     return
   }
 
@@ -356,12 +303,10 @@ const openPopup = () => {
     }, 1000)
 
     // Track popup open event
-    trackEvent('popup_opened_button_click')
+    trackEvent('floating_window_cta_clicked')
   } else {
     // Popup blocked, show instructions
     alert('Popup blocked. Please allow popups for this site and try again.')
-
-    // Track popup blocked event
     trackEvent('popup_blocked_by_browser')
   }
 }
@@ -384,26 +329,8 @@ onMounted(async () => {
   }
 
   // Track app initialization
-  // Create descriptive event name based on initialization state
   const supportStatus = wakeLock.isSupported.value ? 'supported' : 'unsupported'
   const acquireStatus = autoAcquireSuccess ? 'success' : 'failed'
   trackEvent(`app_init_${supportStatus}_auto_${acquireStatus}`)
 })
 </script>
-
-<style scoped>
-@keyframes pulse-glow {
-  0%, 100% {
-    filter: drop-shadow(0 0 5px currentColor);
-    transform: scale(1);
-  }
-  50% {
-    filter: drop-shadow(0 0 15px currentColor);
-    transform: scale(1.1);
-  }
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-</style>

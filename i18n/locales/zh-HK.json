@@ -29,15 +29,24 @@
   "status": {
     "notSupported": "使用影片備援方法（不支援 Wake Lock API）",
     "deviceAwake": "您的裝置將保持喚醒。點擊允許休眠。",
-    "deviceSleeping": "您的裝置可正常休眠。點擊保持喚醒。"
+    "deviceSleeping": "您的裝置可正常休眠。點擊保持喚醒。",
+    "ariaLabelAwake": "裝置喚醒中 - 點擊太陽允許休眠",
+    "ariaLabelSleep": "裝置休眠中 - 點擊月亮保持喚醒"
   },
   "timer": {
-    "label": "計時器",
-    "labelExpanded": "計時器完結 → 允許休眠",
+    "label": "設定計時器",
+    "labelExpanded": "隱藏計時器選項",
     "timerFormat": "計時器：{time}",
     "minutes": "分鐘",
     "remaining": "剩餘",
-    "explanation": "計時器完結時裝置將自動容許休眠"
+    "explanation": "計時器完結時裝置將自動容許休眠",
+    "untilStopped": "直到停止",
+    "hour": "小時",
+    "hours": "小時",
+    "custom": "自訂",
+    "customDuration": "自訂時長",
+    "startInfinite": "開始（無計時器）",
+    "startWithDuration": "開始計時器（{minutes}分鐘）"
   },
   "instructions": {
     "title": "獲得最佳效果",
@@ -45,6 +54,13 @@
     "avoidBackgrounding": "或使用專用彈出視窗保持在最上層",
     "interactionRequired": "舊版瀏覽器需要您先點擊才能防止休眠",
     "openPopup": "開啟專用視窗"
+  },
+  "floatingWindow": {
+    "title": "專業提示：確保持續喚醒",
+    "subtitle": "可靠地保持裝置喚醒",
+    "openButton": "開啟浮動視窗（推薦）",
+    "focusButton": "切換至浮動視窗",
+    "alternative": "（或者：保持此分頁始終活躍）"
   },
   "sections": {
     "howToUse": {

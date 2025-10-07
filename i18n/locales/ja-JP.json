@@ -29,21 +29,37 @@
   "status": {
     "notSupported": "ビデオフォールバック方式を使用中（Wake Lock API未対応）",
     "deviceAwake": "デバイスは覚醒状態を維持します。クリックするとスリープを許可します。",
-    "deviceSleeping": "デバイスは通常通りスリープできます。クリックして覚醒状態を維持。"
+    "deviceSleeping": "デバイスは通常通りスリープできます。クリックして覚醒状態を維持。",
+    "ariaLabelAwake": "デバイス覚醒中 - 太陽をクリックしてスリープを許可",
+    "ariaLabelSleep": "デバイススリープ中 - 月をクリックして覚醒状態を維持"
   },
   "timer": {
-    "label": "タイマー",
-    "labelExpanded": "タイマー終了 → スリープ許可",
+    "label": "タイマーを設定",
+    "labelExpanded": "タイマーオプションを非表示",
     "timerFormat": "タイマー: {time}",
     "minutes": "分",
     "remaining": "残り",
-    "explanation": "タイマーが終了すると、デバイスは自動的にスリープが許可されます"
+    "explanation": "タイマーが終了すると、デバイスは自動的にスリープが許可されます",
+    "untilStopped": "停止するまで",
+    "hour": "時間",
+    "hours": "時間",
+    "custom": "カスタム",
+    "customDuration": "カスタム期間",
+    "startInfinite": "開始（タイマーなし）",
+    "startWithDuration": "タイマーを開始（{minutes}分）"
   },
   "instructions": {
     "title": "最適な結果を得るために",
     "keepTabFrontmost": "このタブをブラウザで表示したままアクティブに保ってください",
     "avoidBackgrounding": "または、最前面に表示される専用ポップアップウィンドウを使用してください",
     "openPopup": "専用ウィンドウを開く"
+  },
+  "floatingWindow": {
+    "title": "プロのヒント：継続的な覚醒を確保",
+    "subtitle": "デバイスを確実に覚醒状態に保つ",
+    "openButton": "フローティングウィンドウを開く（推奨）",
+    "focusButton": "フローティングウィンドウにフォーカス",
+    "alternative": "（または：このタブを常にアクティブに保つ）"
   },
   "sections": {
     "howToUse": {
