@@ -44,6 +44,14 @@ const opacity = ref(1)
 
 const { t } = useI18n()
 
+// Preload animations using link tags
+useHead({
+  link: [
+    { rel: 'preload', href: '/animations/sun.json', as: 'fetch', crossorigin: 'anonymous' },
+    { rel: 'preload', href: '/animations/moon.json', as: 'fetch', crossorigin: 'anonymous' }
+  ]
+})
+
 const containerClasses = computed(() => {
   const base = 'hover:scale-105'
   return props.isActive ? `${base} filter drop-shadow-2xl` : base
@@ -74,7 +82,7 @@ const loadAnimation = (path) => {
     animationInstance.value.destroy()
   }
 
-  // Load new animation
+  // Load new animation (will use preloaded cache from browser)
   animationInstance.value = lottie.loadAnimation({
     container: lottieContainer.value,
     renderer: 'svg',
@@ -123,7 +131,7 @@ onMounted(() => {
     })
   }
 
-  // Initial animation load
+  // Initial animation load (will use browser's preloaded cache)
   if (!prefersReducedMotion.value) {
     loadAnimation(currentAnimationPath.value)
   }
