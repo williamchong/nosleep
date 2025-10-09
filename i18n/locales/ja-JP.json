@@ -26,6 +26,12 @@
     "cancel": "キャンセル",
     "cancelTimer": "タイマーをキャンセル"
   },
+  "darkMode": {
+    "toggle": "ダークモードを切り替え",
+    "light": "ライト",
+    "dark": "ダーク",
+    "system": "システム"
+  },
   "status": {
     "notSupported": "ビデオフォールバック方式を使用中（Wake Lock API未対応）",
     "deviceAwake": "デバイスは覚醒状態を維持します。クリックするとスリープを許可します。",

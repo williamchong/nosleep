@@ -106,3 +106,14 @@ useHead({
 })
 
 </script>
+
+<style>
+/* Fix overscroll bounce showing white background on iOS/Safari */
+html {
+  background-color: white;
+}
+
+html.dark {
+  background-color: rgb(17 24 39); /* gray-900 */
+}
+</style>

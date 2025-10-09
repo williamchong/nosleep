@@ -26,6 +26,12 @@
     "cancel": "Cancel",
     "cancelTimer": "Cancel Timer"
   },
+  "darkMode": {
+    "toggle": "Toggle dark mode",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
   "status": {
     "notSupported": "Using video fallback method (Wake Lock API not supported)",
     "deviceAwake": "Your device will stay awake. Click to allow sleep.",

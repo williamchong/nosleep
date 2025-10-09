@@ -26,6 +26,12 @@
     "cancel": "取消",
     "cancelTimer": "取消計時器"
   },
+  "darkMode": {
+    "toggle": "切換深色模式",
+    "light": "淺色",
+    "dark": "深色",
+    "system": "系統"
+  },
   "status": {
     "notSupported": "使用影片備援方法（不支援 Wake Lock API）",
     "deviceAwake": "您的裝置將保持喚醒。點擊允許休眠。",

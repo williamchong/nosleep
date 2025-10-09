@@ -54,7 +54,11 @@ useHead({
 
 const containerClasses = computed(() => {
   const base = 'hover:scale-105'
-  return props.isActive ? `${base} filter drop-shadow-2xl` : base
+  // Make sun shine much brighter in dark mode with stronger glow and brightness boost
+  if (props.isActive) {
+    return `${base} filter drop-shadow-2xl dark:drop-shadow-[0_0_50px_rgba(251,191,36,0.9)]`
+  }
+  return base
 })
 
 const rotationStyle = computed(() => ({

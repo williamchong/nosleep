@@ -1,16 +1,21 @@
 <template>
-  <div class="relative bg-white">
-    <!-- Smooth gradient background that transitions to white - only in hero section -->
+  <div class="relative bg-white dark:bg-gray-900">
+    <!-- Dark Mode Toggle - Fixed in top right -->
+    <div class="fixed top-4 right-4 z-50">
+      <DarkModeToggle />
+    </div>
+
+    <!-- Smooth gradient background that transitions to white/dark - only in hero section -->
     <div
-      class="absolute inset-x-0 top-0 h-[120vh] transition-all duration-700 pointer-events-none"
+      class="absolute inset-x-0 top-0 h-[100vh] transition-all duration-700 pointer-events-none"
       :class="gradientBackgroundClasses"
     />
 
     <div class="relative min-h-[80vh] flex items-center justify-center p-4">
       <div class="max-w-2xl w-full text-center space-y-8">
         <div>
-          <h1 class="text-4xl font-bold mb-2 text-gray-900">{{ $t('header.title') }}</h1>
-          <p class="text-lg text-gray-600">{{ $t('header.subtitle') }}</p>
+          <h1 class="text-4xl font-bold mb-2 text-gray-900 dark:text-gray-100">{{ $t('header.title') }}</h1>
+          <p class="text-lg text-gray-600 dark:text-gray-400">{{ $t('header.subtitle') }}</p>
         </div>
 
         <!-- Status Animation (Sun/Moon) - Interactive -->
@@ -29,19 +34,19 @@
         </button>
 
         <!-- Status Text -->
-        <div class="text-sm text-gray-700">
+        <div class="text-sm text-gray-700 dark:text-gray-300">
           {{ actionStatement }}
         </div>
 
         <!-- Video Fallback Notice -->
-        <div v-if="!wakeLock.isSupported.value && wakeLock.isActive.value" class="text-amber-600 text-sm">
+        <div v-if="!wakeLock.isSupported.value && wakeLock.isActive.value" class="text-amber-600 dark:text-amber-400 text-sm">
           {{ $t('status.notSupported') }}
         </div>
 
         <!-- Timer Section - Subtle, Secondary Control -->
-        <div class="pt-4 border-t border-gray-200">
+        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
-            class="text-sm text-gray-600 hover:text-gray-800 transition-colors inline-flex items-center space-x-1 mb-3"
+            class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors inline-flex items-center space-x-1 mb-3"
             @click="toggleTimerSection"
           >
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -79,46 +84,46 @@
     <!-- Description Section -->
     <div v-if="!wakeLock.isPopup.value" class="max-w-4xl mx-auto mt-8 px-4 space-y-12">
       <!-- How to Use Section -->
-      <section class="bg-blue-50 rounded-xl p-8 space-y-6">
-        <h2 class="text-2xl font-bold text-gray-900 text-center">{{ $t('sections.howToUse.title') }}</h2>
+      <section class="bg-blue-50 dark:bg-blue-950/30 rounded-xl p-8 space-y-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">{{ $t('sections.howToUse.title') }}</h2>
         <div class="max-w-2xl mx-auto">
           <ol class="space-y-4">
             <li v-for="(step, index) in $tm('sections.howToUse.steps')" :key="index" class="flex items-start space-x-3">
-              <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">{{ index + 1 }}</span>
-              <p class="text-gray-700 text-lg">{{ $rt(step) }}</p>
+              <span class="flex-shrink-0 w-8 h-8 bg-blue-600 dark:bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">{{ index + 1 }}</span>
+              <p class="text-gray-700 dark:text-gray-300 text-lg">{{ $rt(step) }}</p>
             </li>
           </ol>
-          <p class="text-sm text-gray-500 mt-4 text-center italic">{{ $t('sections.howToUse.note') }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-4 text-center italic">{{ $t('sections.howToUse.note') }}</p>
         </div>
       </section>
 
       <!-- FAQ Section -->
       <section class="space-y-8">
-        <h2 class="text-3xl font-bold text-gray-900 text-center">{{ $t('sections.faq.title') }}</h2>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 text-center">{{ $t('sections.faq.title') }}</h2>
 
         <div class="grid gap-6">
-          <div class="bg-white rounded-lg p-6 shadow-sm border">
-            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $t('sections.faq.useCases.question') }}</h3>
-            <ul class="text-gray-600 space-y-2">
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{{ $t('sections.faq.useCases.question') }}</h3>
+            <ul class="text-gray-600 dark:text-gray-400 space-y-2">
               <li v-for="(answer, index) in $tm('sections.faq.useCases.answers')" :key="index">• {{ $rt(answer) }}</li>
             </ul>
           </div>
 
-          <div class="bg-white rounded-lg p-6 shadow-sm border">
-            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $t('sections.faq.howItWorks.question') }}</h3>
-            <p class="text-gray-600">{{ $t('sections.faq.howItWorks.answer') }}</p>
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{{ $t('sections.faq.howItWorks.question') }}</h3>
+            <p class="text-gray-600 dark:text-gray-400">{{ $t('sections.faq.howItWorks.answer') }}</p>
           </div>
 
-          <div class="bg-white rounded-lg p-6 shadow-sm border">
-            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $t('sections.faq.safety.question') }}</h3>
-            <p class="text-gray-600">
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{{ $t('sections.faq.safety.question') }}</h3>
+            <p class="text-gray-600 dark:text-gray-400">
               {{ $t('sections.faq.safety.answer') }}
             </p>
           </div>
 
-          <div class="bg-white rounded-lg p-6 shadow-sm border">
-            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $t('sections.faq.browserSupport.question') }}</h3>
-            <div class="text-gray-600">
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{{ $t('sections.faq.browserSupport.question') }}</h3>
+            <div class="text-gray-600 dark:text-gray-400">
               <p class="mb-2"><strong>{{ $t('sections.faq.browserSupport.nativeApiTitle') }}</strong></p>
               <ul class="space-y-1 mb-4">
                 <li v-for="(browser, index) in $tm('sections.faq.browserSupport.nativeApiBrowsers')" :key="index">• {{ $rt(browser) }}</li>
@@ -131,16 +136,16 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-lg p-6 shadow-sm border">
-            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $t('sections.faq.timerFeature.question') }}</h3>
-            <p class="text-gray-600">
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{{ $t('sections.faq.timerFeature.question') }}</h3>
+            <p class="text-gray-600 dark:text-gray-400">
               {{ $t('sections.faq.timerFeature.answer') }}
             </p>
           </div>
 
-          <div class="bg-white rounded-lg p-6 shadow-sm border">
-            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $t('sections.faq.properUsage.question') }}</h3>
-            <p class="text-gray-600">
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{{ $t('sections.faq.properUsage.question') }}</h3>
+            <p class="text-gray-600 dark:text-gray-400">
               {{ $t('sections.faq.properUsage.answer') }}
             </p>
           </div>
@@ -148,9 +153,9 @@
       </section>
 
       <!-- About Section -->
-      <section class="text-center space-y-4 border-t pt-12">
-        <h2 class="text-2xl font-bold text-gray-900">{{ $t('sections.about.title') }}</h2>
-        <p class="text-gray-600 max-w-xl mx-auto">
+      <section class="text-center space-y-4 border-t border-gray-200 dark:border-gray-700 pt-12 pb-16">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $t('sections.about.title') }}</h2>
+        <p class="text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
           {{ $t('sections.about.description') }}
         </p>
         <a
@@ -180,14 +185,14 @@ const { $device } = useNuxtApp()
 const { t } = useI18n()
 const { trackEvent } = useAnalytics()
 
-// Background gradient classes with smooth transition to white
+// Background gradient classes with smooth transition to white/dark
 const gradientBackgroundClasses = computed(() => {
   if (wakeLock.isActive.value) {
-    // Awake state: warm gradient transitioning to white
-    return 'bg-gradient-to-b from-orange-50 via-yellow-50/50 to-white'
+    // Awake state: warm orange/amber gradient transitioning to white/dark
+    return 'bg-gradient-to-b from-orange-100 via-amber-50/50 to-white dark:from-orange-950/40 dark:via-yellow-950/20 dark:to-gray-900'
   }
-  // Sleep state: cool gradient transitioning to white
-  return 'bg-gradient-to-b from-blue-100 via-indigo-50/50 to-white'
+  // Sleep state: subtle cool gradient (softer blue) in light mode
+  return 'bg-gradient-to-b from-blue-100 via-blue-50 to-white dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-gray-900'
 })
 
 
@@ -213,11 +218,7 @@ const buttonClasses = computed(() => {
     return 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-200 focus:ring-green-300'
   }
 
-  if (!wakeLock.isSupported.value) {
-    // Inactive fallback mode - use red to show "ready to activate"
-    return 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-200 focus:ring-red-300'
-  }
-
+  // Inactive state - use red to show "ready to activate"
   return 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-200 focus:ring-red-300'
 })
 
@@ -227,7 +228,7 @@ const buttonText = computed(() => {
   }
 
   if (wakeLock.isActive.value) {
-    return wakeLock.usingVideoFallback.value ? t('button.deviceAwake') : t('button.deviceAwake')
+    return t('button.deviceAwake')
   }
   // Both supported and unsupported browsers show same inactive text
   return t('button.clickToKeepAwake')

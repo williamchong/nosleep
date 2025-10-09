@@ -2,7 +2,7 @@
   <div class="space-y-3">
     <!-- Active Timer Display -->
     <div v-if="timerActive" class="text-center space-y-2">
-      <div class="font-mono text-2xl font-bold text-blue-600">
+      <div class="font-mono text-2xl font-bold text-blue-600 dark:text-blue-400">
         {{ formatTime(remainingTime) }}
       </div>
       <button
@@ -20,8 +20,8 @@
         <button
           v-for="preset in presets"
           :key="preset.value"
-          class="px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-300"
-          :class="selectedPreset === preset.value ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+          class="px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-300 dark:focus:ring-blue-600"
+          :class="selectedPreset === preset.value ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'"
           @click="handlePresetSelect(preset.value)"
         >
           {{ preset.label }}
@@ -29,10 +29,10 @@
       </div>
 
       <!-- Custom Slider (shown when Custom is selected) -->
-      <div v-if="selectedPreset === 'custom'" class="space-y-1.5 bg-gray-50 rounded-lg p-3">
+      <div v-if="selectedPreset === 'custom'" class="space-y-1.5 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
         <div class="flex items-center justify-between">
-          <label class="text-xs font-medium text-gray-700">{{ $t('timer.customDuration') }}</label>
-          <span class="text-xs font-bold text-gray-900">{{ customMinutes }} {{ $t('timer.minutes') }}</span>
+          <label class="text-xs font-medium text-gray-700 dark:text-gray-300">{{ $t('timer.customDuration') }}</label>
+          <span class="text-xs font-bold text-gray-900 dark:text-gray-100">{{ customMinutes }} {{ $t('timer.minutes') }}</span>
         </div>
         <input
           v-model.number="customMinutes"
@@ -40,10 +40,10 @@
           min="1"
           max="480"
           step="1"
-          class="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer slider slider-blue"
+          class="w-full h-2 bg-gray-300 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider slider-blue"
           @input="handleSliderChange"
         >
-        <div class="flex justify-between text-xs text-gray-500">
+        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
           <span>1 min</span>
           <span>480 min</span>
         </div>
@@ -52,7 +52,7 @@
       <!-- Start Button - Smaller and less prominent -->
       <button
         :disabled="!canStart"
-        class="w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed bg-blue-500 hover:bg-blue-600 text-white"
+        class="w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 disabled:opacity-50 disabled:cursor-not-allowed bg-blue-500 hover:bg-blue-600 text-white"
         @click="handleStart"
       >
         {{ startButtonText }}

@@ -9,7 +9,8 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxtjs/device',
     '@sentry/nuxt/module',
-    '@nuxt/scripts'
+    '@nuxt/scripts',
+    '@nuxtjs/color-mode'
   ],
 
   scripts: {
@@ -55,6 +56,18 @@ export default defineNuxtConfig({
 
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
+
+  colorMode: {
+    classSuffix: '', // Use 'dark' class instead of 'dark-mode'
+    preference: 'system', // Default to system preference
+    fallback: 'light', // Fallback color mode
+  },
+
+  tailwindcss: {
+    config: {
+      darkMode: 'class', // Enable class-based dark mode
+    }
+  },
 
   sentry: {
     sourceMapsUploadOptions: {
