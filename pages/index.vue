@@ -1,9 +1,12 @@
 <template>
-  <div>
+  <div class="relative bg-white">
+    <!-- Smooth gradient background that transitions to white - only in hero section -->
     <div
-      class="min-h-[80vh] flex items-center justify-center p-4 transition-all duration-700"
-      :class="backgroundClasses"
-    >
+      class="absolute inset-x-0 top-0 h-[120vh] transition-all duration-700 pointer-events-none"
+      :class="gradientBackgroundClasses"
+    />
+
+    <div class="relative min-h-[80vh] flex items-center justify-center p-4">
       <div class="max-w-2xl w-full text-center space-y-8">
         <div>
           <h1 class="text-4xl font-bold mb-2 text-gray-900">{{ $t('header.title') }}</h1>
@@ -177,12 +180,14 @@ const { $device } = useNuxtApp()
 const { t } = useI18n()
 const { trackEvent } = useAnalytics()
 
-// Background gradient classes based on active state (subtle change)
-const backgroundClasses = computed(() => {
+// Background gradient classes with smooth transition to white
+const gradientBackgroundClasses = computed(() => {
   if (wakeLock.isActive.value) {
-    return 'bg-gradient-to-br from-orange-50 to-yellow-50'
+    // Awake state: warm gradient transitioning to white
+    return 'bg-gradient-to-b from-orange-50 via-yellow-50/50 to-white'
   }
-  return 'bg-gradient-to-br from-blue-100 to-indigo-100'
+  // Sleep state: cool gradient transitioning to white
+  return 'bg-gradient-to-b from-blue-100 via-indigo-50/50 to-white'
 })
 
 
