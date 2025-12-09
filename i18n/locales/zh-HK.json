@@ -62,11 +62,13 @@
     "openPopup": "開啟專用視窗"
   },
   "floatingWindow": {
-    "title": "專業提示：確保持續喚醒",
-    "subtitle": "可靠地保持裝置喚醒",
     "openButton": "開啟浮動視窗（推薦）",
     "focusButton": "切換至浮動視窗",
     "alternative": "（或者：保持此分頁始終活躍）"
+  },
+  "pip": {
+    "alwaysOnTop": "此視窗會保持在其他視窗之上",
+    "title": "NoSleep - 浮動視窗"
   },
   "sections": {
     "howToUse": {
@@ -131,6 +133,9 @@
       "description": "由 William Chong 建構的簡單實用網頁工具。在我的部落格查看更多專案和文章。",
       "visitBlog": "造訪我的部落格"
     }
+  },
+  "errors": {
+    "popupBlocked": "彈出視窗被封鎖。請允許此網站的彈出視窗，然後重試。"
   },
   "structuredData": {
     "faq": {

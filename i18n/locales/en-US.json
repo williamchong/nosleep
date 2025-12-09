@@ -61,11 +61,13 @@
     "openPopup": "Open Dedicated Window"
   },
   "floatingWindow": {
-    "title": "Pro-Tip: Ensure Continuous Wakefulness",
-    "subtitle": "Keeps Device Awake Reliably",
     "openButton": "Open Floating Window (Recommended)",
     "focusButton": "Focus to Floating Window",
     "alternative": "(Alternatively: Keep this tab always active)"
+  },
+  "pip": {
+    "alwaysOnTop": "This window stays on top of other windows",
+    "title": "NoSleep - Floating Window"
   },
   "sections": {
     "howToUse": {
@@ -131,6 +133,9 @@
       "description": "Built by William Chong as a simple, useful web tool. Check out more projects and articles on my blog.",
       "visitBlog": "Visit My Blog"
     }
+  },
+  "errors": {
+    "popupBlocked": "Popup blocked. Please allow popups for this site and try again."
   },
   "structuredData": {
     "faq": {

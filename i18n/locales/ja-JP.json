@@ -61,11 +61,13 @@
     "openPopup": "専用ウィンドウを開く"
   },
   "floatingWindow": {
-    "title": "プロのヒント：継続的な覚醒を確保",
-    "subtitle": "デバイスを確実に覚醒状態に保つ",
     "openButton": "フローティングウィンドウを開く（推奨）",
     "focusButton": "フローティングウィンドウにフォーカス",
     "alternative": "（または：このタブを常にアクティブに保つ）"
+  },
+  "pip": {
+    "alwaysOnTop": "このウィンドウは他のウィンドウの上に表示されます",
+    "title": "NoSleep - フローティングウィンドウ"
   },
   "sections": {
     "howToUse": {
@@ -131,6 +133,9 @@
       "description": "William Chongによって構築されたシンプルで便利なWebツール。私のブログで他のプロジェクトや記事をチェックしてください。",
       "visitBlog": "私のブログを訪問"
     }
+  },
+  "errors": {
+    "popupBlocked": "ポップアップがブロックされました。このサイトのポップアップを許可してから、もう一度お試しください。"
   },
   "structuredData": {
     "faq": {
