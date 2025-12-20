@@ -132,9 +132,6 @@
       "visitBlog": "私のブログを訪問"
     }
   },
-  "errors": {
-    "popupBlocked": "ポップアップがブロックされました。このサイトのポップアップを許可してから、もう一度お試しください。"
-  },
   "structuredData": {
     "faq": {
       "useCases": {

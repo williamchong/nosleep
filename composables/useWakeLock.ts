@@ -12,17 +12,16 @@ export const useWakeLock = () => {
   const isActive = ref(false)
   const wakeLock = ref<WakeLockSentinel | null>(null)
 
-  const isPopup = ref(false)
   const isIframePip = ref(false)
   const isPipMode = ref(false)
-  const popupRef = ref<Window | null>(null)
-  const hasActivePopup = computed(() => popupRef.value !== null && !popupRef.value.closed)
+  // Reference to the PiP window (Document Picture-in-Picture)
+  const pipWindowRef = ref<Window | null>(null)
+  const hasActivePipWindow = computed(() => pipWindowRef.value !== null && !pipWindowRef.value.closed)
 
-  const isParentWithActivePopup = computed(() =>
-    !isPopup.value && !isIframePip.value && hasActivePopup.value
+  const isParentWithActivePip = computed(() =>
+    !isIframePip.value && hasActivePipWindow.value
   )
-  const isChildWindow = computed(() => isPopup.value || isIframePip.value)
-  const shouldSyncState = computed(() => isChildWindow.value || !hasActivePopup.value)
+  const shouldSyncState = computed(() => isIframePip.value || !hasActivePipWindow.value)
 
   const timerActive = ref(false)
   const timerDuration = ref(0)
@@ -69,11 +68,11 @@ export const useWakeLock = () => {
 
         wakeLock.value = null
 
-        // Only update isActive if there's no popup managing the wake lock
-        // When a popup is active, the parent's wake lock is intentionally released
-        // and the popup manages its own wake lock. The parent's isActive state
-        // reflects the overall system state (synced from popup), not just local wake lock.
-        if (!hasActivePopup.value) {
+        // Only update isActive if there's no PiP window managing the wake lock
+        // When a PiP window is active, the parent's wake lock is intentionally released
+        // and the PiP iframe manages its own wake lock. The parent's isActive state
+        // reflects the overall system state (synced from PiP), not just local wake lock.
+        if (!hasActivePipWindow.value) {
           isActive.value = false
         }
       })
@@ -93,11 +92,11 @@ export const useWakeLock = () => {
     isAcquiring.value = true
 
     try {
-      if (isParentWithActivePopup.value) {
+      if (isParentWithActivePip.value) {
         return false
       }
 
-      if (isChildWindow.value && !isSupported.value) {
+      if (isIframePip.value && !isSupported.value) {
         return false
       }
 
@@ -130,7 +129,7 @@ export const useWakeLock = () => {
     isAcquiring.value = true
 
     try {
-      if (isParentWithActivePopup.value) {
+      if (isParentWithActivePip.value) {
         return
       }
 
@@ -154,9 +153,9 @@ export const useWakeLock = () => {
     }
   }
 
-  // Force release parent lock when popup opens (bypasses popup active check)
+  // Force release parent lock when PiP window opens (bypasses active check)
   const forceReleaseParent = async () => {
-    if (isChildWindow.value) return
+    if (isIframePip.value) return
 
     if (wakeLock.value) {
       try {
@@ -171,7 +170,7 @@ export const useWakeLock = () => {
   const startTimer = async (minutes: number) => {
     if (minutes <= 0) return false
 
-    if (isParentWithActivePopup.value) {
+    if (isParentWithActivePip.value) {
       return false
     }
 
@@ -191,7 +190,7 @@ export const useWakeLock = () => {
   }
 
   const stopTimer = () => {
-    if (isParentWithActivePopup.value) {
+    if (isParentWithActivePip.value) {
       return
     }
 
@@ -234,16 +233,7 @@ export const useWakeLock = () => {
   const syncWakeLockState = () => {
     const message = createSyncMessage('wake-lock-sync')
 
-    if (isPopup.value && window.opener) {
-      try {
-        if (!window.opener.closed) {
-          window.opener.postMessage(message, window.location.origin)
-        }
-      } catch (e) {
-        console.warn('Could not send to window.opener:', e)
-      }
-    }
-
+    // If this is a PiP iframe, send sync to parent window
     if (isIframePip.value && window.parent !== window) {
       try {
         window.parent.postMessage(message, window.location.origin)
@@ -252,26 +242,27 @@ export const useWakeLock = () => {
       }
     }
 
-    if (!isChildWindow.value && popupRef.value) {
+    // If this is the parent with an active PiP window, send sync to it
+    if (!isIframePip.value && pipWindowRef.value) {
       try {
-        if (!popupRef.value.closed) {
-          popupRef.value.postMessage(message, window.location.origin)
+        if (!pipWindowRef.value.closed) {
+          pipWindowRef.value.postMessage(message, window.location.origin)
         }
       } catch (e) {
-        console.warn('Could not send to popup:', e)
+        console.warn('Could not send to PiP window:', e)
       }
     }
   }
 
-  const initialSyncToPopup = () => {
-    if (popupRef.value) {
+  const initialSyncToPip = () => {
+    if (pipWindowRef.value) {
       try {
-        if (!popupRef.value.closed) {
+        if (!pipWindowRef.value.closed) {
           const message = createSyncMessage('wake-lock-initial-sync')
-          popupRef.value.postMessage(message, window.location.origin)
+          pipWindowRef.value.postMessage(message, window.location.origin)
         }
       } catch (e) {
-        console.warn('Could not send initial sync to popup:', e)
+        console.warn('Could not send initial sync to PiP window:', e)
       }
     }
   }
@@ -307,15 +298,15 @@ export const useWakeLock = () => {
 
     const activeStatus = data.isActive ? 'active' : 'inactive'
     const timerStatus = data.timerActive ? 'with_timer' : 'without_timer'
-    trackEvent(`popup_sync_received_${activeStatus}_${timerStatus}`)
+    trackEvent(`pip_sync_received_${activeStatus}_${timerStatus}`)
   }
 
-  const handlePopupClosed = async () => {
+  const handlePipClosed = async () => {
     const wasActive = isActive.value
-    popupRef.value = null
+    pipWindowRef.value = null
     const activeStatus = wasActive ? 'was_active' : 'was_inactive'
     const timerStatus = timerActive.value ? 'with_timer' : 'without_timer'
-    trackEvent(`popup_closed_${activeStatus}_${timerStatus}`)
+    trackEvent(`pip_closed_${activeStatus}_${timerStatus}`)
 
     // Fix: Correct async/await pattern with nextTick
     await nextTick()
@@ -353,18 +344,18 @@ export const useWakeLock = () => {
       return
     }
 
-    if (event.data.type === 'wake-lock-initial-sync' && isChildWindow.value) {
+    if (event.data.type === 'wake-lock-initial-sync' && isIframePip.value) {
       handleInitialSync(event.data)
       return
     }
 
-    if (event.data.type === 'wake-lock-sync' && !isChildWindow.value) {
+    if (event.data.type === 'wake-lock-sync' && !isIframePip.value) {
       handleWakeLockSync(event.data)
       return
     }
 
-    if (event.data.type === 'popup-closed' && !isChildWindow.value) {
-      handlePopupClosed()
+    if (event.data.type === 'pip-closed' && !isIframePip.value) {
+      handlePipClosed()
     }
   }
 
@@ -372,34 +363,20 @@ export const useWakeLock = () => {
     checkSupport()
 
     if (typeof window !== 'undefined') {
-      isPopup.value = window.opener !== null
       isPipMode.value = route.query.pip === '1'
       isIframePip.value = isPipMode.value && window.parent !== window
 
       window.addEventListener('message', handleMessage)
 
-      if (isPopup.value) {
-        window.addEventListener('beforeunload', () => {
-          try {
-            if (window.opener && !window.opener.closed) {
-              window.opener.postMessage({ type: 'popup-closed' }, window.location.origin)
-            }
-          } catch (e) {
-            // Handle cross-origin exception - can't access window.opener.closed
-            console.warn('Could not send popup-closed message to opener:', e)
-          }
-        })
-      }
-
+      // When PiP iframe is closing, notify parent window
       if (isIframePip.value) {
         window.addEventListener('beforeunload', () => {
           try {
             if (window.parent && window.parent !== window) {
-              window.parent.postMessage({ type: 'popup-closed' }, window.location.origin)
+              window.parent.postMessage({ type: 'pip-closed' }, window.location.origin)
             }
           } catch (e) {
-            // Handle cross-origin exception - can't access window.parent
-            console.warn('Could not send popup-closed message to parent:', e)
+            console.warn('Could not send pip-closed message to parent:', e)
           }
         })
       }
@@ -420,11 +397,10 @@ export const useWakeLock = () => {
     timerActive: readonly(timerActive),
     timerDuration: readonly(timerDuration),
     remainingTime: readonly(remainingTime),
-    isPopup: readonly(isPopup),
     isIframePip: readonly(isIframePip),
     isPipMode: readonly(isPipMode),
-    popupRef,
-    hasActivePopup: readonly(hasActivePopup),
+    pipWindowRef,
+    hasActivePipWindow: readonly(hasActivePipWindow),
     acquire,
     release,
     toggle,
@@ -432,7 +408,7 @@ export const useWakeLock = () => {
     stopTimer,
     formatTime,
     syncWakeLockState,
-    initialSyncToPopup,
+    initialSyncToPip,
     forceReleaseParent
   }
 }

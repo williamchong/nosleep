@@ -131,9 +131,6 @@
       "visitBlog": "造訪我的部落格"
     }
   },
-  "errors": {
-    "popupBlocked": "彈出視窗被封鎖。請允許此網站的彈出視窗，然後重試。"
-  },
   "structuredData": {
     "faq": {
       "useCases": {

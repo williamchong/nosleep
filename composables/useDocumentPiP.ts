@@ -16,7 +16,7 @@ declare global {
 
 /**
  * Composable for managing Document Picture-in-Picture API
- * Provides always-on-top floating window functionality with fallback to regular popup
+ * Provides always-on-top floating window functionality
  */
 export const useDocumentPiP = () => {
   const { trackEvent } = useAnalytics()
@@ -66,7 +66,7 @@ export const useDocumentPiP = () => {
         event.source === pipWin.frames[0] &&
         event.origin === window.location.origin &&
         event.data?.type &&
-        (event.data.type === 'wake-lock-sync' || event.data.type === 'popup-closed')
+        (event.data.type === 'wake-lock-sync' || event.data.type === 'pip-closed')
       ) {
         mainWin.postMessage(event.data, event.origin)
       }

@@ -85,9 +85,10 @@
 
         <FloatingWindowCTA
           v-if="!wakeLock.isPipMode.value"
-          :has-active-popup="wakeLock.hasActivePopup.value"
-          :is-popup="wakeLock.isPopup.value"
+          :has-active-pip-window="wakeLock.hasActivePipWindow.value"
+          :is-pip-mode="wakeLock.isPipMode.value"
           :is-supported="wakeLock.isSupported.value"
+          :is-pip-supported="documentPip.isPipSupported.value"
           :is-mobile="$device.isMobile"
           @open-window="openFloatingWindow"
         />
@@ -98,7 +99,7 @@
       </div>
     </div>
 
-    <div v-if="!wakeLock.isPopup.value && !wakeLock.isPipMode.value" class="max-w-4xl mx-auto mt-8 px-4 space-y-12">
+    <div v-if="!wakeLock.isPipMode.value" class="max-w-4xl mx-auto mt-8 px-4 space-y-12">
       <section class="bg-blue-50 dark:bg-blue-950/30 rounded-xl p-8 space-y-6">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">{{ $t('sections.howToUse.title') }}
         </h2>
@@ -214,13 +215,6 @@
 </template>
 
 <script setup lang="ts">
-// Timing constants for cross-window synchronization
-const TIMING = {
-  PIP_IFRAME_SYNC_DELAY: 500,
-  POPUP_INITIAL_SYNC_DELAY: 1000,
-  POPUP_PARENT_RELEASE_DELAY: 100
-} as const
-
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 const wakeLock = useWakeLock()
@@ -230,7 +224,6 @@ const showTimerSection = ref(false)
 const { $device } = useNuxtApp()
 
 const { trackEvent } = useAnalytics()
-const { t } = useI18n()
 
 const {
   statusText,
@@ -241,7 +234,7 @@ const {
   handleTimerCancel
 } = useWakeLockUI(wakeLock, {
   isPipMode: false,
-  hasActivePopup: wakeLock.hasActivePopup
+  hasActivePipWindow: wakeLock.hasActivePipWindow
 })
 
 const gradientBackgroundClasses = computed(() => {
@@ -264,7 +257,7 @@ const handleExternalLinkClick = () => {
 }
 
 const handleWindowClosed = async (wasActive: boolean) => {
-  wakeLock.popupRef.value = null
+  wakeLock.pipWindowRef.value = null
   trackEvent('pip_window_closed')
 
   await nextTick()
@@ -279,21 +272,15 @@ const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
   iframe.addEventListener('error', () => {
     console.error('Failed to load PiP iframe')
     trackEvent('pip_iframe_load_failed')
-    wakeLock.popupRef.value = null
+    wakeLock.pipWindowRef.value = null
   })
 
   iframe.addEventListener('load', async () => {
-    // Wait before sending initial sync to ensure iframe is fully ready
-    await delay(TIMING.PIP_IFRAME_SYNC_DELAY)
+    // Wait 500ms before sending initial sync to ensure iframe is fully ready
+    await delay(500)
 
     if (iframe.contentWindow) {
-      iframe.contentWindow.postMessage({
-        type: 'wake-lock-initial-sync',
-        isActive: wakeLock.isActive.value,
-        timerActive: wakeLock.timerActive.value,
-        remainingTime: wakeLock.remainingTime.value
-      }, window.location.origin)
-
+      wakeLock.initialSyncToPip()
       await wakeLock.forceReleaseParent()
     } else {
       console.error('Unable to access iframe.contentWindow to send wake-lock-initial-sync message')
@@ -325,7 +312,7 @@ const openDocumentPiP = async () => {
     const iframe = pipWin.document.createElement('iframe')
     setupPipIframe(pipWin, iframe)
 
-    wakeLock.popupRef.value = pipWin
+    wakeLock.pipWindowRef.value = pipWin
 
     documentPip.setupMessageRelay(pipWin, window)
 
@@ -342,68 +329,35 @@ const openDocumentPiP = async () => {
   }
 }
 
-const openRegularPopup = async () => {
+const isPipWindowOpen = () => {
   try {
-    const currentUrl = window.location.href
-    const popup = window.open(
-      currentUrl,
-      'nosleep-popup',
-      'width=400,height=600,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,status=no'
-    )
-
-    if (!popup) {
-      alert(t('errors.popupBlocked'))
-      trackEvent('popup_blocked_by_browser')
-      return false
-    }
-
-    popup.focus()
-    wakeLock.popupRef.value = popup
-
-    await delay(TIMING.POPUP_INITIAL_SYNC_DELAY)
-    wakeLock.initialSyncToPopup()
-
-    await delay(TIMING.POPUP_PARENT_RELEASE_DELAY)
-    await wakeLock.forceReleaseParent()
-
-    trackEvent('floating_window_cta_clicked')
-    return true
-  } catch (error) {
-    console.error('Failed to open popup window:', error)
-    trackEvent('popup_window_open_exception')
-    return false
-  }
-}
-
-const isPopupOpen = () => {
-  try {
-    return wakeLock.popupRef.value && !wakeLock.popupRef.value.closed
+    return wakeLock.pipWindowRef.value && !wakeLock.pipWindowRef.value.closed
   } catch (e) {
-    console.warn('Could not access popup window:', e)
+    console.warn('Could not access PiP window:', e)
     return false
   }
 }
 
 const openFloatingWindow = async () => {
-  if (wakeLock.hasActivePopup.value && isPopupOpen()) {
+  // If PiP is not supported, do nothing
+  if (!documentPip.isPipSupported.value) {
+    console.warn('Document Picture-in-Picture is not supported in this browser')
+    return
+  }
+
+  // If PiP window is already open, just focus it
+  if (wakeLock.hasActivePipWindow.value && isPipWindowOpen()) {
     try {
-      wakeLock.popupRef.value!.focus()
-      const eventType = documentPip.hasPipWindow.value ? 'pip_focus_from_cta_button' : 'popup_focus_from_cta_button'
-      trackEvent(eventType)
+      wakeLock.pipWindowRef.value!.focus()
+      trackEvent('pip_focus_from_cta_button')
       return
     } catch (e) {
-      console.warn('Could not focus popup window:', e)
+      console.warn('Could not focus PiP window:', e)
     }
   }
 
-  if (documentPip.isPipSupported.value) {
-    const success = await openDocumentPiP()
-    if (success) return
-    console.warn('Document PiP failed, falling back to regular popup')
-    trackEvent('pip_window_failed_fallback_to_popup')
-  }
-
-  openRegularPopup()
+  // Open Document PiP window
+  await openDocumentPiP()
 }
 
 onMounted(async () => {

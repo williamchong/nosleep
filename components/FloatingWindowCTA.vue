@@ -10,7 +10,7 @@
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
       </svg>
-      <span>{{ hasActivePopup ? $t('floatingWindow.focusButton') : $t('floatingWindow.openButton') }}</span>
+      <span>{{ hasActivePipWindow ? $t('floatingWindow.focusButton') : $t('floatingWindow.openButton') }}</span>
     </button>
 
     <p class="text-xs text-center text-indigo-600 dark:text-indigo-400 italic">
@@ -21,15 +21,19 @@
 
 <script setup>
 const props = defineProps({
-  hasActivePopup: {
+  hasActivePipWindow: {
     type: Boolean,
     required: true
   },
-  isPopup: {
+  isPipMode: {
     type: Boolean,
     required: true
   },
   isSupported: {
+    type: Boolean,
+    required: true
+  },
+  isPipSupported: {
     type: Boolean,
     required: true
   },
@@ -42,8 +46,8 @@ const props = defineProps({
 const emit = defineEmits(['open-window'])
 
 const shouldShow = computed(() => {
-  // Only show for supported browsers, not on mobile, and not in popup
-  return props.isSupported && !props.isMobile && !props.isPopup
+  // Only show when PiP is supported, wake lock is supported, not on mobile, and not in PiP mode
+  return props.isPipSupported && props.isSupported && !props.isMobile && !props.isPipMode
 })
 
 const handleOpenWindow = () => {

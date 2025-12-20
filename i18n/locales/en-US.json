@@ -132,9 +132,6 @@
       "visitBlog": "Visit My Blog"
     }
   },
-  "errors": {
-    "popupBlocked": "Popup blocked. Please allow popups for this site and try again."
-  },
   "structuredData": {
     "faq": {
       "useCases": {

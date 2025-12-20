@@ -4,19 +4,19 @@
  */
 export const useWakeLockUI = (wakeLock: ReturnType<typeof useWakeLock>, options: {
   isPipMode?: boolean
-  hasActivePopup?: Ref<boolean> | ComputedRef<boolean>
+  hasActivePipWindow?: Ref<boolean> | ComputedRef<boolean>
 } = {}) => {
   const { t } = useI18n()
   const { trackEvent } = useAnalytics()
-  const { isPipMode = false, hasActivePopup = ref(false) } = options
+  const { isPipMode = false, hasActivePipWindow = ref(false) } = options
 
   const statusText = computed(() =>
     wakeLock.isActive.value ? t('status.deviceAwake') : t('status.deviceSleeping')
   )
 
   const buttonClasses = computed(() => {
-    // Focus to popup button - use blue to indicate action
-    if (hasActivePopup.value && !wakeLock.isPopup.value && !isPipMode) {
+    // Focus to PiP button - use blue to indicate action (only on main page)
+    if (hasActivePipWindow.value && !isPipMode) {
       return 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-200 focus:ring-blue-300'
     }
 
@@ -29,7 +29,8 @@ export const useWakeLockUI = (wakeLock: ReturnType<typeof useWakeLock>, options:
   })
 
   const buttonText = computed(() => {
-    if (hasActivePopup.value && !wakeLock.isPopup.value && !isPipMode) {
+    // Show "Focus to Popup" only on main page when PiP window is active
+    if (hasActivePipWindow.value && !isPipMode) {
       return t('button.focusToPopup')
     }
 
@@ -40,17 +41,17 @@ export const useWakeLockUI = (wakeLock: ReturnType<typeof useWakeLock>, options:
   })
 
   const handleToggle = async () => {
-    // If parent has active popup, focus to popup instead
-    if (hasActivePopup.value && !wakeLock.isPopup.value && wakeLock.popupRef.value) {
+    // If parent has active PiP window, focus to it instead
+    if (hasActivePipWindow.value && !isPipMode && wakeLock.pipWindowRef.value) {
       try {
-        if (!wakeLock.popupRef.value.closed) {
-          wakeLock.popupRef.value.focus()
-          trackEvent('popup_focus_from_main_button')
+        if (!wakeLock.pipWindowRef.value.closed) {
+          wakeLock.pipWindowRef.value.focus()
+          trackEvent('pip_focus_from_main_button')
           return
         }
       } catch (e) {
         // Handle cross-origin exception - treat as closed
-        console.warn('Could not access popup window:', e)
+        console.warn('Could not access PiP window:', e)
       }
     }
 
@@ -58,7 +59,7 @@ export const useWakeLockUI = (wakeLock: ReturnType<typeof useWakeLock>, options:
       await wakeLock.toggle()
 
       const action = wakeLock.isActive.value ? 'activate' : 'deactivate'
-      const prefix = isPipMode ? 'pip' : (wakeLock.isPopup.value ? 'popup' : 'main')
+      const prefix = isPipMode ? 'pip' : 'main'
       trackEvent(`${prefix}_toggle_${action}_native_api`)
     } catch (error) {
       console.error('Failed to toggle wake lock:', error)
