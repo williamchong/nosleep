@@ -4,7 +4,7 @@
       <DarkModeToggle />
     </div>
 
-    <WakeLockControl>
+    <WakeLockControl auto-acquire>
       <template #extra-content>
         <FloatingWindowCTA
           :has-active-pip-window="wakeLock.hasActivePipWindow.value"
@@ -248,23 +248,4 @@ const openFloatingWindow = async () => {
   // Open Document PiP window
   await openDocumentPiP()
 }
-
-onMounted(async () => {
-  let autoAcquireSuccess = false
-
-  if (wakeLock.isSupported.value) {
-    try {
-      autoAcquireSuccess = await wakeLock.acquire()
-    } catch (error) {
-      console.error('Auto-acquire error:', error)
-      trackEvent('auto_acquire_failed_native_api')
-      console.log('Auto-start failed, user interaction required')
-    }
-
-    const acquireStatus = autoAcquireSuccess ? 'success' : 'failed'
-    trackEvent(`app_init_supported_auto_${acquireStatus}`)
-  } else {
-    trackEvent('app_init_unsupported_browser')
-  }
-})
 </script>

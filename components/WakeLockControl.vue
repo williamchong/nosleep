@@ -86,6 +86,14 @@
 </template>
 
 <script setup lang="ts">
+interface Props {
+  autoAcquire?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  autoAcquire: false
+})
+
 const wakeLock = useWakeLock()
 const showTimerSection = ref(false)
 
@@ -103,7 +111,6 @@ const {
   hasActivePipWindow: wakeLock.hasActivePipWindow
 })
 
-
 const gradientBackgroundClasses = computed(() => {
   if (wakeLock.isActive.value) {
     return 'bg-gradient-to-b from-orange-100 via-amber-50/50 to-white dark:from-orange-950/40 dark:via-yellow-950/20 dark:to-gray-900'
@@ -116,4 +123,26 @@ const toggleTimerSection = () => {
   const action = showTimerSection.value ? 'expand' : 'collapse'
   trackEvent(`timer_section_${action}`)
 }
+
+onMounted(async () => {
+  if (!props.autoAcquire) return
+
+  let autoAcquireSuccess = false
+
+  if (wakeLock.isSupported.value) {
+    try {
+      autoAcquireSuccess = await wakeLock.acquire()
+    } catch (error) {
+      console.error('Auto-acquire error:', error)
+      trackEvent('auto_acquire_failed_native_api')
+      console.log('Auto-start failed, user interaction required')
+    }
+
+    const acquireStatus = autoAcquireSuccess ? 'success' : 'failed'
+    const eventPrefix = wakeLock.isPipMode.value ? 'pip_init_auto' : 'app_init_supported_auto'
+    trackEvent(`${eventPrefix}_${acquireStatus}`)
+  } else if (!wakeLock.isPipMode.value) {
+    trackEvent('app_init_unsupported_browser')
+  }
+})
 </script>
