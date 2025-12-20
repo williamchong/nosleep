@@ -1,7 +1,6 @@
 interface WakeLockMessageData {
   type: string
   isActive: boolean
-  usingVideoFallback: boolean
   timerActive: boolean
   remainingTime: number
 }
@@ -12,9 +11,6 @@ export const useWakeLock = () => {
   const isSupported = ref(false)
   const isActive = ref(false)
   const wakeLock = ref<WakeLockSentinel | null>(null)
-
-  const videoElement = ref<HTMLVideoElement | null>(null)
-  const usingVideoFallback = ref(false)
 
   const isPopup = ref(false)
   const isIframePip = ref(false)
@@ -64,55 +60,6 @@ export const useWakeLock = () => {
     }, 1000)
   }
 
-  const createDummyVideo = () => {
-    if (typeof document === 'undefined') return null
-
-    const video = document.createElement('video')
-    video.setAttribute('loop', '')
-    video.style.position = 'fixed'
-    video.style.top = '-1px'
-    video.style.left = '-1px'
-    video.style.width = '1px'
-    video.style.height = '1px'
-    video.style.opacity = '0'
-    video.style.pointerEvents = 'none'
-
-    video.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAABOdtZGF0AAACvQYF//+53EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE0OCByMjc5NSBhYWE5YWE4IC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNyAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzoweDExMyBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MSBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0tMiB0aHJlYWRzPTEgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0zIGJfcHlyYW1pZD0yIGJfYWRhcHQ9MSBiX2JpYXM9MCBkaXJlY3Q9MSB3ZWlnaHRiPTEgb3Blbl9nb3A9MCB3ZWlnaHRwPTIga2V5aW50PTI1MCBrZXlpbnRfbWluPTI1IHNjZW5lY3V0PTQwIGludHJhX3JlZnJlc2g9MCByY19sb29rYWhlYWQ9NDAgcmM9YWJyIG1idHJlZT0xIGJpdHJhdGU9NTAwIHJhdGV0b2w9MS4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFxPTE6MS4wMACAAAAAEmWIhAAa//7ugr4FN3ncFEIV4d4CAExhdmM1Ny44OS4xMDAAQjebYIG7fwAQt9QJGQWooJ8V9vw+Zqta5njzO/aqsy2aqSSdnsSofyMfunhGd/t5QLpBxpIPPEHnhGye2vE2p4hHdE8Qwc24OSMrm9nniO8jfELnRc84cAgsXV4H3HVT5Yn4OYUgaJymr+r3BjNskBb9E/Gr7r35PdHI+7sQ7oVWx53z59Z9i3xstw8XziIODPey4waIw+A1DAobmN1QxX9EzbI2cHHmfrOmSZEePZFqvReO89/r9NwRmJX1dQvXjzzqnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnDAwMDAwMDAwMDAwMDAwMDAwMDG7Ru0btG7Ru0btG7Ru0btG7Ru0btG7Ru0btG7SCvsBY2q8Lv71GuauprYFQBKkkj0QlQ8DuSav+GOzTvqGRXPih1e8Hp7jBzvWUMkYXTk5RuOCC22Z2nJxKIPyvzoTAPmv/zas/qU3yP82V9XsLg+p0pk3rUEWbId8QSp3GVyC7x+caLoycdcd+a00D8Hkbp+QsHFo4mCNj+PtGpw9kOvFG5rTmiO3Xx5y5+xZhMx5rYbK9IzHxhpeenS8lMFx5PD/L2BSPNbJi+Q5skCJutX4aSbCaCaCaFywsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLC8AAAATobW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAAC8AAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAit0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAACIAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAOOOQACAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAAiAAAAAAABAAAAAAGjbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAu1AAAAZAVxwAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAABTm1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAQ5zdGJsAAAAqnN0c2QAAAAAAAAAAQAAAJphdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAIAAgBIAAAASAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGP//AAAANGF2Y0MBZAAU/+EAHGdkABSs2V+IiP/ABAACRAAAAwGQAABdqDxQplgBAAVo6+yyLAAAABBwYXNwAAAAEAAAAAkAAAAYc3R0cwAAAAAAAAABAAAAAQAAAZAAAAAcc3RzYwAAAAAAAAABAAAAAQAAAAEAAAABAAAAFHN0c3oAAAAAAAAC1wAAAAEAAAAUc3RjbwAAAAAAAAABAAAAMAAAAed0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAACAAAAAAAAAC8AAAAAAAAAAAAAAAEBAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAAvAAAAAAABAAAAAAFfbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAABWIgAABAAVxwAAAAAALWhkbHIAAAAAAAAAAHNvdW4AAAAAAAAAAAAAAABTb3VuZEhhbmRsZXIAAAABCm1pbmYAAAAQc21oZAAAAAAAAAAAAAAAJGRpbmYAAAAcZHJlZgAAAAAAAAABAAAADHVybCAAAAABAAAAznN0YmwAAABqc3RzZAAAAAAAAAABAAAAWm1wNGEAAAAAAAAAAQAAAAAAAAAAAAIAEAAAAABWIgAAAAAANmVzZHMAAAAAA4CAgCUAAgAEgICAF0AVAAAAAAH0AAABXeoFgICABROQVuUABoCAgAECAAAAGHN0dHMAAAAAAAAAAQAAAAEAAAQAAAAAHHN0c2MAAAAAAAAAAQAAAAEAAAABAAAAAQAAABRzdHN6AAAAAAAAAggAAAABAAAAFHN0Y28AAAAAAAAAAQAAAwcAAABidWR0YQAAAFptZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAAC1pbHN0AAAAJal0b28AAAAdZGF0YQAAAAEAAAAATGF2ZjU3LjcxLjEwMA=='
-
-    document.body.appendChild(video)
-    return video
-  }
-
-  const startVideoFallback = async () => {
-    if (!videoElement.value) {
-      videoElement.value = createDummyVideo()
-    }
-
-    if (videoElement.value) {
-      try {
-        await videoElement.value.play()
-        usingVideoFallback.value = true
-        isActive.value = true
-        trackEvent('video_fallback_method_activated')
-        return true
-      } catch (error) {
-        console.error('Failed to start video fallback:', error)
-        trackEvent('video_fallback_activation_failed')
-        return false
-      }
-    }
-    return false
-  }
-
-  const stopVideoFallback = () => {
-    if (videoElement.value) {
-      videoElement.value.pause()
-      videoElement.value.remove()
-      videoElement.value = null
-    }
-    usingVideoFallback.value = false
-  }
-
   const establishNativeWakeLock = async () => {
     try {
       wakeLock.value = await navigator.wakeLock.request('screen')
@@ -154,29 +101,21 @@ export const useWakeLock = () => {
         return false
       }
 
-      if (isSupported.value) {
-        if (usingVideoFallback.value) {
-          stopVideoFallback()
-        }
+      if (!isSupported.value) {
+        return false
+      }
 
-        const success = await establishNativeWakeLock()
-        if (success) {
-          isActive.value = true
+      const success = await establishNativeWakeLock()
+      if (success) {
+        isActive.value = true
 
-          if (shouldSyncState.value) {
-            syncWakeLockState()
-          }
-          return true
-        } else {
-          trackEvent('wake_lock_establish_failed_native_api')
-          return false
-        }
-      } else {
-        const result = await startVideoFallback()
-        if (result && shouldSyncState.value) {
+        if (shouldSyncState.value) {
           syncWakeLockState()
         }
-        return result
+        return true
+      } else {
+        trackEvent('wake_lock_establish_failed_native_api')
+        return false
       }
     } finally {
       isAcquiring.value = false
@@ -205,11 +144,6 @@ export const useWakeLock = () => {
         }
       }
 
-      if (!isChildWindow.value && usingVideoFallback.value) {
-        stopVideoFallback()
-        isActive.value = false
-      }
-
       stopTimer()
 
       if (shouldSyncState.value) {
@@ -231,10 +165,6 @@ export const useWakeLock = () => {
       } catch (error) {
         console.error('Failed to release parent wake lock:', error)
       }
-    }
-
-    if (usingVideoFallback.value) {
-      stopVideoFallback()
     }
   }
 
@@ -297,7 +227,6 @@ export const useWakeLock = () => {
   const createSyncMessage = (type: 'wake-lock-sync' | 'wake-lock-initial-sync'): WakeLockMessageData => ({
     type,
     isActive: isActive.value,
-    usingVideoFallback: isChildWindow.value ? false : usingVideoFallback.value,
     timerActive: timerActive.value,
     remainingTime: remainingTime.value
   })
@@ -394,9 +323,8 @@ export const useWakeLock = () => {
     if (wasActive) {
       const reacquireSuccess = await acquire()
 
-      const method = isSupported.value ? 'native_api' : 'video_fallback'
       const result = reacquireSuccess ? 'success' : 'failed'
-      trackEvent(`wakelock_reacquire_${method}_${result}`)
+      trackEvent(`wakelock_reacquire_native_api_${result}`)
 
       // If reacquire failed, ensure clean state
       if (!reacquireSuccess) {
@@ -489,7 +417,6 @@ export const useWakeLock = () => {
   return {
     isSupported: readonly(isSupported),
     isActive: readonly(isActive),
-    usingVideoFallback: readonly(usingVideoFallback),
     timerActive: readonly(timerActive),
     timerDuration: readonly(timerDuration),
     remainingTime: readonly(remainingTime),

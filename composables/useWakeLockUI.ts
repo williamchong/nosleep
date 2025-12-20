@@ -21,9 +21,6 @@ export const useWakeLockUI = (wakeLock: ReturnType<typeof useWakeLock>, options:
     }
 
     if (wakeLock.isActive.value) {
-      if (wakeLock.usingVideoFallback.value) {
-        return 'bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-200 focus:ring-amber-300'
-      }
       return 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-200 focus:ring-green-300'
     }
 
@@ -61,9 +58,8 @@ export const useWakeLockUI = (wakeLock: ReturnType<typeof useWakeLock>, options:
       await wakeLock.toggle()
 
       const action = wakeLock.isActive.value ? 'activate' : 'deactivate'
-      const method = wakeLock.usingVideoFallback.value ? 'video_fallback' : 'native_api'
       const prefix = isPipMode ? 'pip' : (wakeLock.isPopup.value ? 'popup' : 'main')
-      trackEvent(`${prefix}_toggle_${action}_${method}`)
+      trackEvent(`${prefix}_toggle_${action}_native_api`)
     } catch (error) {
       console.error('Failed to toggle wake lock:', error)
       trackEvent(`${isPipMode ? 'pip' : 'main'}_toggle_failed`)

@@ -9,7 +9,7 @@
   "meta": {
     "ogTitle": "NoSleep: Prevent Screen Sleep | Custom Timer Tool for Downloads & Work",
     "ogDescription": "Keep your screen awake during downloads, work sessions & presentations. Set custom sleep timers (1-480 min). Works on all browsers & devices. Free web tool.",
-    "applicationDescription": "A web-based tool that prevents your computer or mobile device from going to sleep, featuring customizable auto-sleep timers, animated visual feedback, and browser compatibility with video fallback methods."
+    "applicationDescription": "A web-based tool that prevents your computer or mobile device from going to sleep using the Screen Wake Lock API, featuring customizable auto-sleep timers and animated visual feedback."
   },
   "header": {
     "title": "NoSleep",
@@ -17,9 +17,7 @@
   },
   "button": {
     "deviceAwake": "Device Awake",
-    "deviceAwakeVideo": "Device Awake",
     "deviceSleeping": "Device Sleeping",
-    "keepAwakeFallback": "Keep Awake",
     "clickToKeepAwake": "Click to Keep Awake",
     "focusToPopup": "Switch to Popup Window",
     "start": "Start",
@@ -33,11 +31,15 @@
     "system": "System"
   },
   "status": {
-    "notSupported": "Using video fallback method (Wake Lock API not supported)",
     "deviceAwake": "Your device will stay awake. Click to allow sleep.",
     "deviceSleeping": "Your device can sleep normally. Click to keep awake.",
     "ariaLabelAwake": "Device is awake - Click sun to allow sleep",
     "ariaLabelSleep": "Device is sleeping - Click moon to keep awake"
+  },
+  "unsupported": {
+    "title": "Browser Not Supported",
+    "message": "Your browser does not support the Screen Wake Lock API needed for NoSleep to work.",
+    "suggestion": "Please try using Chrome 84+, Edge 84+, Safari 16.4+, or a recent version of Firefox."
   },
   "timer": {
     "label": "Set Timer",
@@ -96,7 +98,7 @@
       },
       "howItWorks": {
         "question": "How does it work?",
-        "answer": "This website uses your browser's built-in screen wake feature when available. For older browsers, it uses a backup method that needs you to click first. You can set timers from 1-480 minutes to automatically let your device sleep again. The animated icons show when it's actively keeping your screen awake. Use the dedicated popup window to prevent accidentally closing the tab."
+        "answer": "This website uses your browser's built-in Screen Wake Lock API to prevent your device from sleeping. You can set timers from 1-480 minutes to automatically let your device sleep again. The animated icons show when it's actively keeping your screen awake. Use the dedicated popup window to prevent accidentally closing the tab."
       },
       "safety": {
         "question": "Is it safe to use?",
@@ -104,20 +106,16 @@
       },
       "browserSupport": {
         "question": "Which browsers work with this?",
-        "nativeApiTitle": "Best Experience (Built-in Support):",
+        "nativeApiTitle": "Supported Browsers:",
         "nativeApiBrowsers": [
           "Chrome 84+ (Computer & Phone)",
           "Microsoft Edge 84+",
           "Safari 16.4+ (Mac & iPhone)",
           "Firefox (with additional setup)"
         ],
-        "fallbackTitle": "Basic Support (All Others):",
-        "fallbackBrowsers": [
-          "Any modern browser",
-          "Older browser versions",
-          "All mobile browsers"
-        ],
-        "note": "The app automatically detects what your browser can do and adapts accordingly. Use the popup window for the most reliable experience."
+        "fallbackTitle": "",
+        "fallbackBrowsers": [],
+        "note": "If your browser doesn't support the Wake Lock API, you'll see an error message. Please upgrade to a supported browser."
       },
       "timerFeature": {
         "question": "How do I set a sleep timer?",
@@ -125,7 +123,7 @@
       },
       "properUsage": {
         "question": "What's the best way to use this?",
-        "answer": "Keep this tab visible and active in your browser, OR click \"Open Dedicated Window\" to create a small popup that stays on top. The popup window syncs with this main page and is less likely to accidentally get hidden. If you see an amber/yellow button, click it first to activate. Switching tabs or minimizing will stop the wake lock."
+        "answer": "Keep this tab visible and active in your browser, OR click \"Open Dedicated Window\" to create a small popup that stays on top. The popup window syncs with this main page and is less likely to accidentally get hidden. Switching tabs or minimizing will stop the wake lock."
       }
     },
     "about": {
@@ -145,7 +143,7 @@
       },
       "howItWorks": {
         "question": "How does NoSleep work?",
-        "answer": "This website uses your browser's built-in screen wake feature when available. For older browsers, it uses a backup method that needs you to click first. You can set timers from 1-480 minutes to automatically let your device sleep again. The animated icons show when it's actively keeping your screen awake. Use the dedicated popup window to prevent accidentally closing the tab."
+        "answer": "This website uses your browser's built-in Screen Wake Lock API to prevent your device from sleeping. You can set timers from 1-480 minutes to automatically let your device sleep again. The animated icons show when it's actively keeping your screen awake. Use the dedicated popup window to prevent accidentally closing the tab."
       },
       "safety": {
         "question": "Is NoSleep safe to use?",
@@ -153,7 +151,7 @@
       },
       "browserSupport": {
         "question": "Which browsers support NoSleep?",
-        "answer": "Best experience: Chrome 84+, Microsoft Edge 84+, Safari 16.4+, and Firefox with additional setup. Basic support: Any modern browser with a backup method. The app automatically detects your browser and adapts. Use the popup window for the most reliable experience."
+        "answer": "NoSleep requires browsers with Screen Wake Lock API support: Chrome 84+, Microsoft Edge 84+, Safari 16.4+, and Firefox with additional setup. The app automatically detects browser support. Use the popup window for the most reliable experience."
       },
       "timerFeature": {
         "question": "How does the timer feature work?",
@@ -161,7 +159,7 @@
       },
       "properUsage": {
         "question": "What's the best way to use NoSleep?",
-        "answer": "Keep this tab visible and active in your browser, OR click \"Open Dedicated Window\" to create a small popup that stays on top. The popup window syncs with this main page and is less likely to accidentally get hidden. If you see an amber/yellow button, click it first to activate. Switching tabs or minimizing will stop the wake lock."
+        "answer": "Keep this tab visible and active in your browser, OR click \"Open Dedicated Window\" to create a small popup that stays on top. The popup window syncs with this main page and is less likely to accidentally get hidden. Switching tabs or minimizing will stop the wake lock."
       }
     }
   }

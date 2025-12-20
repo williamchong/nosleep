@@ -16,26 +16,37 @@
           <p class="text-lg text-gray-600 dark:text-gray-400">{{ $t('header.subtitle') }}</p>
         </div>
 
-        <StatusAnimation :is-active="wakeLock.isActive.value" @toggle="handleWakeLockToggle" />
-
-        <button
-          class="w-full py-8 px-8 rounded-2xl text-2xl font-semibold transition-all duration-200 focus:outline-none focus:ring-4"
-          :class="buttonClasses" @click="handleWakeLockToggle">
-          {{ buttonText }}
-        </button>
-
-        <div class="text-sm text-gray-700 dark:text-gray-300">
-          {{ actionStatement }}
+        <div v-if="!wakeLock.isSupported.value" class="mt-4 p-6 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-200 dark:border-red-800">
+          <div class="flex items-start space-x-3">
+            <div class="text-3xl">😞</div>
+            <div>
+              <h3 class="text-lg font-semibold text-red-900 dark:text-red-100 mb-2">
+                {{ $t('unsupported.title') }}
+              </h3>
+              <p class="text-red-700 dark:text-red-300 text-sm mb-2">
+                {{ $t('unsupported.message') }}
+              </p>
+              <p class="text-red-600 dark:text-red-400 text-xs">
+                {{ $t('unsupported.suggestion') }}
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div
-          v-if="!wakeLock.isSupported.value && wakeLock.isActive.value"
-          class="text-amber-600 dark:text-amber-400 text-sm"
-        >
-          {{ $t('status.notSupported') }}
-        </div>
+        <template v-else>
+          <StatusAnimation :is-active="wakeLock.isActive.value" @toggle="handleWakeLockToggle" />
 
-        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+          <button
+            class="w-full py-8 px-8 rounded-2xl text-2xl font-semibold transition-all duration-200 focus:outline-none focus:ring-4"
+            :class="buttonClasses" @click="handleWakeLockToggle">
+            {{ buttonText }}
+          </button>
+
+          <div class="text-sm text-gray-700 dark:text-gray-300">
+            {{ actionStatement }}
+          </div>
+
+          <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors inline-flex items-center space-x-1 mb-3"
             @click="toggleTimerSection">
@@ -69,7 +80,8 @@
               @start="handleTimerStart"
               @cancel="handleTimerCancel" />
           </div>
-        </div>
+          </div>
+        </template>
 
         <FloatingWindowCTA
           v-if="!wakeLock.isPipMode.value"
@@ -278,7 +290,6 @@ const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
       iframe.contentWindow.postMessage({
         type: 'wake-lock-initial-sync',
         isActive: wakeLock.isActive.value,
-        usingVideoFallback: false,
         timerActive: wakeLock.timerActive.value,
         remainingTime: wakeLock.remainingTime.value
       }, window.location.origin)
@@ -402,19 +413,19 @@ onMounted(async () => {
     return
   }
 
-  try {
-    autoAcquireSuccess = await wakeLock.acquire()
-  } catch (error) {
-    console.error('Auto-acquire error:', error)
+  if (wakeLock.isSupported.value) {
+    try {
+      autoAcquireSuccess = await wakeLock.acquire()
+    } catch (error) {
+      console.error('Auto-acquire error:', error)
+      trackEvent('auto_acquire_failed_native_api')
+      console.log('Auto-start failed, user interaction required')
+    }
 
-    const eventName = wakeLock.isSupported.value ? 'auto_acquire_failed_native_api' : 'auto_acquire_failed_video_fallback'
-    trackEvent(eventName)
-
-    console.log('Auto-start failed, user interaction required')
+    const acquireStatus = autoAcquireSuccess ? 'success' : 'failed'
+    trackEvent(`app_init_supported_auto_${acquireStatus}`)
+  } else {
+    trackEvent('app_init_unsupported_browser')
   }
-
-  const supportStatus = wakeLock.isSupported.value ? 'supported' : 'unsupported'
-  const acquireStatus = autoAcquireSuccess ? 'success' : 'failed'
-  trackEvent(`app_init_${supportStatus}_auto_${acquireStatus}`)
 })
 </script>

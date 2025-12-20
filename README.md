@@ -7,15 +7,14 @@ A web application that prevents computers and mobile devices from going to sleep
 - 🚫 Prevents device sleep/screen dimming
 - ⏰ **Auto-sleep timer** with customizable duration
 - 🎯 **Visual feedback** with animated icons when active
-- 🔄 **Video fallback** for unsupported browsers
-- 📱 Cross-platform support (desktop & mobile)  
+- 📱 Cross-platform support (desktop & mobile)
 - 🌐 Web-based solution (no installation required)
 - 🔧 Simple one-click activation
 - 📊 Built with Nuxt 3 for optimal performance
 
 ## How It Works
 
-This web app uses your browser's built-in [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API) when available to keep your screen awake. For older browsers, it provides a backup method that needs you to click first. You can also open a dedicated popup window that syncs with the main page and stays on top to avoid accidentally hiding the tab.
+This web app uses your browser's built-in [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API) to keep your screen awake. Browsers without Wake Lock API support will see an error message prompting them to upgrade to a supported browser. You can also open a dedicated popup window that syncs with the main page and stays on top to avoid accidentally hiding the tab.
 
 ### Core Functionality
 - **Instant activation**: Click the main button to keep your screen awake
@@ -33,18 +32,17 @@ This web app uses your browser's built-in [Screen Wake Lock API](https://develop
 
 ## Browser Compatibility
 
-### Best Experience (Built-in Support)
+### Required: Native Wake Lock API Support
 - ✅ Chrome/Chromium 84+ (Computer & Phone)
 - ✅ Microsoft Edge 84+
 - ✅ Safari 16.4+ (Mac & iPhone/iPad)
 - ✅ Firefox (with additional setup)
 
-### Basic Support (Backup Method)
-- ✅ Any modern browser
-- ✅ Older browser versions
-- ✅ All mobile browsers
+### Unsupported Browsers
+- ❌ Browsers without Wake Lock API will see an error message
+- 💡 Users are prompted to upgrade to a supported browser
 
-*The app automatically detects your browser and adapts. Use the popup window for the most reliable experience across all browsers.*
+*The app automatically detects your browser support. Use the popup window for the most reliable experience on supported browsers.*
 
 ## Setup
 
@@ -152,15 +150,14 @@ bun run test
 ### 📋 Best Practices
 - **Keep tab visible**: Keep this browser tab active and in the foreground
 - **Use dedicated popup**: Click "Open Dedicated Window" for a separate window that stays on top
-- **Amber button**: Click the amber/yellow button first if you see one (older browsers)
 - **Popup sync**: Controls in the popup window automatically sync with the main page
 - **Auto-release**: Screen wake stops if you switch tabs, minimize, or close the window
 
 ### 🎯 Visual Indicators
-- **🟢 Green button**: Screen awake using built-in browser support (best experience)
-- **🟡 Amber/Yellow button**: Screen awake using backup method (click first to activate)
-- **🔵 Blue button**: "Switch to Popup Window" (when popup is open)
-- **✨ Pulsing icon**: Animation shows when actively keeping screen awake
+- **☀️ Sun animation**: Bright sun with rotating rays when screen is awake
+- **🌙 Moon animation**: Peaceful moon when device can sleep normally
+- **🔴 Red button**: "Click to Allow Sleep" when device is awake
+- **🟢 Green button**: "Click to Keep Awake" when device is sleeping
 - **⏰ Timer countdown**: Real-time display of remaining time
 
 ## Use Cases
@@ -188,11 +185,11 @@ bun run test
 
 Built with modern web technologies:
 - **Nuxt 3**: Full-stack framework for optimal performance and SEO
-- **Screen Wake Lock API**: Native browser sleep prevention (best method)
-- **Video Fallback**: Backup method for older browsers
+- **Screen Wake Lock API**: Native browser sleep prevention (required)
+- **Lottie Animations**: Smooth sun/moon animations with reduced motion support
 - **Cross-Window Sync**: Real-time synchronization between main page and popup
 - **Smart Timer System**: JavaScript intervals with automatic cleanup
-- **Animated Feedback**: CSS animations show when actively working
+- **Document PiP**: Picture-in-Picture API for floating windows (when supported)
 - **Progressive Web App**: Can be installed for easy access
 - **Responsive Design**: Works perfectly on desktop, tablet, and mobile
 
@@ -201,8 +198,8 @@ Built with modern web technologies:
 - **Reactive state**: Vue 3 reactivity for real-time UI updates across windows
 - **Cross-window messaging**: `postMessage` API for secure popup ↔ main page sync
 - **Smart state management**: Parent window becomes read-only when popup is active
-- **Error handling**: Graceful fallbacks and user feedback
-- **Memory management**: Automatic cleanup of timers, video elements, and event listeners
+- **Error handling**: Unsupported browser detection with error message
+- **Memory management**: Automatic cleanup of timers and event listeners
 
 For more information:
 - [Screen Wake Lock API Documentation](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API)

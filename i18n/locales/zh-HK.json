@@ -9,7 +9,7 @@
   "meta": {
     "ogTitle": "NoSleep: 防止螢幕休眠 | 下載工作專用計時器工具",
     "ogDescription": "下載、工作、簡報時保持螢幕喚醒。設定自訂休眠計時器(1-480分鐘)。支援所有瀏覽器裝置。免費網頁工具。",
-    "applicationDescription": "一個網頁工具，防止您的電腦或流動電話裝置進入休眠，具備可自訂的自動休眠計時器、動畫視覺回饋，以及通用瀏覽器相容性與自動備援方法。"
+    "applicationDescription": "一個網頁工具，使用 Screen Wake Lock API 防止您的電腦或流動電話裝置進入休眠，具備可自訂的自動休眠計時器和動畫視覺回饋。"
   },
   "header": {
     "title": "NoSleep",
@@ -17,9 +17,7 @@
   },
   "button": {
     "deviceAwake": "裝置喚醒",
-    "deviceAwakeVideo": "裝置喚醒",
     "deviceSleeping": "裝置休眠",
-    "keepAwakeFallback": "保持喚醒",
     "clickToKeepAwake": "點擊保持喚醒",
     "focusToPopup": "切換到彈出視窗",
     "start": "開始",
@@ -33,11 +31,15 @@
     "system": "系統"
   },
   "status": {
-    "notSupported": "使用影片備援方法（不支援 Wake Lock API）",
     "deviceAwake": "您的裝置將保持喚醒。點擊允許休眠。",
     "deviceSleeping": "您的裝置可正常休眠。點擊保持喚醒。",
     "ariaLabelAwake": "裝置喚醒中 - 點擊太陽允許休眠",
     "ariaLabelSleep": "裝置休眠中 - 點擊月亮保持喚醒"
+  },
+  "unsupported": {
+    "title": "瀏覽器不支援",
+    "message": "您的瀏覽器不支援 NoSleep 運作所需的 Screen Wake Lock API。",
+    "suggestion": "請嘗試使用 Chrome 84+、Edge 84+、Safari 16.4+ 或最新版本的 Firefox。"
   },
   "timer": {
     "label": "設定計時器",
@@ -58,7 +60,6 @@
     "title": "獲得最佳效果",
     "keepTabFrontmost": "保持此分頁在瀏覽器中可見和活躍",
     "avoidBackgrounding": "或使用專用彈出視窗保持在最上層",
-    "interactionRequired": "舊版瀏覽器需要您先點擊才能防止休眠",
     "openPopup": "開啟專用視窗"
   },
   "floatingWindow": {
@@ -96,7 +97,7 @@
       },
       "howItWorks": {
         "question": "如何運作？",
-        "answer": "這個網站使用瀏覽器內建的螢幕喚醒功能（如有支援）。對於舊版瀏覽器，會使用需要您先點擊的備用方法。您可以設定 1-480 分鐘的計時器來自動恢復休眠。動畫圖示顯示正在保持螢幕喚醒。使用專用彈出視窗可防止意外關閉分頁。"
+        "answer": "這個網站使用瀏覽器內建的 Screen Wake Lock API 防止裝置休眠。您可以設定 1-480 分鐘的計時器來自動恢復休眠。動畫圖示顯示正在保持螢幕喚醒。使用專用彈出視窗可防止意外關閉分頁。"
       },
       "safety": {
         "question": "使用安全嗎？",
@@ -104,20 +105,16 @@
       },
       "browserSupport": {
         "question": "哪些瀏覽器支援此功能？",
-        "nativeApiTitle": "最佳體驗（內建支援）：",
+        "nativeApiTitle": "支援的瀏覽器：",
         "nativeApiBrowsers": [
           "Chrome 84+（電腦和手機）",
           "Microsoft Edge 84+",
           "Safari 16.4+（Mac 和 iPhone）",
           "Firefox（需額外設定）"
         ],
-        "fallbackTitle": "基本支援（所有其他）：",
-        "fallbackBrowsers": [
-          "任何現代瀏覽器",
-          "較舊瀏覽器版本",
-          "所有流動電話瀏覽器"
-        ],
-        "note": "應用程式會自動偵測您的瀏覽器功能並相應調整。使用彈出視窗獲得最可靠的體驗。"
+        "fallbackTitle": "",
+        "fallbackBrowsers": [],
+        "note": "如果您的瀏覽器不支援 Wake Lock API，您會看到錯誤訊息。請升級至支援的瀏覽器。"
       },
       "timerFeature": {
         "question": "如何設定休眠計時器？",
@@ -125,7 +122,7 @@
       },
       "properUsage": {
         "question": "使用此網站的最佳方式是什麼？",
-        "answer": "保持此分頁在瀏覽器中可見和活躍，或點擊「開啟專用視窗」建立保持在最上層的小彈出視窗。彈出視窗與主頁面同步，較不容易意外隱藏。如果看到琥珀/黃色按鈕，請先點擊以啟動。切換分頁或最小化會停止喚醒鎖。"
+        "answer": "保持此分頁在瀏覽器中可見和活躍，或點擊「開啟專用視窗」建立保持在最上層的小彈出視窗。彈出視窗與主頁面同步，較不容易意外隱藏。切換分頁或最小化會停止喚醒鎖。"
       }
     },
     "about": {
@@ -145,7 +142,7 @@
       },
       "howItWorks": {
         "question": "NoSleep 如何運作？",
-        "answer": "這個網站使用瀏覽器內建的螢幕喚醒功能（如有支援）。對於舊版瀏覽器，會使用需要您先點擊的備用方法。您可以設定 1-480 分鐘的計時器來自動恢復休眠。動畫圖示顯示正在保持螢幕喚醒。使用專用彈出視窗可防止意外關閉分頁。"
+        "answer": "這個網站使用瀏覽器內建的 Screen Wake Lock API 防止裝置休眠。您可以設定 1-480 分鐘的計時器來自動恢復休眠。動畫圖示顯示正在保持螢幕喚醒。使用專用彈出視窗可防止意外關閉分頁。"
       },
       "safety": {
         "question": "NoSleep 使用安全嗎？",
@@ -153,7 +150,7 @@
       },
       "browserSupport": {
         "question": "哪些瀏覽器支援 NoSleep？",
-        "answer": "最佳體驗：Chrome 84+、Microsoft Edge 84+、Safari 16.4+ 和需額外設定的 Firefox。基本支援：任何現代瀏覽器都有備用方法。應用程式會自動偵測您的瀏覽器並調整。使用彈出視窗獲得最可靠的體驗。"
+        "answer": "NoSleep 需要支援 Screen Wake Lock API 的瀏覽器：Chrome 84+、Microsoft Edge 84+、Safari 16.4+ 和需額外設定的 Firefox。應用程式會自動偵測瀏覽器支援情況。使用彈出視窗獲得最可靠的體驗。"
       },
       "timerFeature": {
         "question": "計時器功能如何使用？",
@@ -161,7 +158,7 @@
       },
       "properUsage": {
         "question": "使用 NoSleep 的最佳方式是什麼？",
-        "answer": "保持此分頁在瀏覽器中可見和活躍，或點擊「開啟專用視窗」建立保持在最上層的小彈出視窗。彈出視窗與主頁面同步，較不容易意外隱藏。如果看到琥珀/黃色按鈕，請先點擊以啟動。切換分頁或最小化會停止喚醒鎖。"
+        "answer": "保持此分頁在瀏覽器中可見和活躍，或點擊「開啟專用視窗」建立保持在最上層的小彈出視窗。彈出視窗與主頁面同步，較不容易意外隱藏。切換分頁或最小化會停止喚醒鎖。"
       }
     }
   }
