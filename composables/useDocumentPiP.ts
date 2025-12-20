@@ -43,8 +43,8 @@ export const useDocumentPiP = () => {
     if (pipToMainListener.value && relayTargetWindows.value.pipWin) {
       relayTargetWindows.value.pipWin.removeEventListener('message', pipToMainListener.value)
     }
-    if (mainToPipListener.value && relayTargetWindows.value.mainWin) {
-      relayTargetWindows.value.mainWin.removeEventListener('message', mainToPipListener.value)
+    if (mainToPipListener.value) {
+      window.removeEventListener('message', mainToPipListener.value)
     }
     pipToMainListener.value = null
     mainToPipListener.value = null
@@ -53,40 +53,35 @@ export const useDocumentPiP = () => {
 
   /**
    * Set up message relay between main window and PiP iframe
-   * Forwards wake-lock messages bidirectionally to keep main window and PiP iframe in sync
+   * The main window sends to PiP window, but needs to reach the iframe inside it
+   * The iframe sends to its parent (PiP window), but needs to reach the main window
    */
-  const setupMessageRelay = (pipWin: Window, mainWin: Window) => {
+  const setupMessageRelay = (pipWin: Window) => {
     cleanupMessageRelay()
-    relayTargetWindows.value = { pipWin, mainWin }
+    relayTargetWindows.value = { pipWin, mainWin: window }
 
-    // Relay messages from iframe to main window
+    const isWakeLockMessage = (data: unknown) => {
+      return data && typeof data === 'object' && 'type' in data && 
+        (data.type === 'sync' || data.type === 'closed')
+    }
+    const isValidOrigin = (origin: string) => origin === window.location.origin
+
+    // Forward iframe → main window (for sync and closed messages)
     pipToMainListener.value = (event: MessageEvent) => {
-      // Only relay wake-lock messages from the iframe, validate origin
-      if (
-        event.source === pipWin.frames[0] &&
-        event.origin === window.location.origin &&
-        event.data?.type &&
-        (event.data.type === 'wake-lock-sync' || event.data.type === 'pip-closed')
-      ) {
-        mainWin.postMessage(event.data, event.origin)
+      if (event.source === pipWin.frames[0] && isValidOrigin(event.origin) && isWakeLockMessage(event.data)) {
+        window.postMessage(event.data, event.origin)
       }
     }
-    pipWin.addEventListener('message', pipToMainListener.value)
 
-    // Relay messages from main window to iframe
+    // Forward main window → iframe (only sync messages)
     mainToPipListener.value = (event: MessageEvent) => {
-      // Only relay wake-lock messages to iframe, validate origin and that iframe exists
-      if (
-        event.source === mainWin &&
-        event.origin === window.location.origin &&
-        pipWin.frames[0] &&
-        event.data?.type &&
-        (event.data.type === 'wake-lock-sync' || event.data.type === 'wake-lock-initial-sync')
-      ) {
+      if (event.source === window && isValidOrigin(event.origin) && pipWin.frames[0] && event.data?.type === 'sync') {
         pipWin.frames[0].postMessage(event.data, event.origin)
       }
     }
-    mainWin.addEventListener('message', mainToPipListener.value)
+
+    pipWin.addEventListener('message', pipToMainListener.value)
+    window.addEventListener('message', mainToPipListener.value)
   }
 
   /**
@@ -157,7 +152,6 @@ export const useDocumentPiP = () => {
       enterEventHandler.value = null
     }
     closePipWindow()
-    cleanupMessageRelay()
   })
 
   return {

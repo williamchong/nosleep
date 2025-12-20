@@ -203,7 +203,7 @@ const openDocumentPiP = async () => {
 
     wakeLock.pipWindowRef.value = pipWin
 
-    documentPip.setupMessageRelay(pipWin, window)
+    documentPip.setupMessageRelay(pipWin)
 
     pipWin.addEventListener('pagehide', () => {
       handleWindowClosed(wakeLock.isActive.value)

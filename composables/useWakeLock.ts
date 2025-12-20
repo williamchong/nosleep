@@ -1,8 +1,12 @@
-interface WakeLockMessageData {
-  type: string
+interface WakeLockState {
   isActive: boolean
   timerActive: boolean
   remainingTime: number
+}
+
+interface WakeLockMessage {
+  type: 'sync' | 'closed'
+  state?: WakeLockState
 }
 
 export const useWakeLock = () => {
@@ -223,17 +227,19 @@ export const useWakeLock = () => {
     }
   }
 
-  const createSyncMessage = (type: 'wake-lock-sync' | 'wake-lock-initial-sync'): WakeLockMessageData => ({
-    type,
-    isActive: isActive.value,
-    timerActive: timerActive.value,
-    remainingTime: remainingTime.value
+  const createSyncMessage = (): WakeLockMessage => ({
+    type: 'sync',
+    state: {
+      isActive: isActive.value,
+      timerActive: timerActive.value,
+      remainingTime: remainingTime.value
+    }
   })
 
   const syncWakeLockState = () => {
-    const message = createSyncMessage('wake-lock-sync')
+    const message = createSyncMessage()
 
-    // If this is a PiP iframe, send sync to parent window
+    // Send to parent if this is PiP iframe
     if (isIframePip.value && window.parent !== window) {
       try {
         window.parent.postMessage(message, window.location.origin)
@@ -242,12 +248,10 @@ export const useWakeLock = () => {
       }
     }
 
-    // If this is the parent with an active PiP window, send sync to it
-    if (!isIframePip.value && pipWindowRef.value) {
+    // Send to PiP if this is parent with active PiP
+    if (!isIframePip.value && pipWindowRef.value && !pipWindowRef.value.closed) {
       try {
-        if (!pipWindowRef.value.closed) {
-          pipWindowRef.value.postMessage(message, window.location.origin)
-        }
+        pipWindowRef.value.postMessage(message, window.location.origin)
       } catch (e) {
         console.warn('Could not send to PiP window:', e)
       }
@@ -255,50 +259,45 @@ export const useWakeLock = () => {
   }
 
   const initialSyncToPip = () => {
-    if (pipWindowRef.value) {
+    if (pipWindowRef.value && !pipWindowRef.value.closed) {
       try {
-        if (!pipWindowRef.value.closed) {
-          const message = createSyncMessage('wake-lock-initial-sync')
-          pipWindowRef.value.postMessage(message, window.location.origin)
-        }
+        pipWindowRef.value.postMessage(createSyncMessage(), window.location.origin)
       } catch (e) {
         console.warn('Could not send initial sync to PiP window:', e)
       }
     }
   }
 
-  const handleInitialSync = (data: WakeLockMessageData) => {
-    // Prevent duplicate syncs if already synced AND time matches
-    if (timerInterval.value && data.timerActive && remainingTime.value === data.remainingTime) {
-      return
-    }
+  const handleSync = (state: WakeLockState) => {
+    // For PiP iframe: apply state from parent
+    if (isIframePip.value) {
+      // Prevent duplicate timer setup if already synced
+      if (timerInterval.value && state.timerActive && remainingTime.value === state.remainingTime) {
+        return
+      }
 
-    remainingTime.value = data.remainingTime
-    timerActive.value = data.timerActive
+      remainingTime.value = state.remainingTime
+      timerActive.value = state.timerActive
 
-    if (data.timerActive && data.remainingTime > 0 && !timerInterval.value) {
-      createTimerInterval()
-    }
+      if (state.timerActive && state.remainingTime > 0 && !timerInterval.value) {
+        createTimerInterval()
+      }
 
-    if (data.isActive && !isActive.value) {
-      acquire()
-    } else if (!data.isActive && isActive.value) {
-      release()
+      if (state.isActive && !isActive.value) {
+        acquire()
+      } else if (!state.isActive && isActive.value) {
+        release()
+      }
     } else {
-      setTimeout(() => {
-        syncWakeLockState()
-      }, 100)
+      // For parent: update display state from PiP
+      isActive.value = state.isActive
+      timerActive.value = state.timerActive
+      remainingTime.value = state.remainingTime
+
+      const activeStatus = state.isActive ? 'active' : 'inactive'
+      const timerStatus = state.timerActive ? 'with_timer' : 'without_timer'
+      trackEvent(`pip_sync_received_${activeStatus}_${timerStatus}`)
     }
-  }
-
-  const handleWakeLockSync = (data: WakeLockMessageData) => {
-    isActive.value = data.isActive
-    timerActive.value = data.timerActive
-    remainingTime.value = data.remainingTime
-
-    const activeStatus = data.isActive ? 'active' : 'inactive'
-    const timerStatus = data.timerActive ? 'with_timer' : 'without_timer'
-    trackEvent(`pip_sync_received_${activeStatus}_${timerStatus}`)
   }
 
   const handlePipClosed = async () => {
@@ -338,23 +337,20 @@ export const useWakeLock = () => {
     }
   }
 
-  const handleMessage = (event: MessageEvent) => {
+  const handleMessage = (event: MessageEvent<WakeLockMessage>) => {
     if (event.origin !== window.location.origin) {
       trackEvent('cross_window_message_origin_mismatch')
       return
     }
 
-    if (event.data.type === 'wake-lock-initial-sync' && isIframePip.value) {
-      handleInitialSync(event.data)
+    const { type, state } = event.data
+
+    if (type === 'sync' && state) {
+      handleSync(state)
       return
     }
 
-    if (event.data.type === 'wake-lock-sync' && !isIframePip.value) {
-      handleWakeLockSync(event.data)
-      return
-    }
-
-    if (event.data.type === 'pip-closed' && !isIframePip.value) {
+    if (type === 'closed' && !isIframePip.value) {
       handlePipClosed()
     }
   }
@@ -373,7 +369,7 @@ export const useWakeLock = () => {
         window.addEventListener('beforeunload', () => {
           try {
             if (window.parent && window.parent !== window) {
-              window.parent.postMessage({ type: 'pip-closed' }, window.location.origin)
+              window.parent.postMessage({ type: 'closed' }, window.location.origin)
             }
           } catch (e) {
             console.warn('Could not send pip-closed message to parent:', e)
