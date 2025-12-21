@@ -7,9 +7,9 @@
     <WakeLockControl auto-acquire>
       <template #extra-content>
         <FloatingWindowCTA
-          :has-active-pip-window="wakeLock.hasActivePipWindow.value"
-          :is-pip-mode="wakeLock.isPipMode.value"
-          :is-supported="wakeLock.isSupported.value"
+          :has-active-pip-window="wakeLock.hasActivePipWindow"
+          :is-pip-mode="wakeLock.isPipMode"
+          :is-supported="wakeLock.isSupported"
           :is-pip-supported="documentPip.isPipSupported.value"
           :is-mobile="$device.isMobile"
           @open-window="openFloatingWindow"
@@ -147,7 +147,7 @@ const handleExternalLinkClick = () => {
 }
 
 const handleWindowClosed = async (wasActive: boolean) => {
-  wakeLock.pipWindowRef.value = null
+  wakeLock.pipWindowRef = null
   trackEvent('pip_window_closed')
 
   await nextTick()
@@ -162,7 +162,7 @@ const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
   iframe.addEventListener('error', () => {
     console.error('Failed to load PiP iframe')
     trackEvent('pip_iframe_load_failed')
-    wakeLock.pipWindowRef.value = null
+    wakeLock.pipWindowRef = null
   })
 
   iframe.addEventListener('load', async () => {
@@ -201,12 +201,12 @@ const openDocumentPiP = async () => {
     const iframe = pipWin.document.createElement('iframe')
     setupPipIframe(pipWin, iframe)
 
-    wakeLock.pipWindowRef.value = pipWin
+    wakeLock.pipWindowRef = pipWin
 
     documentPip.setupMessageRelay(pipWin)
 
     pipWin.addEventListener('pagehide', () => {
-      handleWindowClosed(wakeLock.isActive.value)
+      handleWindowClosed(wakeLock.isActive)
     })
 
     trackEvent('pip_window_opened_from_cta')
@@ -220,7 +220,7 @@ const openDocumentPiP = async () => {
 
 const isPipWindowOpen = () => {
   try {
-    return wakeLock.pipWindowRef.value && !wakeLock.pipWindowRef.value.closed
+    return wakeLock.pipWindowRef && !wakeLock.pipWindowRef.closed
   } catch (e) {
     console.warn('Could not access PiP window:', e)
     return false
@@ -235,9 +235,9 @@ const openFloatingWindow = async () => {
   }
 
   // If PiP window is already open, just focus it
-  if (wakeLock.hasActivePipWindow.value && isPipWindowOpen()) {
+  if (wakeLock.hasActivePipWindow && isPipWindowOpen()) {
     try {
-      wakeLock.pipWindowRef.value!.focus()
+      wakeLock.pipWindowRef!.focus()
       trackEvent('pip_focus_from_cta_button')
       return
     } catch (e) {

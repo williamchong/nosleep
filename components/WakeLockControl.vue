@@ -12,7 +12,7 @@
         <p class="text-lg text-gray-600 dark:text-gray-400">{{ $t('header.subtitle') }}</p>
       </div>
 
-      <div v-if="!wakeLock.isSupported.value" class="mt-4 p-6 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-200 dark:border-red-800">
+      <div v-if="!wakeLock.isSupported" class="mt-4 p-6 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-200 dark:border-red-800">
         <div class="flex items-start space-x-3">
           <div class="text-3xl">😞</div>
           <div>
@@ -30,7 +30,7 @@
       </div>
 
       <template v-else>
-        <StatusAnimation :is-active="wakeLock.isActive.value" @toggle="handleWakeLockToggle" />
+        <StatusAnimation :is-active="wakeLock.isActive" @toggle="handleWakeLockToggle" />
 
         <button
           class="w-full py-8 px-8 rounded-2xl text-2xl font-semibold transition-all duration-200 focus:outline-none focus:ring-4"
@@ -52,7 +52,7 @@
               />
             </svg>
             <span>
-              {{ wakeLock.timerActive.value ? $t('timer.label') : (showTimerSection ? $t('timer.labelExpanded') : $t('timer.label')) }}
+              {{ wakeLock.timerActive ? $t('timer.label') : (showTimerSection ? $t('timer.labelExpanded') : $t('timer.label')) }}
             </span>
             <svg
               class="w-3 h-3 transition-transform"
@@ -68,10 +68,10 @@
             </svg>
           </button>
 
-          <div v-if="showTimerSection || wakeLock.timerActive.value">
+          <div v-if="showTimerSection || wakeLock.timerActive">
             <TimerControl
-              :timer-active="wakeLock.timerActive.value"
-              :remaining-time="wakeLock.remainingTime.value"
+              :timer-active="wakeLock.timerActive"
+              :remaining-time="wakeLock.remainingTime"
               :format-time="wakeLock.formatTime"
               @start="handleTimerStart"
               @cancel="handleTimerCancel" />
@@ -106,13 +106,13 @@ const {
   handleToggle: handleWakeLockToggle,
   handleTimerStart,
   handleTimerCancel
-} = useWakeLockUI(wakeLock, {
-  isPipMode: wakeLock.isPipMode.value,
-  hasActivePipWindow: wakeLock.hasActivePipWindow
+} = useWakeLockUI({
+  isPipMode: wakeLock.isPipMode,
+  hasActivePipWindow: computed(() => wakeLock.hasActivePipWindow)
 })
 
 const gradientBackgroundClasses = computed(() => {
-  if (wakeLock.isActive.value) {
+  if (wakeLock.isActive) {
     return 'bg-gradient-to-b from-orange-100 via-amber-50/50 to-white dark:from-orange-950/40 dark:via-yellow-950/20 dark:to-gray-900'
   }
   return 'bg-gradient-to-b from-blue-100 via-blue-50 to-white dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-gray-900'
@@ -129,7 +129,7 @@ onMounted(async () => {
 
   let autoAcquireSuccess = false
 
-  if (wakeLock.isSupported.value) {
+  if (wakeLock.isSupported) {
     try {
       autoAcquireSuccess = await wakeLock.acquire()
     } catch (error) {
@@ -139,9 +139,9 @@ onMounted(async () => {
     }
 
     const acquireStatus = autoAcquireSuccess ? 'success' : 'failed'
-    const eventPrefix = wakeLock.isPipMode.value ? 'pip_init_auto' : 'app_init_supported_auto'
+    const eventPrefix = wakeLock.isPipMode ? 'pip_init_auto' : 'app_init_supported_auto'
     trackEvent(`${eventPrefix}_${acquireStatus}`)
-  } else if (!wakeLock.isPipMode.value) {
+  } else if (!wakeLock.isPipMode) {
     trackEvent('app_init_unsupported_browser')
   }
 })

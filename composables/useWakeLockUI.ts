@@ -2,16 +2,20 @@
  * Shared UI logic for wake lock controls
  * Used by both main page and PiP window content
  */
-export const useWakeLockUI = (wakeLock: ReturnType<typeof useWakeLock>, options: {
+export const useWakeLockUI = (options: {
   isPipMode?: boolean
   hasActivePipWindow?: Ref<boolean> | ComputedRef<boolean>
 } = {}) => {
+  const wakeLockStore = useWakeLockStore()
+  const { isActive, pipWindowRef } = storeToRefs(wakeLockStore)
+  const { toggle, startTimer, stopTimer } = wakeLockStore
+
   const { t } = useI18n()
   const { trackEvent } = useAnalytics()
   const { isPipMode = false, hasActivePipWindow = ref(false) } = options
 
   const statusText = computed(() =>
-    wakeLock.isActive.value ? t('status.deviceAwake') : t('status.deviceSleeping')
+    isActive.value ? t('status.deviceAwake') : t('status.deviceSleeping')
   )
 
   const buttonClasses = computed(() => {
@@ -20,7 +24,7 @@ export const useWakeLockUI = (wakeLock: ReturnType<typeof useWakeLock>, options:
       return 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-200 focus:ring-blue-300'
     }
 
-    if (wakeLock.isActive.value) {
+    if (isActive.value) {
       return 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-200 focus:ring-green-300'
     }
 
@@ -34,7 +38,7 @@ export const useWakeLockUI = (wakeLock: ReturnType<typeof useWakeLock>, options:
       return t('button.focusToPopup')
     }
 
-    if (wakeLock.isActive.value) {
+    if (isActive.value) {
       return t('button.deviceAwake')
     }
     return t('button.clickToKeepAwake')
@@ -42,10 +46,10 @@ export const useWakeLockUI = (wakeLock: ReturnType<typeof useWakeLock>, options:
 
   const handleToggle = async () => {
     // If parent has active PiP window, focus to it instead
-    if (hasActivePipWindow.value && !isPipMode && wakeLock.pipWindowRef.value) {
+    if (hasActivePipWindow.value && !isPipMode && pipWindowRef.value) {
       try {
-        if (!wakeLock.pipWindowRef.value.closed) {
-          wakeLock.pipWindowRef.value.focus()
+        if (!pipWindowRef.value.closed) {
+          pipWindowRef.value.focus()
           trackEvent('pip_focus_from_main_button')
           return
         }
@@ -56,9 +60,9 @@ export const useWakeLockUI = (wakeLock: ReturnType<typeof useWakeLock>, options:
     }
 
     try {
-      await wakeLock.toggle()
+      await toggle()
 
-      const action = wakeLock.isActive.value ? 'activate' : 'deactivate'
+      const action = isActive.value ? 'activate' : 'deactivate'
       const prefix = isPipMode ? 'pip' : 'main'
       trackEvent(`${prefix}_toggle_${action}_native_api`)
     } catch (error) {
@@ -69,7 +73,7 @@ export const useWakeLockUI = (wakeLock: ReturnType<typeof useWakeLock>, options:
 
   const handleTimerStart = async (minutes: number) => {
     try {
-      const success = await wakeLock.startTimer(minutes)
+      const success = await startTimer(minutes)
       if (success) {
         const prefix = isPipMode ? 'pip' : 'main'
         trackEvent(`${prefix}_timer_start`)
@@ -80,7 +84,7 @@ export const useWakeLockUI = (wakeLock: ReturnType<typeof useWakeLock>, options:
   }
 
   const handleTimerCancel = () => {
-    wakeLock.stopTimer()
+    stopTimer()
     const prefix = isPipMode ? 'pip' : 'main'
     trackEvent(`${prefix}_timer_cancel`)
   }

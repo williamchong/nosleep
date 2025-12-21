@@ -2,7 +2,7 @@
   <div class="pip-container h-full flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-900">
     <div class="mb-6">
       <StatusAnimation
-        :is-active="wakeLock.isActive.value"
+        :is-active="wakeLock.isActive"
         @toggle="handleToggle"
       />
     </div>
@@ -16,9 +16,9 @@
       </p>
     </div>
 
-    <div v-if="wakeLock.timerActive.value" class="mb-6 text-center">
+    <div v-if="wakeLock.timerActive" class="mb-6 text-center">
       <div class="text-lg font-mono text-gray-700 dark:text-gray-300">
-        {{ wakeLock.formatTime(wakeLock.remainingTime.value) }}
+        {{ wakeLock.formatTime(wakeLock.remainingTime) }}
       </div>
       <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
         {{ $t('timer.remaining') }}
@@ -33,7 +33,7 @@
       {{ buttonText }}
     </button>
 
-    <div v-if="!wakeLock.timerActive.value" class="mt-4 w-full">
+    <div v-if="!wakeLock.timerActive" class="mt-4 w-full">
       <button
         class="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors inline-flex items-center space-x-1 mb-2"
         @click="showTimerSection = !showTimerSection"
@@ -49,8 +49,8 @@
 
       <div v-if="showTimerSection">
         <TimerControl
-          :timer-active="wakeLock.timerActive.value"
-          :remaining-time="wakeLock.remainingTime.value"
+          :timer-active="wakeLock.timerActive"
+          :remaining-time="wakeLock.remainingTime"
           :format-time="wakeLock.formatTime"
           @start="handleTimerStart"
           @cancel="handleTimerCancel"
@@ -83,7 +83,7 @@ const {
   handleToggle,
   handleTimerStart,
   handleTimerCancel
-} = useWakeLockUI(wakeLock, { isPipMode: true })
+} = useWakeLockUI({ isPipMode: true })
 </script>
 
 <style scoped>
