@@ -6,6 +6,7 @@
         {{ formatTime(remainingTime) }}
       </div>
       <button
+        v-if="!disabled"
         class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs font-medium"
         @click="handleCancel"
       >
@@ -14,7 +15,7 @@
     </div>
 
     <!-- Timer Setup -->
-    <div v-else class="space-y-2">
+    <div v-else-if="!disabled" class="space-y-2">
       <!-- Tab/Chip Interface - Smaller -->
       <div class="flex flex-wrap justify-center gap-1.5">
         <button
@@ -74,6 +75,10 @@ defineProps({
   formatTime: {
     type: Function,
     required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 
