@@ -10,7 +10,8 @@ export default defineNuxtConfig({
     '@nuxtjs/device',
     '@sentry/nuxt/module',
     '@nuxt/scripts',
-    '@nuxtjs/color-mode'
+    '@nuxtjs/color-mode',
+    '@pinia/nuxt'
   ],
 
   scripts: {
