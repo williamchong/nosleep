@@ -27,7 +27,7 @@
               <span
                 class="flex-shrink-0 w-8 h-8 bg-blue-600 dark:bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold"
               >
-                {{ index + 1 }}
+                {{ Number(index) + 1 }}
               </span>
               <p class="text-gray-700 dark:text-gray-300 text-lg">{{ $rt(step) }}</p>
             </li>
