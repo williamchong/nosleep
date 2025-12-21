@@ -2,7 +2,7 @@
   <div class="space-y-3">
     <!-- Active Timer Display -->
     <div v-if="timerActive" class="text-center space-y-2">
-      <div class="font-mono text-2xl font-bold text-blue-600 dark:text-blue-400">
+      <div class="font-mono text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
         {{ formatTime(remainingTime) }}
       </div>
       <button

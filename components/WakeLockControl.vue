@@ -5,21 +5,37 @@
       :class="gradientBackgroundClasses"
       />
 
-    <div class="relative min-h-[80vh] flex items-center justify-center p-4">
-    <div class="max-w-2xl w-full text-center space-y-8">
+    <div
+      class="relative flex items-center justify-center p-2 sm:p-4"
+      :class="wakeLock.isPipMode ? 'min-h-[100vh]' : 'min-h-screen'"
+    >
+    <div
+      class="w-full text-center"
+      :class="wakeLock.isPipMode ? 'max-w-sm space-y-3' : 'max-w-2xl space-y-4 sm:space-y-6 lg:space-y-8'"
+    >
       <div>
-        <h1 class="text-4xl font-bold mb-2 text-gray-900 dark:text-gray-100">{{ $t('header.title') }}</h1>
-        <p class="text-lg text-gray-600 dark:text-gray-400">{{ $t('header.subtitle') }}</p>
+        <h1
+          class="font-bold text-gray-900 dark:text-gray-100"
+          :class="wakeLock.isPipMode ? 'text-xl mb-1' : 'text-2xl sm:text-3xl lg:text-4xl mb-1 sm:mb-2'"
+        >
+          {{ $t('header.title') }}
+        </h1>
+        <p
+          class="text-gray-600 dark:text-gray-400"
+          :class="wakeLock.isPipMode ? 'text-xs' : 'text-sm sm:text-base lg:text-lg'"
+        >
+          {{ $t('header.subtitle') }}
+        </p>
       </div>
 
-      <div v-if="!wakeLock.isSupported" class="mt-4 p-6 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-200 dark:border-red-800">
-        <div class="flex items-start space-x-3">
-          <div class="text-3xl">😞</div>
+      <div v-if="!wakeLock.isSupported" class="mt-2 sm:mt-4 p-3 sm:p-4 lg:p-6 bg-red-50 dark:bg-red-950/30 rounded-lg sm:rounded-xl border border-red-200 dark:border-red-800">
+        <div class="flex items-start space-x-2 sm:space-x-3">
+          <div class="text-2xl sm:text-3xl">😞</div>
           <div>
-            <h3 class="text-lg font-semibold text-red-900 dark:text-red-100 mb-2">
+            <h3 class="text-base sm:text-lg font-semibold text-red-900 dark:text-red-100 mb-1 sm:mb-2">
               {{ $t('unsupported.title') }}
             </h3>
-            <p class="text-red-700 dark:text-red-300 text-sm mb-2">
+            <p class="text-red-700 dark:text-red-300 text-xs sm:text-sm mb-1 sm:mb-2">
               {{ $t('unsupported.message') }}
             </p>
             <p class="text-red-600 dark:text-red-400 text-xs">
@@ -30,24 +46,34 @@
       </div>
 
       <template v-else>
-        <StatusAnimation :is-active="wakeLock.isActive" @toggle="handleWakeLockToggle" />
+        <StatusAnimation :is-active="wakeLock.isActive" :is-pip-mode="wakeLock.isPipMode" @toggle="handleWakeLockToggle" />
 
         <button
-          class="w-full py-8 px-8 rounded-2xl text-2xl font-semibold transition-all duration-200 focus:outline-none focus:ring-4"
-          :class="buttonClasses" @click="handleWakeLockToggle">
+          class="w-full font-semibold transition-all duration-200 focus:outline-none"
+          :class="[
+            buttonClasses,
+            wakeLock.isPipMode
+              ? 'py-3 px-4 rounded-lg text-base focus:ring-2'
+              : 'py-4 px-6 sm:py-6 sm:px-8 lg:py-8 rounded-xl sm:rounded-2xl text-lg sm:text-xl lg:text-2xl focus:ring-2 sm:focus:ring-4'
+          ]"
+          @click="handleWakeLockToggle"
+        >
           {{ buttonText }}
         </button>
 
-        <div class="text-sm text-gray-700 dark:text-gray-300">
+        <div
+          class="text-gray-700 dark:text-gray-300"
+          :class="wakeLock.isPipMode ? 'text-xs' : 'text-sm'"
+        >
           {{ statusText }}
         </div>
 
-        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="pt-2 sm:pt-3 lg:pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             v-if="!wakeLock.hasActivePipWindow"
-            class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors inline-flex items-center space-x-1 mb-3"
+            class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors inline-flex items-center space-x-1 mb-2 sm:mb-3"
             @click="toggleTimerSection">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
               <path
                 d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"
               />
@@ -56,7 +82,7 @@
               {{ wakeLock.timerActive ? $t('timer.label') : (showTimerSection ? $t('timer.labelExpanded') : $t('timer.label')) }}
             </span>
             <svg
-              class="w-3 h-3 transition-transform"
+              class="w-2 h-2 sm:w-3 sm:h-3 transition-transform"
               :class="{ 'rotate-180': showTimerSection }"
               fill="currentColor"
               viewBox="0 0 20 20"

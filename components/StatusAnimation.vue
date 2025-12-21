@@ -1,7 +1,7 @@
 <template>
   <div
-    class="relative w-64 h-64 mx-auto cursor-pointer transition-all duration-500"
-    :class="containerClasses"
+    class="relative mx-auto cursor-pointer transition-all duration-500"
+    :class="[containerClasses, sizeClasses]"
     tabindex="0"
     role="button"
     :aria-label="ariaLabel"
@@ -17,7 +17,12 @@
     />
     <!-- Static fallback for reduced motion -->
     <div v-else class="w-full h-full flex items-center justify-center">
-      <div class="text-9xl" :class="{ 'animate-pulse': isActive }">
+      <div
+        :class="[
+          { 'animate-pulse': isActive },
+          isPipMode ? 'text-5xl' : 'text-6xl sm:text-7xl lg:text-9xl'
+        ]"
+      >
         {{ isActive ? '☀️' : '🌙' }}
       </div>
     </div>
@@ -31,6 +36,10 @@ const props = defineProps({
   isActive: {
     type: Boolean,
     required: true
+  },
+  isPipMode: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -72,6 +81,13 @@ const ariaLabel = computed(() => {
     return t('status.ariaLabelAwake')
   }
   return t('status.ariaLabelSleep')
+})
+
+const sizeClasses = computed(() => {
+  if (props.isPipMode) {
+    return 'w-32 h-32'
+  }
+  return 'w-40 h-40 sm:w-48 sm:h-48 lg:w-64 lg:h-64'
 })
 
 const currentAnimationPath = computed(() => {

@@ -86,11 +86,11 @@ export const useDocumentPiP = () => {
 
   /**
    * Open a Document Picture-in-Picture window
-   * @param width - Window width (default: 350)
-   * @param height - Window height (default: 650)
+   * @param width - Window width
+   * @param height - Window height
    * @returns The PiP window or null if failed
    */
-  const openPipWindow = async (width = 350, height = 650): Promise<Window | null> => {
+  const openPipWindow = async (width: number, height: number): Promise<Window | null> => {
     if (!isPipSupported.value) {
       console.warn('Document Picture-in-Picture API not supported')
       return null
