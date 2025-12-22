@@ -29,8 +29,8 @@
   </div>
 </template>
 
-<script setup>
-import lottie from 'lottie-web'
+<script setup lang="ts">
+import lottie, { type AnimationItem } from 'lottie-web'
 
 const props = defineProps({
   isActive: {
@@ -45,8 +45,8 @@ const props = defineProps({
 
 defineEmits(['toggle'])
 
-const lottieContainer = ref(null)
-const animationInstance = ref(null)
+const lottieContainer = ref<HTMLElement | null>(null)
+const animationInstance = ref<AnimationItem | null>(null)
 const prefersReducedMotion = ref(false)
 const rotationDegree = ref(0)
 const opacity = ref(1)
@@ -94,7 +94,7 @@ const currentAnimationPath = computed(() => {
   return props.isActive ? '/animations/sun.json' : '/animations/moon.json'
 })
 
-const loadAnimation = (path) => {
+const loadAnimation = (path: string) => {
   if (!lottieContainer.value || prefersReducedMotion.value) return
 
   // Destroy previous animation if it exists

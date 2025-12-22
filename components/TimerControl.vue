@@ -62,7 +62,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 defineProps({
   timerActive: {
     type: Boolean,
@@ -107,7 +107,7 @@ const startButtonText = computed(() => {
   return t('timer.startWithDuration', { minutes })
 })
 
-const handlePresetSelect = (value) => {
+const handlePresetSelect = (value: string) => {
   selectedPreset.value = value
   trackEvent('timer_tab_selected')
 }
