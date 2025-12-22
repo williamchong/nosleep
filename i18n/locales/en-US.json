@@ -1,15 +1,15 @@
 {
   "site": {
-    "title": "NoSleep: Prevent Screen Sleep | Custom Timer Tool for Downloads & Work",
-    "description": "Keep your screen awake during downloads, work sessions & presentations. Set custom sleep timers (1-480 min). Works on all browsers & devices. Free web tool.",
-    "keywords": "prevent computer sleep, screen timeout disable, download helper tool, presentation screen lock, no sleep, keep awake, prevent sleep, sleep timer, device awake, screen wake lock, auto sleep, computer awake, mobile awake, wake lock timer",
+    "title": "NoSleep: Prevent Screen Sleep | Free Timer Tool with Floating Window",
+    "description": "Keep your screen awake during downloads, work sessions & presentations. Set custom timers (1-480 min) + always-on-top floating window. Free, no installation required.",
+    "keywords": "prevent computer sleep, screen timeout disable, download helper tool, presentation screen lock, no sleep, keep awake, prevent sleep, sleep timer, device awake, screen wake lock, auto sleep, computer awake, mobile awake, wake lock timer, floating window, picture in picture, always on top, prevent screen dim",
     "author": "William Chong",
     "name": "NoSleep"
   },
   "meta": {
-    "ogTitle": "NoSleep: Prevent Screen Sleep | Custom Timer Tool for Downloads & Work",
-    "ogDescription": "Keep your screen awake during downloads, work sessions & presentations. Set custom sleep timers (1-480 min). Works on all browsers & devices. Free web tool.",
-    "applicationDescription": "A web-based tool that prevents your computer or mobile device from going to sleep using the Screen Wake Lock API, featuring customizable auto-sleep timers and animated visual feedback."
+    "ogTitle": "NoSleep: Prevent Screen Sleep | Free Timer Tool with Floating Window",
+    "ogDescription": "Free web tool that keeps your screen awake with custom timers (1-480 min) and floating window mode. Perfect for downloads, work sessions & presentations. No installation needed.",
+    "applicationDescription": "A free web-based tool that prevents your computer or mobile device from going to sleep using the Screen Wake Lock API. Features customizable timers (1-480 minutes), always-on-top floating window, cross-window synchronization, and beautiful animated visual feedback."
   },
   "header": {
     "title": "NoSleep",
@@ -99,8 +99,8 @@
         ]
       },
       "howItWorks": {
-        "question": "How does it work?",
-        "answer": "This website uses your browser's built-in Screen Wake Lock API to prevent your device from sleeping. You can set timers from 1-480 minutes to automatically let your device sleep again. The animated icons show when it's actively keeping your screen awake. Use the dedicated popup window to prevent accidentally closing the tab."
+        "question": "How does NoSleep work?",
+        "answer": "NoSleep uses your browser's built-in Screen Wake Lock API - a safe, standard technology that prevents your screen from sleeping. Simply click the button to activate, and optionally set a timer (1-480 minutes) to automatically release when done. The animated sun/moon icons show the current status. For best results, use the floating window feature which creates an always-on-top popup that stays visible even when you switch tabs."
       },
       "safety": {
         "question": "Is it safe to use?",
@@ -124,8 +124,8 @@
         "answer": "Click \"Timer\" to set how long you want your screen to stay awake (1-480 minutes). Type a number or use the quick buttons (+1, +5, +10, +30 minutes). Your device will automatically go back to normal sleep mode when time runs out - perfect for downloads, work sessions, or study time. Cancel anytime if you need to stop early."
       },
       "properUsage": {
-        "question": "What's the best way to use this?",
-        "answer": "Keep this tab visible and active in your browser, OR click \"Open Dedicated Window\" to create a small popup that stays on top. The popup window syncs with this main page and is less likely to accidentally get hidden. Switching tabs or minimizing will stop the wake lock."
+        "question": "What's the best way to use NoSleep?",
+        "answer": "For the best experience, click \"Open Floating Window\" to create an always-on-top popup that stays visible while you work. This floating window automatically syncs with the main page and won't accidentally get hidden when you switch tabs. Alternatively, you can keep the main tab active and visible, but the floating window is recommended for reliability and convenience."
       }
     },
     "about": {
@@ -142,7 +142,7 @@
       },
       "howItWorks": {
         "question": "How does NoSleep work?",
-        "answer": "This website uses your browser's built-in Screen Wake Lock API to prevent your device from sleeping. You can set timers from 1-480 minutes to automatically let your device sleep again. The animated icons show when it's actively keeping your screen awake. Use the dedicated popup window to prevent accidentally closing the tab."
+        "answer": "NoSleep uses your browser's built-in Screen Wake Lock API - a safe, standard technology that prevents your screen from sleeping. Simply click the button to activate, and optionally set a timer (1-480 minutes) to automatically release when done. The animated sun/moon icons show the current status. For best results, use the floating window feature which creates an always-on-top popup that stays visible even when you switch tabs."
       },
       "safety": {
         "question": "Is NoSleep safe to use?",
@@ -158,7 +158,7 @@
       },
       "properUsage": {
         "question": "What's the best way to use NoSleep?",
-        "answer": "Keep this tab visible and active in your browser, OR click \"Open Dedicated Window\" to create a small popup that stays on top. The popup window syncs with this main page and is less likely to accidentally get hidden. Switching tabs or minimizing will stop the wake lock."
+        "answer": "For the best experience, click \"Open Floating Window\" to create an always-on-top popup that stays visible while you work. This floating window automatically syncs with the main page and won't accidentally get hidden when you switch tabs. Alternatively, you can keep the main tab active and visible, but the floating window is recommended for reliability and convenience."
       }
     }
   }

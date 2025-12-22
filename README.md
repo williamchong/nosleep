@@ -1,48 +1,57 @@
-# NoSleep Web App
+# NoSleep: Prevent Screen Sleep with Custom Timers
 
-A web application that prevents computers and mobile devices from going to sleep, allowing long-running processes to continue uninterrupted without changing device power settings.
+A free web tool that keeps your screen awake during downloads, work sessions, presentations, and long-running processes. No installation needed - works directly in your browser with custom timer settings from 1-480 minutes.
 
-## Features
+## ✨ Key Features
 
-- 🚫 Prevents device sleep/screen dimming
-- ⏰ **Auto-sleep timer** with customizable duration
-- 🎯 **Visual feedback** with animated icons when active
-- 📱 Cross-platform support (desktop & mobile)
-- 🌐 Web-based solution (no installation required)
-- 🔧 Simple one-click activation
-- 📊 Built with Nuxt 3 for optimal performance
+- 🚫 **Prevent Screen Sleep** - Keep your device awake with one click
+- ⏰ **Smart Timer System** - Set auto-sleep timers from 1 to 480 minutes (up to 8 hours)
+- 🪟 **Floating Window Mode** - Always-on-top popup window that stays visible
+- 🎨 **Visual Feedback** - Animated sun/moon icons show active status
+- 📱 **Cross-Platform** - Works on desktop computers, tablets, and mobile phones
+- 🌐 **No Installation** - Web-based tool, works directly in your browser
+- 🔒 **100% Safe & Private** - No data collection, no permissions needed
+- 🌓 **Dark Mode** - Easy on the eyes during extended use
 
-## How It Works
+## 🎯 Perfect For
 
-This web app uses your browser's built-in [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API) to keep your screen awake. Browsers without Wake Lock API support will see an error message prompting them to upgrade to a supported browser. You can also open a dedicated popup window that syncs with the main page and stays on top to avoid accidentally hiding the tab.
+- **Downloads & Uploads**: Set 30-60 min timers to prevent interruption during large file transfers
+- **Work & Study Sessions**: 15-30 min focus timers to stay productive without screen dimming
+- **Presentations & Meetings**: Keep screen active during demos and video calls
+- **Long Processes**: 2-4 hour timers for video rendering, builds, or data processing
+- **Live Streaming**: Prevent sleep during broadcasts and recording sessions
+- **AI-Assisted Coding**: Extended sessions with tools like Claude Code or GitHub Copilot
+- **Dashboard Monitoring**: Keep real-time tools and dashboards visible
 
-### Core Functionality
-- **Instant activation**: Click the main button to keep your screen awake
-- **Visual feedback**: Animated pulsing icon shows when it's working
-- **Sleep timers**: Set custom durations (1-480 minutes) to automatically allow sleep again
-- **Dedicated popup**: Open a separate window that syncs and stays on top
-- **Smart sync**: Popup window controls sync back to the main page
+## 🚀 How It Works
 
-### Key Benefits
-- Keep your screen on without changing system settings
-- Perfect for downloads, work sessions, presentations, or study time
-- Set timers to automatically return to normal sleep behavior
-- Use popup window to avoid accidentally losing focus
-- Synced controls work in both main page and popup window
+NoSleep uses your browser's built-in [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API) - a safe, standard web technology that prevents your screen from sleeping. It's like moving your mouse occasionally, but automatic and hands-free.
 
-## Browser Compatibility
+### Simple 3-Step Process
+1. **Click the button** to activate wake lock
+2. **Set a timer** (optional) - choose 1-480 minutes or run until you manually stop
+3. **Keep the tab active** or use the floating window feature
 
-### Required: Native Wake Lock API Support
-- ✅ Chrome/Chromium 84+ (Computer & Phone)
-- ✅ Microsoft Edge 84+
-- ✅ Safari 16.4+ (Mac & iPhone/iPad)
-- ✅ Firefox (with additional setup)
+### Smart Features
+- **Instant Activation**: One click starts keeping your screen awake
+- **Animated Status Icons**: Sun animation when active, moon when sleeping
+- **Flexible Timers**: Quick buttons (+1, +5, +10, +30 min) or custom input
+- **Floating Window**: Dedicated popup that stays on top and syncs with main page
+- **Auto-Release**: Automatically allows sleep when timer expires
+- **Cross-Window Sync**: Controls in floating window update the main page in real-time
 
-### Unsupported Browsers
-- ❌ Browsers without Wake Lock API will see an error message
-- 💡 Users are prompted to upgrade to a supported browser
+## 📱 Browser Compatibility
 
-*The app automatically detects your browser support. Use the popup window for the most reliable experience on supported browsers.*
+### ✅ Supported Browsers (Wake Lock API Required)
+- **Chrome/Chromium 84+** (Windows, Mac, Linux, Android)
+- **Microsoft Edge 84+** (Windows, Mac)
+- **Safari 16.4+** (Mac, iPhone, iPad)
+- **Firefox** (with additional configuration)
+
+### ❌ Unsupported Browsers
+Browsers without Screen Wake Lock API will see a clear error message with upgrade instructions.
+
+**Note**: The app automatically detects your browser's capabilities. For the best experience, use the floating window feature on supported browsers.
 
 ## Setup
 
@@ -130,77 +139,118 @@ yarn test
 bun run test
 ```
 
-## Usage
+## 📖 How to Use
 
-### Basic Usage
-1. Visit the website
-2. Click the main button to prevent device sleep
-3. Notice the animated icon indicating your device is staying awake
-4. Click again to allow device sleep
+### Quick Start (No Timer)
+1. **Visit** the website at [nosleep.williamchong.cloud](https://nosleep.williamchong.cloud)
+2. **Click** the main button - it will turn from green to red
+3. **Notice** the sun animation - your screen is now staying awake
+4. **Click again** when done to allow normal sleep
 
-### Timer Usage
-1. Click the "Timer" option below the main button
-2. Set your desired duration using:
-   - Direct input (1-480 minutes)
-   - Quick increment buttons (+1, +5, +10, +30 minutes)
-3. Click "Start" to begin the countdown
-4. Your device will automatically sleep when the timer expires
-5. Cancel the timer anytime by clicking "Cancel"
+### Using the Timer Feature
+1. **Click "Set Timer"** below the main button
+2. **Choose your duration**:
+   - Type any number (1-480 minutes)
+   - Or use quick buttons: +1, +5, +10, +30 minutes
+3. **Click "Start Timer"** to begin
+4. **Relax** - your screen stays awake until the timer expires
+5. **Cancel anytime** if you finish early
 
-### 📋 Best Practices
-- **Keep tab visible**: Keep this browser tab active and in the foreground
-- **Use dedicated popup**: Click "Open Dedicated Window" for a separate window that stays on top
-- **Popup sync**: Controls in the popup window automatically sync with the main page
-- **Auto-release**: Screen wake stops if you switch tabs, minimize, or close the window
+### 🪟 Using the Floating Window (Recommended)
+1. **Click "Open Floating Window"** button
+2. **A small window appears** that stays on top of other windows
+3. **Control from either window** - they stay in sync
+4. **Switch tabs freely** - the floating window keeps working
+5. **Close the floating window** when done - main page takes over
 
-### 🎯 Visual Indicators
-- **☀️ Sun animation**: Bright sun with rotating rays when screen is awake
-- **🌙 Moon animation**: Peaceful moon when device can sleep normally
-- **🔴 Red button**: "Click to Allow Sleep" when device is awake
-- **🟢 Green button**: "Click to Keep Awake" when device is sleeping
-- **⏰ Timer countdown**: Real-time display of remaining time
+### 💡 Tips for Best Results
+- **Use the floating window** to avoid accidentally closing the tab
+- **Set realistic timers** to save battery (30-60 min for downloads)
+- **The tab must stay open** but doesn't need to be visible if using floating window
+- **Battery impact**: Keeping screen awake uses more power - use timers wisely
 
-## Use Cases
+### 🎨 What the Icons Mean
+- **☀️ Sun with rays**: Your screen is staying awake
+- **🌙 Moon**: Your screen can sleep normally
+- **Timer countdown**: Shows remaining time (e.g., "23:45 remaining")
 
-### 🚀 Instant Screen Wake
-- **Presentations**: Keep screen on during talks and demos
-- **Live streaming**: Prevent sleep during broadcasts or recording
-- **Monitoring**: Keep dashboards and real-time tools visible
-- **Video calls**: Stay visible during meetings and conferences
+## 🔒 Privacy & Safety
 
-### ⏰ Timed Screen Wake  
-- **Downloads/Uploads**: Set 30-60 min timers for large file transfers
-- **Rendering & Processing**: Set 2-4 hour timers for video/audio work
-- **Development**: Set 15-30 min timers for code compilation
-- **Study Sessions**: Set focus timers for learning without interruption
-- **Work Sessions**: Long coding sessions with AI assistants like Claude Code
-- **Background Tasks**: Custom timers for any long-running processes
+**100% Safe to Use**
+- ✅ No installation or downloads required
+- ✅ No access to your files, camera, or microphone
+- ✅ No data collection or tracking (beyond anonymous analytics)
+- ✅ No account creation needed
+- ✅ Uses only standard web browser APIs
+- ✅ Open source - you can review the code
 
-### 🪟 Dedicated Popup Window
-- **Multi-tasking**: Keep wake controls in a separate window while working
-- **Background operation**: Popup stays on top and syncs with main page
-- **Accident prevention**: Less likely to accidentally close or hide the controls
+**How It's Safe**: This tool only uses your browser's built-in Screen Wake Lock API - the same technology that video players use to keep your screen on during playback. It's as safe as watching a YouTube video.
 
-## Technical Details
+## ⚡ Technical Details
 
-Built with modern web technologies:
-- **Nuxt 3**: Full-stack framework for optimal performance and SEO
-- **Screen Wake Lock API**: Native browser sleep prevention (required)
-- **Lottie Animations**: Smooth sun/moon animations with reduced motion support
-- **Cross-Window Sync**: Real-time synchronization between main page and popup
-- **Smart Timer System**: JavaScript intervals with automatic cleanup
-- **Document PiP**: Picture-in-Picture API for floating windows (when supported)
-- **Progressive Web App**: Can be installed for easy access
-- **Responsive Design**: Works perfectly on desktop, tablet, and mobile
+### Built With Modern Web Technologies
+- **Nuxt 3**: Fast, modern web framework for optimal performance
+- **Screen Wake Lock API**: Standard browser API for preventing screen sleep
+- **Document Picture-in-Picture**: Advanced floating window support (when available)
+- **Pinia State Management**: Centralized state for cross-window synchronization
+- **Lottie Animations**: Beautiful, lightweight sun/moon animations
+- **Tailwind CSS**: Responsive design that works on any screen size
+- **i18n Support**: Multi-language support (English, Chinese, Japanese)
 
-### 🏗️ Architecture
-- **Composable-based**: Reusable `useWakeLock()` composable handles all functionality
-- **Reactive state**: Vue 3 reactivity for real-time UI updates across windows
-- **Cross-window messaging**: `postMessage` API for secure popup ↔ main page sync
-- **Smart state management**: Parent window becomes read-only when popup is active
-- **Error handling**: Unsupported browser detection with error message
-- **Memory management**: Automatic cleanup of timers and event listeners
+### Key Technical Features
+- **Cross-Window Sync**: Floating window and main page stay perfectly synchronized
+- **Smart State Management**: Automatic handling of window focus and visibility
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
+- **Dark Mode**: Automatic theme switching based on system preferences
+- **SEO Optimized**: Structured data and meta tags for search engines
+- **Progressive Web App**: Can be installed on your device for quick access
 
-For more information:
-- [Screen Wake Lock API Documentation](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API)
-- [Nuxt 3 Documentation](https://nuxt.com/docs)
+### Browser APIs Used
+- [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API) - Prevents screen sleep
+- [Document Picture-in-Picture API](https://developer.mozilla.org/en-US/docs/Web/API/Document_Picture-in-Picture_API) - Floating window support
+- [Window.postMessage()](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) - Secure cross-window communication
+
+## 🌐 Live Demo
+
+**Try it now**: [https://nosleep.williamchong.cloud](https://nosleep.williamchong.cloud)
+
+Works on all modern browsers with Wake Lock API support. No signup, no download, completely free.
+
+## ❓ FAQ
+
+**Q: Will this drain my battery?**
+A: Keeping your screen awake uses more power than letting it sleep. Use timers to minimize battery impact - set them only as long as you need.
+
+**Q: What happens if I close the tab?**
+A: The wake lock stops immediately. Use the floating window feature to prevent accidentally closing it.
+
+**Q: Can I use this on my phone?**
+A: Yes! It works on iPhone (Safari 16.4+) and Android (Chrome 84+). The floating window may not be available on all mobile browsers.
+
+**Q: Is this better than changing my system settings?**
+A: Yes! It's temporary and automatic. No need to remember to change settings back. When you close the tab or timer expires, everything returns to normal.
+
+**Q: Does this work offline?**
+A: No, you need an internet connection to load the page initially. Once loaded, it works without continuous internet connection.
+
+## 🛠️ For Developers
+
+Want to contribute or run locally? See the development sections above for setup instructions.
+
+**Tech Stack**: Nuxt 3, Vue 3, TypeScript, Pinia, Tailwind CSS, Vitest
+
+**Contributing**: Issues and pull requests welcome! Check out the code on GitHub.
+
+## 📝 License
+
+[View License](LICENSE)
+
+## 👨‍💻 Author
+
+Built by [William Chong](https://blog.williamchong.cloud)
+
+**More Projects**: Visit my blog for more useful web tools and technical articles.
+
+---
+
+**Keywords**: prevent screen sleep, keep screen awake, download helper, no sleep timer, wake lock, screen timeout, presentation mode, prevent display sleep, keep computer awake, anti-sleep tool
