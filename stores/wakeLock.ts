@@ -15,6 +15,7 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
   const route = useRoute()
   const { trackEvent } = useAnalytics()
 
+  const isLoading = ref(true)
   const isSupported = ref(false)
   const isActive = ref(false)
   const wakeLock = ref<WakeLockSentinel | null>(null)
@@ -38,13 +39,16 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
 
   const shouldSyncState = computed(() => isIframePip.value || !hasActivePipWindow.value)
 
-  function checkSupport() {
+  async function checkSupport() {
+    isLoading.value = true
     if (route.query.fallback === '1') {
       isSupported.value = false
+      isLoading.value = false
       return
     }
 
     isSupported.value = 'wakeLock' in navigator
+    isLoading.value = false
   }
 
   function createTimerInterval() {
@@ -351,9 +355,7 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     }
   }
 
-  function initialize() {
-    checkSupport()
-
+  async function initialize() {
     if (typeof window !== 'undefined') {
       isPipMode.value = route.query.pip === '1'
       isIframePip.value = isPipMode.value && window.parent !== window
@@ -372,6 +374,8 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
         })
       }
     }
+
+    await checkSupport()
   }
 
   function cleanup() {
@@ -383,6 +387,7 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
   }
 
   return {
+    isLoading,
     isSupported,
     isActive,
     timerActive,

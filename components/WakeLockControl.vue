@@ -28,7 +28,19 @@
         </p>
       </div>
 
-      <div v-if="!wakeLock.isSupported" class="mt-2 sm:mt-4 p-3 sm:p-4 lg:p-6 bg-red-50 dark:bg-red-950/30 rounded-lg sm:rounded-xl border border-red-200 dark:border-red-800">
+      <div v-if="wakeLock.isLoading" class="mt-2 sm:mt-4 p-8 sm:p-12 lg:p-16">
+        <div class="flex flex-col items-center justify-center space-y-4 sm:space-y-6">
+          <div class="relative">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 border-4 border-blue-200 dark:border-blue-800 rounded-full" />
+            <div class="absolute top-0 left-0 w-12 h-12 sm:w-16 sm:h-16 border-4 border-blue-600 dark:border-blue-400 rounded-full border-t-transparent animate-spin" />
+          </div>
+          <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
+            {{ $t('loading.message') }}
+          </p>
+        </div>
+      </div>
+
+      <div v-else-if="!wakeLock.isSupported" class="mt-2 sm:mt-4 p-3 sm:p-4 lg:p-6 bg-red-50 dark:bg-red-950/30 rounded-lg sm:rounded-xl border border-red-200 dark:border-red-800">
         <div class="flex items-start space-x-2 sm:space-x-3">
           <div class="text-2xl sm:text-3xl">😞</div>
           <div>

@@ -36,6 +36,9 @@
     "ariaLabelAwake": "裝置喚醒中 - 點擊太陽允許休眠",
     "ariaLabelSleep": "裝置休眠中 - 點擊月亮保持喚醒"
   },
+  "loading": {
+    "message": "正在檢查瀏覽器支援..."
+  },
   "unsupported": {
     "title": "瀏覽器不支援",
     "message": "您的瀏覽器不支援 NoSleep 運作所需的 Screen Wake Lock API。",

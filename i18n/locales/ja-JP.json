@@ -36,6 +36,9 @@
     "ariaLabelAwake": "デバイス覚醒中 - 太陽をクリックしてスリープを許可",
     "ariaLabelSleep": "デバイススリープ中 - 月をクリックして覚醒状態を維持"
   },
+  "loading": {
+    "message": "ブラウザのサポートを確認中..."
+  },
   "unsupported": {
     "title": "ブラウザ未対応",
     "message": "お使いのブラウザはNoSleepの動作に必要なScreen Wake Lock APIに対応していません。",

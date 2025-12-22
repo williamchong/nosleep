@@ -36,6 +36,9 @@
     "ariaLabelAwake": "Device is awake - Click sun to allow sleep",
     "ariaLabelSleep": "Device is sleeping - Click moon to keep awake"
   },
+  "loading": {
+    "message": "Checking browser support..."
+  },
   "unsupported": {
     "title": "Browser Not Supported",
     "message": "Your browser does not support the Screen Wake Lock API needed for NoSleep to work.",
