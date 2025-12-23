@@ -58,7 +58,9 @@
       </div>
 
       <template v-else>
-        <StatusAnimation :is-active="wakeLock.isActive" :is-pip-mode="wakeLock.isPipMode" @toggle="handleWakeLockToggle" />
+        <ClientOnly>
+          <StatusAnimation :is-active="wakeLock.isActive" :is-pip-mode="wakeLock.isPipMode" @toggle="handleWakeLockToggle" />
+        </ClientOnly>
 
         <button
           class="w-full font-semibold transition-all duration-200 focus:outline-none"
