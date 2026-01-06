@@ -51,6 +51,49 @@
         </div>
       </section>
 
+      <section class="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/20 rounded-xl p-8 space-y-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">{{ $t('sections.problems.title') }}</h2>
+        <p class="text-center text-gray-600 dark:text-gray-400">{{ $t('sections.problems.subtitle') }}</p>
+        <div class="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+          <div
+            v-for="(_, index) in $tm('sections.problems.items')"
+            :key="index"
+            class="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm border border-orange-200 dark:border-orange-800 hover:shadow-md transition-shadow"
+          >
+            <div class="flex items-start space-x-3">
+              <span class="text-2xl">{{ $t(`sections.problems.items[${index}].emoji`) }}</span>
+              <div>
+                <h3 class="font-semibold text-gray-900 dark:text-gray-100 mb-1">{{ $t(`sections.problems.items[${index}].title`) }}</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $t(`sections.problems.items[${index}].description`) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 rounded-xl p-8 space-y-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">{{ $t('sections.alternatives.title') }}</h2>
+        <p class="text-center text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">{{ $t('sections.alternatives.subtitle') }}</p>
+        <div class="max-w-3xl mx-auto">
+          <ul class="space-y-3">
+            <li v-for="(feature, index) in $tm('sections.alternatives.features')" :key="index" class="flex items-start space-x-3">
+              <span class="text-green-600 dark:text-green-400 text-xl font-bold">✓</span>
+              <span class="text-gray-700 dark:text-gray-300">{{ $rt(feature) }}</span>
+            </li>
+          </ul>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-6 text-center italic border-t border-green-200 dark:border-green-800 pt-4">
+            <span class="font-semibold">Compare to:</span>
+            {{ $t('sections.alternatives.vsCaffeine') }},
+            {{ $t('sections.alternatives.vsAmphetamine') }},
+            {{ $t('sections.alternatives.vsInsomniaX') }},
+            {{ $t('sections.alternatives.vsPowerPlant') }}
+          </p>
+          <p class="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center">
+            {{ $t('sections.alternatives.comparisonNote') }}
+          </p>
+        </div>
+      </section>
+
       <section class="space-y-8">
         <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 text-center">{{ $t('sections.faq.title') }}</h2>
 

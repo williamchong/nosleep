@@ -13,7 +13,7 @@
   },
   "header": {
     "title": "NoSleep",
-    "subtitle": "保持裝置喚醒"
+    "subtitle": "保持螢幕開啟，防止電腦休眠"
   },
   "button": {
     "deviceAwake": "裝置喚醒",
@@ -74,6 +74,59 @@
     "title": "NoSleep - 浮動視窗"
   },
   "sections": {
+    "problems": {
+      "title": "解決這些常見問題",
+      "subtitle": "點擊上方按鈕保持螢幕喚醒，防止以下問題：",
+      "items": [
+        {
+          "emoji": "🔄",
+          "title": "下載不斷中斷",
+          "description": "長時間下載時保持電腦喚醒，確保下載順利完成"
+        },
+        {
+          "emoji": "💻",
+          "title": "簡報時筆記型電腦休眠",
+          "description": "重要會議和演示期間防止螢幕逾時"
+        },
+        {
+          "emoji": "🎬",
+          "title": "影片渲染中途停止",
+          "description": "長時間渲染任務和檔案處理時保持螢幕喚醒"
+        },
+        {
+          "emoji": "📊",
+          "title": "監控時控制台變黑",
+          "description": "監控即時數據或工具時防止螢幕休眠"
+        },
+        {
+          "emoji": "📖",
+          "title": "閱讀時螢幕變暗",
+          "description": "閱讀長篇文章或文件時保持螢幕開啟"
+        },
+        {
+          "emoji": "🎮",
+          "title": "遊戲因電腦休眠斷線",
+          "description": "閒置遊戲或 AFK 活動期間防止休眠"
+        }
+      ]
+    },
+    "alternatives": {
+      "title": "為何選擇 NoSleep 而非桌面應用程式？",
+      "subtitle": "與傳統休眠防止應用程式不同，NoSleep 完全在瀏覽器中運作：",
+      "features": [
+        "無需安裝 - 可在 Chrome、Edge、Safari 或 Firefox 中立即使用",
+        "跨平台相容 - 適用於 Mac、Windows、Chromebook、Linux、iPhone 和 Android",
+        "完全免費，無廣告、無註冊、無隱藏費用",
+        "可自訂計時器（1-480 分鐘）以自動釋放休眠鎖",
+        "浮動視窗始終保持在最上層，方便工作時使用",
+        "安全且私密 - 僅使用標準瀏覽器 API，不收集個人資料"
+      ],
+      "vsCaffeine": "vs Caffeine (Mac)",
+      "vsAmphetamine": "vs Amphetamine (Mac)",
+      "vsInsomniaX": "vs InsomniaX (Windows)",
+      "vsPowerPlant": "vs PowerPlant (Windows)",
+      "comparisonNote": "這些應用程式需要下載和安裝。NoSleep 直接在瀏覽器中運作，具有相同功能。"
+    },
     "howToUse": {
       "title": "如何使用 NoSleep - 簡單 3 步指南",
       "steps": [
@@ -134,6 +187,43 @@
     }
   },
   "structuredData": {
+    "howTo": {
+      "main": {
+        "name": "如何防止螢幕休眠",
+        "description": "使用 NoSleep 網頁工具防止電腦或流動電話裝置進入休眠的逐步指南。",
+        "step1Name": "開啟 NoSleep 網站",
+        "step1Text": "在瀏覽器中開啟此網站（Chrome、Edge、Safari 或 Firefox）",
+        "step2Name": "點擊保持螢幕喚醒",
+        "step2Text": "點擊「點擊保持喚醒」按鈕以啟動螢幕喚醒鎖",
+        "step3Name": "設定可選計時器",
+        "step3Text": "可選擇設定計時器（1-480 分鐘）以在完成後自動釋放休眠鎖",
+        "step4Name": "使用浮動視窗（可選）",
+        "step4Text": "點擊「開啟浮動視窗」以獲得在作業時保持可見的置頂彈出視窗",
+        "toolName": "支援 Screen Wake Lock API 的現代網頁瀏覽器"
+      },
+      "download": {
+        "name": "如何在下載期間防止電腦休眠",
+        "description": "使用 NoSleep 保持電腦喚醒並防止下載中斷。",
+        "step1Name": "開始下載",
+        "step1Text": "在瀏覽器或下載管理器中開始檔案下載",
+        "step2Name": "設定下載時長計時器",
+        "step2Text": "開啟 NoSleep 並設定符合下載時間的計時器（例如 30-60 分鐘）",
+        "step3Name": "啟動喚醒鎖",
+        "step3Text": "點擊啟動 - 您的電腦將保持喚醒直到下載完成"
+      },
+      "presentation": {
+        "name": "如何在簡報期間保持螢幕開啟",
+        "description": "在會議、簡報和演示期間防止螢幕逾時。",
+        "step1Name": "在簡報前開啟 NoSleep",
+        "step1Text": "在開始簡報之前在瀏覽器中開啟此網站",
+        "step2Name": "啟動喚醒鎖",
+        "step2Text": "點擊按鈕以在整個簡報期間保持螢幕開啟",
+        "step3Name": "使用浮動視窗以方便操作",
+        "step3Text": "開啟浮動視窗以便在簡報時輕鬆監控狀態",
+        "step4Name": "在簡報後停用",
+        "step4Text": "再次點擊按鈕或讓計時器到期以返回正常休眠模式"
+      }
+    },
     "faq": {
       "useCases": {
         "question": "NoSleep 的使用情境有哪些？",

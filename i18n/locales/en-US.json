@@ -1,19 +1,19 @@
 {
   "site": {
-    "title": "NoSleep: Prevent Screen Sleep | Free Timer Tool with Floating Window",
-    "description": "Keep your screen awake during downloads, work sessions & presentations. Set custom timers (1-480 min) + always-on-top floating window. Free, no installation required.",
-    "keywords": "prevent computer sleep, screen timeout disable, download helper tool, presentation screen lock, no sleep, keep awake, prevent sleep, sleep timer, device awake, screen wake lock, auto sleep, computer awake, mobile awake, wake lock timer, floating window, picture in picture, always on top, prevent screen dim",
+    "title": "NoSleep - Keep Screen On, Prevent Sleep & Stop Screen Timeout | Free Web Tool",
+    "description": "Keep your screen on and prevent your computer from sleeping. Free web-based tool to stop screen timeout during downloads, presentations, and long tasks. No download required - works instantly in your browser with custom timers and floating window.",
+    "keywords": "keep screen on, prevent screen sleep, stop screen from sleeping, keep monitor awake, prevent laptop sleep, keep computer awake, stop screen timeout, prevent computer from sleeping, keep screen awake, no download required, caffeine alternative, amphetamine alternative, insomniax alternative, keep macbook awake, stop windows sleep, chromebook keep screen on, prevent sleep during download, keep screen on during presentation, screen wake lock, display won't sleep, screen stays on, laptop keeps sleeping, stop computer from sleeping",
     "author": "William Chong",
     "name": "NoSleep"
   },
   "meta": {
-    "ogTitle": "NoSleep: Prevent Screen Sleep | Free Timer Tool with Floating Window",
-    "ogDescription": "Free web tool that keeps your screen awake with custom timers (1-480 min) and floating window mode. Perfect for downloads, work sessions & presentations. No installation needed.",
+    "ogTitle": "NoSleep - Keep Screen On & Prevent Computer Sleep | Free Web Tool",
+    "ogDescription": "Free web tool to keep your screen on and stop screen timeout. Prevent laptop/Mac sleep during downloads, presentations, and long tasks. No installation needed - works instantly in browser.",
     "applicationDescription": "A free web-based tool that prevents your computer or mobile device from going to sleep using the Screen Wake Lock API. Features customizable timers (1-480 minutes), always-on-top floating window, cross-window synchronization, and beautiful animated visual feedback."
   },
   "header": {
     "title": "NoSleep",
-    "subtitle": "Keep your device awake"
+    "subtitle": "Keep your screen on and prevent computer from sleeping"
   },
   "button": {
     "deviceAwake": "Device Awake",
@@ -74,6 +74,59 @@
     "title": "NoSleep - Floating Window"
   },
   "sections": {
+    "problems": {
+      "title": "Solve These Common Problems",
+      "subtitle": "Click the button above to keep your screen on and prevent these issues:",
+      "items": [
+        {
+          "emoji": "🔄",
+          "title": "Downloads keep getting interrupted",
+          "description": "Keep your computer awake during long downloads so they complete successfully"
+        },
+        {
+          "emoji": "💻",
+          "title": "Laptop goes to sleep during presentation",
+          "description": "Prevent screen timeout during important meetings and demos"
+        },
+        {
+          "emoji": "🎬",
+          "title": "Video rendering stops mid-process",
+          "description": "Keep monitor awake for long rendering tasks and file processing"
+        },
+        {
+          "emoji": "📊",
+          "title": "Dashboard goes dark during monitoring",
+          "description": "Stop screen from sleeping while monitoring real-time data or tools"
+        },
+        {
+          "emoji": "📖",
+          "title": "Reading gets interrupted by screen dimming",
+          "description": "Keep screen on while reading long articles or documents"
+        },
+        {
+          "emoji": "🎮",
+          "title": "Game disconnects when computer sleeps",
+          "description": "Prevent sleep during idle gaming sessions or AFK activities"
+        }
+      ]
+    },
+    "alternatives": {
+      "title": "Why Choose NoSleep Over Desktop Apps?",
+      "subtitle": "Unlike traditional sleep prevention apps, NoSleep works entirely in your browser:",
+      "features": [
+        "No installation required - works instantly in Chrome, Edge, Safari, or Firefox",
+        "Cross-platform compatibility - works on Mac, Windows, Chromebook, Linux, iPhone, and Android",
+        "Completely free with no ads, sign-ups, or hidden costs",
+        "Customizable timer (1-480 minutes) for automatic sleep release",
+        "Always-on-top floating window for convenient access while working",
+        "Safe and private - uses only standard browser APIs, no personal data collected"
+      ],
+      "vsCaffeine": "vs Caffeine (Mac)",
+      "vsAmphetamine": "vs Amphetamine (Mac)",
+      "vsInsomniaX": "vs InsomniaX (Windows)",
+      "vsPowerPlant": "vs PowerPlant (Windows)",
+      "comparisonNote": "Those apps require download and installation. NoSleep runs directly in your browser with the same functionality."
+    },
     "howToUse": {
       "title": "How to Use NoSleep - Simple 3-Step Guide",
       "steps": [
@@ -135,6 +188,43 @@
     }
   },
   "structuredData": {
+    "howTo": {
+      "main": {
+        "name": "How to Keep Your Screen From Sleeping",
+        "description": "Step-by-step guide to prevent your computer or mobile device from going to sleep using the NoSleep web tool.",
+        "step1Name": "Open the NoSleep website",
+        "step1Text": "Open this website in your browser (Chrome, Edge, Safari, or Firefox)",
+        "step2Name": "Click to keep screen awake",
+        "step2Text": "Click the \"Click to Keep Awake\" button to activate the screen wake lock",
+        "step3Name": "Set optional timer",
+        "step3Text": "Optionally set a timer (1-480 minutes) for automatic sleep release when done",
+        "step4Name": "Use floating window (optional)",
+        "step4Text": "Click \"Open Floating Window\" for an always-on-top popup that stays visible while working",
+        "toolName": "Modern web browser with Screen Wake Lock API support"
+      },
+      "download": {
+        "name": "How to Prevent Computer From Sleeping During Downloads",
+        "description": "Keep your computer awake and prevent interrupted downloads using NoSleep.",
+        "step1Name": "Start your download",
+        "step1Text": "Begin your file download in your browser or download manager",
+        "step2Name": "Set timer for download duration",
+        "step2Text": "Open NoSleep and set a timer matching your download time (e.g., 30-60 minutes)",
+        "step3Name": "Activate wake lock",
+        "step3Text": "Click to activate - your computer will stay awake until download completes"
+      },
+      "presentation": {
+        "name": "How to Keep Screen On During Presentation",
+        "description": "Prevent screen timeout during meetings, presentations, and demos.",
+        "step1Name": "Open NoSleep before presentation",
+        "step1Text": "Open this website in your browser before starting your presentation",
+        "step2Name": "Activate wake lock",
+        "step2Text": "Click the button to keep your screen on throughout your presentation",
+        "step3Name": "Use floating window for convenience",
+        "step3Text": "Open the floating window to easily monitor status while presenting",
+        "step4Name": "Deactivate after presentation",
+        "step4Text": "Click the button again or let timer expire to return to normal sleep mode"
+      }
+    },
     "faq": {
       "useCases": {
         "question": "What are the best use cases for NoSleep screen wake lock?",

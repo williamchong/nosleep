@@ -30,6 +30,99 @@ useHead({
       type: 'application/ld+json',
       innerHTML: JSON.stringify([
       {
+        '@type': 'HowTo',
+        name: t('structuredData.howTo.main.name'),
+        description: t('structuredData.howTo.main.description'),
+        step: [
+          {
+            '@type': 'HowToStep',
+            position: 1,
+            name: t('structuredData.howTo.main.step1Name'),
+            text: t('structuredData.howTo.main.step1Text')
+          },
+          {
+            '@type': 'HowToStep',
+            position: 2,
+            name: t('structuredData.howTo.main.step2Name'),
+            text: t('structuredData.howTo.main.step2Text')
+          },
+          {
+            '@type': 'HowToStep',
+            position: 3,
+            name: t('structuredData.howTo.main.step3Name'),
+            text: t('structuredData.howTo.main.step3Text')
+          },
+          {
+            '@type': 'HowToStep',
+            position: 4,
+            name: t('structuredData.howTo.main.step4Name'),
+            text: t('structuredData.howTo.main.step4Text')
+          }
+        ],
+        tool: [
+          {
+            '@type': 'HowToTool',
+            name: t('structuredData.howTo.main.toolName')
+          }
+        ]
+      },
+      {
+        '@type': 'HowTo',
+        name: t('structuredData.howTo.download.name'),
+        description: t('structuredData.howTo.download.description'),
+        step: [
+          {
+            '@type': 'HowToStep',
+            position: 1,
+            name: t('structuredData.howTo.download.step1Name'),
+            text: t('structuredData.howTo.download.step1Text')
+          },
+          {
+            '@type': 'HowToStep',
+            position: 2,
+            name: t('structuredData.howTo.download.step2Name'),
+            text: t('structuredData.howTo.download.step2Text')
+          },
+          {
+            '@type': 'HowToStep',
+            position: 3,
+            name: t('structuredData.howTo.download.step3Name'),
+            text: t('structuredData.howTo.download.step3Text')
+          }
+        ]
+      },
+      {
+        '@type': 'HowTo',
+        name: t('structuredData.howTo.presentation.name'),
+        description: t('structuredData.howTo.presentation.description'),
+        step: [
+          {
+            '@type': 'HowToStep',
+            position: 1,
+            name: t('structuredData.howTo.presentation.step1Name'),
+            text: t('structuredData.howTo.presentation.step1Text')
+          },
+          {
+            '@type': 'HowToStep',
+            position: 2,
+            name: t('structuredData.howTo.presentation.step2Name'),
+            text: t('structuredData.howTo.presentation.step2Text')
+          },
+          {
+            '@type': 'HowToStep',
+            position: 3,
+            name: t('structuredData.howTo.presentation.step3Name'),
+            text: t('structuredData.howTo.presentation.step3Text')
+          },
+          {
+            '@type': 'HowToStep',
+            position: 4,
+            name: t('structuredData.howTo.presentation.step4Name'),
+            text: t('structuredData.howTo.presentation.step4Text')
+          }
+        ]
+      },
+      {
         '@type': 'WebApplication',
         name: t('site.name'),
         description: t('meta.applicationDescription'),
