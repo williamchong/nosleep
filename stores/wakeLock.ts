@@ -60,10 +60,6 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     timerInterval.value = setInterval(() => {
       remainingTime.value--
 
-      if (shouldSyncState.value) {
-        syncWakeLockState()
-      }
-
       if (remainingTime.value <= 0) {
         trackEvent('timer_expired_auto_release')
         release()
