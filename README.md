@@ -10,7 +10,7 @@ A free web tool that keeps your screen awake during downloads, work sessions, pr
 - 🎨 **Visual Feedback** - Animated sun/moon icons show active status
 - 📱 **Cross-Platform** - Works on desktop computers, tablets, and mobile phones
 - 🌐 **No Installation** - Web-based tool, works directly in your browser
-- 🔒 **100% Safe & Private** - No data collection, no permissions needed
+- 🔒 **100% Safe & Private** - No personal data collection, no permissions needed
 - 🌓 **Dark Mode** - Easy on the eyes during extended use
 
 ## 🎯 Perfect For
@@ -35,7 +35,7 @@ NoSleep uses your browser's built-in [Screen Wake Lock API](https://developer.mo
 ### Smart Features
 - **Instant Activation**: One click starts keeping your screen awake
 - **Animated Status Icons**: Sun animation when active, moon when sleeping
-- **Flexible Timers**: Quick buttons (+1, +5, +10, +30 min) or custom input
+- **Flexible Timers**: Preset durations (15 min, 1 hour, 4 hours) or custom slider (1-480 min)
 - **Floating Window**: Dedicated popup that stays on top and syncs with main page
 - **Auto-Release**: Automatically allows sleep when timer expires
 - **Cross-Window Sync**: Controls in floating window update the main page in real-time
@@ -143,15 +143,15 @@ bun run test
 
 ### Quick Start (No Timer)
 1. **Visit** the website at [nosleep.williamchong.cloud](https://nosleep.williamchong.cloud)
-2. **Click** the main button - it will turn from green to red
+2. **Click** the main button - it will turn from red to green
 3. **Notice** the sun animation - your screen is now staying awake
 4. **Click again** when done to allow normal sleep
 
 ### Using the Timer Feature
 1. **Click "Set Timer"** below the main button
 2. **Choose your duration**:
-   - Type any number (1-480 minutes)
-   - Or use quick buttons: +1, +5, +10, +30 minutes
+   - Select a preset: 15 minutes, 1 hour, or 4 hours
+   - Or choose "Custom" and use the slider (1-480 minutes)
 3. **Click "Start Timer"** to begin
 4. **Relax** - your screen stays awake until the timer expires
 5. **Cancel anytime** if you finish early
@@ -203,7 +203,7 @@ bun run test
 - **Responsive Design**: Optimized for desktop, tablet, and mobile devices
 - **Dark Mode**: Automatic theme switching based on system preferences
 - **SEO Optimized**: Structured data and meta tags for search engines
-- **Progressive Web App**: Can be installed on your device for quick access
+- **Lightweight**: Fast loading with no unnecessary overhead
 
 ### Browser APIs Used
 - [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API) - Prevents screen sleep
