@@ -7,7 +7,6 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxtjs/sitemap',
     '@nuxtjs/tailwindcss',
-    '@nuxtjs/device',
     '@sentry/nuxt/module',
     '@nuxt/scripts',
     '@nuxtjs/color-mode',

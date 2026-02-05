@@ -24,7 +24,6 @@
           :is-pip-mode="wakeLock.isPipMode"
           :is-supported="wakeLock.isSupported"
           :is-pip-supported="documentPip.isPipSupported.value"
-          :is-mobile="$device.isMobile"
           @open-window="openFloatingWindow"
         />
       </template>
@@ -193,8 +192,6 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 const wakeLock = useWakeLock()
 const documentPip = useDocumentPiP()
-
-const { $device } = useNuxtApp()
 
 const { trackEvent } = useAnalytics()
 
