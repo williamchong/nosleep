@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import lottie, { type AnimationItem } from 'lottie-web'
+import lottie, { type AnimationItem } from 'lottie-web/build/player/lottie_light'
 
 const props = defineProps({
   isActive: {
