@@ -53,14 +53,6 @@ const opacity = ref(1)
 
 const { t } = useI18n()
 
-// Preload animations using link tags
-useHead({
-  link: [
-    { rel: 'preload', href: '/animations/sun.json', as: 'fetch', crossorigin: 'anonymous' },
-    { rel: 'preload', href: '/animations/moon.json', as: 'fetch', crossorigin: 'anonymous' }
-  ]
-})
-
 const containerClasses = computed(() => {
   const base = 'hover:scale-105'
   // Make sun shine much brighter in dark mode with stronger glow and brightness boost
@@ -92,6 +84,18 @@ const sizeClasses = computed(() => {
 
 const currentAnimationPath = computed(() => {
   return props.isActive ? '/animations/sun.json' : '/animations/moon.json'
+})
+
+// Preload the active animation, prefetch the other
+const otherAnimationPath = computed(() => {
+  return props.isActive ? '/animations/moon.json' : '/animations/sun.json'
+})
+
+useHead({
+  link: [
+    { rel: 'preload', href: currentAnimationPath, as: 'fetch', crossorigin: 'anonymous' },
+    { rel: 'prefetch', href: otherAnimationPath, as: 'fetch', crossorigin: 'anonymous' }
+  ]
 })
 
 const loadAnimation = (path: string) => {
