@@ -72,7 +72,7 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
       wakeLock.value = await navigator.wakeLock.request('screen')
       wakeLock.value.addEventListener('release', () => {
         const timerStatus = timerActive.value ? 'with_timer' : 'without_timer'
-        trackEvent(`wakelock_auto_released_${timerStatus}`)
+        trackEvent(`wake_lock_auto_released_${timerStatus}`)
 
         wakeLock.value = null
 
@@ -87,7 +87,7 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
       return true
     } catch (error) {
       console.error('Failed to establish wake lock:', error)
-      trackEvent('wake_lock_acquire_failed_native_api')
+      trackEvent('wake_lock_acquire_failed')
       return false
     }
   }
@@ -120,7 +120,6 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
         }
         return true
       } else {
-        trackEvent('wake_lock_establish_failed_native_api')
         return false
       }
     } finally {
@@ -291,10 +290,6 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
       isActive.value = state.isActive
       timerActive.value = state.timerActive
       remainingTime.value = state.remainingTime
-
-      const activeStatus = state.isActive ? 'active' : 'inactive'
-      const timerStatus = state.timerActive ? 'with_timer' : 'without_timer'
-      trackEvent(`pip_sync_received_${activeStatus}_${timerStatus}`)
     }
   }
 
@@ -311,7 +306,7 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
       const reacquireSuccess = await acquire()
 
       const result = reacquireSuccess ? 'success' : 'failed'
-      trackEvent(`wakelock_reacquire_native_api_${result}`)
+      trackEvent(`wake_lock_reacquire_${result}`)
 
       if (!reacquireSuccess) {
         isActive.value = false

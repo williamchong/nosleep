@@ -42,7 +42,7 @@
           max="480"
           step="1"
           class="w-full h-2 bg-gray-300 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider slider-blue"
-          @input="handleSliderChange"
+          @change="handleSliderChange"
         >
         <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
           <span>1 min</span>

@@ -64,7 +64,7 @@ export const useWakeLockUI = (options: {
 
       const action = isActive.value ? 'activate' : 'deactivate'
       const prefix = isPipMode ? 'pip' : 'main'
-      trackEvent(`${prefix}_toggle_${action}_native_api`)
+      trackEvent(`${prefix}_toggle_${action}`)
     } catch (error) {
       console.error('Failed to toggle wake lock:', error)
       trackEvent(`${isPipMode ? 'pip' : 'main'}_toggle_failed`)

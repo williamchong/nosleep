@@ -176,7 +176,7 @@ onMounted(async () => {
       autoAcquireSuccess = await wakeLock.acquire()
     } catch (error) {
       console.error('Auto-acquire error:', error)
-      trackEvent('auto_acquire_failed_native_api')
+      trackEvent('wake_lock_auto_acquire_failed')
       console.log('Auto-start failed, user interaction required')
     }
 

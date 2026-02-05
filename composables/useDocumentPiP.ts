@@ -116,7 +116,6 @@ export const useDocumentPiP = () => {
       })
 
       pipWindow.value = newPipWindow
-      trackEvent('pip_window_opened_successfully')
       return newPipWindow
     } catch (error) {
       console.error('Failed to open Document PiP window:', error)

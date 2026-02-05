@@ -201,7 +201,6 @@ const handleExternalLinkClick = () => {
 
 const handleWindowClosed = async (wasActive: boolean) => {
   wakeLock.pipWindowRef = null
-  trackEvent('pip_window_closed')
 
   await nextTick()
 
