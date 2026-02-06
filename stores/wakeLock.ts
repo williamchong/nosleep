@@ -65,6 +65,8 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
       if (remainingTime.value <= 0) {
         trackEvent('timer_expired_auto_release')
         release()
+      } else if (isIframePip.value) {
+        syncWakeLockState()
       }
     }, 1000)
   }
