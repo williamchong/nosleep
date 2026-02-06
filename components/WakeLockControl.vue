@@ -82,9 +82,8 @@
           {{ statusText }}
         </div>
 
-        <div class="pt-2 sm:pt-3 lg:pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div v-if="!wakeLock.hasActivePipWindow" class="pt-2 sm:pt-3 lg:pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
-            v-if="!wakeLock.hasActivePipWindow"
             class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors inline-flex items-center space-x-1 mb-2 sm:mb-3"
             @click="toggleTimerSection">
             <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -114,7 +113,6 @@
               :timer-active="wakeLock.timerActive"
               :remaining-time="wakeLock.remainingTime"
               :format-time="wakeLock.formatTime"
-              :disabled="wakeLock.hasActivePipWindow"
               @start="handleTimerStart"
               @cancel="handleTimerCancel" />
           </div>

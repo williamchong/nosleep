@@ -7,7 +7,7 @@ interface WakeLockState {
 }
 
 interface WakeLockMessage {
-  type: 'sync' | 'closed'
+  type: 'wake-lock-sync' | 'pip-closed'
   state?: WakeLockState
 }
 
@@ -37,8 +37,6 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     !isIframePip.value && hasActivePipWindow.value
   )
 
-  const shouldSyncState = computed(() => isIframePip.value || !hasActivePipWindow.value)
-
   async function checkSupport() {
     isLoading.value = true
     if (route.query.fallback === '1') {
@@ -51,11 +49,15 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     isLoading.value = false
   }
 
-  function createTimerInterval() {
+  function clearTimerInterval() {
     if (timerInterval.value) {
       clearInterval(timerInterval.value)
       timerInterval.value = null
     }
+  }
+
+  function createTimerInterval() {
+    clearTimerInterval()
 
     timerInterval.value = setInterval(() => {
       remainingTime.value--
@@ -73,13 +75,7 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
       wakeLock.value.addEventListener('release', () => {
         const timerStatus = timerActive.value ? 'with_timer' : 'without_timer'
         trackEvent(`wake_lock_auto_released_${timerStatus}`)
-
         wakeLock.value = null
-
-        // Only update isActive if there's no PiP window managing the wake lock
-        // When a PiP window is active, the parent's wake lock is intentionally released
-        // and the PiP iframe manages its own wake lock. The parent's isActive state
-        // reflects the overall system state (synced from PiP), not just local wake lock.
         if (!hasActivePipWindow.value) {
           isActive.value = false
         }
@@ -115,7 +111,7 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
       if (success) {
         isActive.value = true
 
-        if (shouldSyncState.value) {
+        if (isIframePip.value) {
           syncWakeLockState()
         }
         return true
@@ -150,7 +146,7 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
 
       stopTimer()
 
-      if (shouldSyncState.value) {
+      if (isIframePip.value) {
         syncWakeLockState()
       }
     } finally {
@@ -206,14 +202,28 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
       return
     }
 
-    if (timerInterval.value) {
-      clearInterval(timerInterval.value)
-      timerInterval.value = null
-    }
+    clearTimerInterval()
     timerActive.value = false
     remainingTime.value = 0
 
     syncWakeLockState()
+  }
+
+  function transferStateToPip(targetWindow: Window) {
+    const message: WakeLockMessage = {
+      type: 'wake-lock-sync',
+      state: {
+        isActive: isActive.value,
+        timerActive: timerActive.value,
+        remainingTime: remainingTime.value
+      }
+    }
+    targetWindow.postMessage(message, window.location.origin)
+
+    clearTimerInterval()
+    timerActive.value = false
+    timerDuration.value = 0
+    remainingTime.value = 0
   }
 
   function formatTime(seconds: number) {
@@ -227,19 +237,15 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     return `${minutes}:${secs.toString().padStart(2, '0')}`
   }
 
-  function createSyncMessage(): WakeLockMessage {
-    return {
-      type: 'sync',
+  function syncWakeLockState() {
+    const message: WakeLockMessage = {
+      type: 'wake-lock-sync',
       state: {
         isActive: isActive.value,
         timerActive: timerActive.value,
         remainingTime: remainingTime.value
       }
     }
-  }
-
-  function syncWakeLockState() {
-    const message = createSyncMessage()
 
     if (isIframePip.value && window.parent !== window) {
       try {
@@ -248,43 +254,22 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
         console.warn('Could not send to window.parent:', e)
       }
     }
-
-    if (!isIframePip.value && pipWindowRef.value && !pipWindowRef.value.closed) {
-      try {
-        pipWindowRef.value.postMessage(message, window.location.origin)
-      } catch (e) {
-        console.warn('Could not send to PiP window:', e)
-      }
-    }
   }
 
-  function initialSyncToPip() {
-    if (pipWindowRef.value && !pipWindowRef.value.closed) {
-      try {
-        pipWindowRef.value.postMessage(createSyncMessage(), window.location.origin)
-      } catch (e) {
-        console.warn('Could not send initial sync to PiP window:', e)
-      }
-    }
-  }
-
-  function handleSync(state: WakeLockState) {
+  async function handleWakeLockSync(state: WakeLockState) {
     if (isIframePip.value) {
-      if (timerInterval.value && state.timerActive && remainingTime.value === state.remainingTime) {
+      if (state.isActive && !isActive.value) {
+        const success = await acquire()
+        if (!success) return
+      } else if (!state.isActive && isActive.value) {
+        await release()
         return
       }
-
-      remainingTime.value = state.remainingTime
-      timerActive.value = state.timerActive
-
-      if (state.timerActive && state.remainingTime > 0 && !timerInterval.value) {
+      if (state.timerActive && state.remainingTime > 0 && !timerActive.value) {
+        remainingTime.value = state.remainingTime
+        timerDuration.value = Math.ceil(state.remainingTime / 60)
+        timerActive.value = true
         createTimerInterval()
-      }
-
-      if (state.isActive && !isActive.value) {
-        acquire()
-      } else if (!state.isActive && isActive.value) {
-        release()
       }
     } else {
       isActive.value = state.isActive
@@ -293,24 +278,38 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     }
   }
 
-  async function handlePipClosed() {
-    const wasActive = isActive.value
+  async function handlePipClosed(finalState?: WakeLockState) {
+    if (!pipWindowRef.value) return
     pipWindowRef.value = null
+
+    const wasActive = finalState?.isActive ?? isActive.value
+    const hadTimer = finalState?.timerActive ?? false
+    const timeRemaining = finalState?.remainingTime ?? 0
+
+    timerActive.value = hadTimer
+    remainingTime.value = timeRemaining
+
     const activeStatus = wasActive ? 'was_active' : 'was_inactive'
-    const timerStatus = timerActive.value ? 'with_timer' : 'without_timer'
+    const timerStatus = hadTimer ? 'with_timer' : 'without_timer'
     trackEvent(`pip_closed_${activeStatus}_${timerStatus}`)
 
     await nextTick()
 
     if (wasActive) {
       const reacquireSuccess = await acquire()
-
       const result = reacquireSuccess ? 'success' : 'failed'
       trackEvent(`wake_lock_reacquire_${result}`)
 
-      if (!reacquireSuccess) {
+      if (reacquireSuccess) {
+        if (hadTimer && timeRemaining > 0) {
+          createTimerInterval()
+        }
+      } else {
         isActive.value = false
         wakeLock.value = null
+        clearTimerInterval()
+        timerActive.value = false
+        remainingTime.value = 0
       }
     } else {
       if (wakeLock.value) {
@@ -325,6 +324,9 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
           wakeLock.value = null
         }
       }
+      clearTimerInterval()
+      timerActive.value = false
+      remainingTime.value = 0
     }
   }
 
@@ -336,13 +338,13 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
 
     const { type, state } = event.data
 
-    if (type === 'sync' && state) {
-      handleSync(state)
+    if (type === 'wake-lock-sync' && state) {
+      handleWakeLockSync(state)
       return
     }
 
-    if (type === 'closed' && !isIframePip.value) {
-      handlePipClosed()
+    if (type === 'pip-closed' && !isIframePip.value) {
+      handlePipClosed(state)
     }
   }
 
@@ -357,7 +359,15 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
         window.addEventListener('beforeunload', () => {
           try {
             if (window.parent && window.parent !== window) {
-              window.parent.postMessage({ type: 'closed' }, window.location.origin)
+              const message: WakeLockMessage = {
+                type: 'pip-closed',
+                state: {
+                  isActive: isActive.value,
+                  timerActive: timerActive.value,
+                  remainingTime: remainingTime.value
+                }
+              }
+              window.parent.postMessage(message, window.location.origin)
             }
           } catch (e) {
             console.warn('Could not send pip-closed message to parent:', e)
@@ -389,7 +399,6 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     pipWindowRef,
     hasActivePipWindow,
     isParentWithActivePip,
-    shouldSyncState,
     checkSupport,
     acquire,
     release,
@@ -398,8 +407,9 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     stopTimer,
     formatTime,
     syncWakeLockState,
-    initialSyncToPip,
     forceReleaseParent,
+    transferStateToPip,
+    handlePipClosed,
     initialize,
     cleanup
   }

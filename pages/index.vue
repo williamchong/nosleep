@@ -199,18 +199,7 @@ const handleExternalLinkClick = () => {
   trackEvent('external_link_click_blog')
 }
 
-const handleWindowClosed = async (wasActive: boolean) => {
-  wakeLock.pipWindowRef = null
-
-  await nextTick()
-
-  if (wasActive) {
-    await wakeLock.acquire()
-  }
-}
-
 const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
-  // Attach event listeners BEFORE setting src to avoid race condition with cached loads
   iframe.addEventListener('error', () => {
     console.error('Failed to load PiP iframe')
     trackEvent('pip_iframe_load_failed')
@@ -218,14 +207,13 @@ const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
   })
 
   iframe.addEventListener('load', async () => {
-    // Wait 500ms before sending initial sync to ensure iframe is fully ready
     await delay(500)
 
     if (iframe.contentWindow) {
-      wakeLock.initialSyncToPip()
+      wakeLock.transferStateToPip(iframe.contentWindow)
       await wakeLock.forceReleaseParent()
     } else {
-      console.error('Unable to access iframe.contentWindow to send wake-lock-initial-sync message')
+      console.error('Unable to access iframe.contentWindow')
       trackEvent('pip_iframe_contentWindow_unavailable')
     }
   })
@@ -258,7 +246,11 @@ const openDocumentPiP = async () => {
     documentPip.setupMessageRelay(pipWin)
 
     pipWin.addEventListener('pagehide', () => {
-      handleWindowClosed(wakeLock.isActive)
+      wakeLock.handlePipClosed({
+        isActive: wakeLock.isActive,
+        timerActive: wakeLock.timerActive,
+        remainingTime: wakeLock.remainingTime
+      })
     })
 
     trackEvent('pip_window_opened_from_cta')

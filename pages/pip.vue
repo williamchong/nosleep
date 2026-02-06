@@ -1,6 +1,6 @@
 <template>
   <div class="relative bg-white dark:bg-gray-900 overflow-auto">
-    <WakeLockControl auto-acquire />
+    <WakeLockControl />
   </div>
 </template>
 

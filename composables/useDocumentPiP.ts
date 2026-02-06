@@ -27,8 +27,7 @@ export const useDocumentPiP = () => {
   const enterEventHandler = ref<((e: Event & { window: Window }) => void) | null>(null)
 
   const pipToMainListener = ref<((event: MessageEvent) => void) | null>(null)
-  const mainToPipListener = ref<((event: MessageEvent) => void) | null>(null)
-  const relayTargetWindows = ref<{ pipWin: Window | null; mainWin: Window | null }>({ pipWin: null, mainWin: null })
+  const relayPipWin = ref<Window | null>(null)
 
   const checkPipSupport = () => {
     if (typeof window !== 'undefined') {
@@ -36,52 +35,31 @@ export const useDocumentPiP = () => {
     }
   }
 
-  /**
-   * Clean up message relay event listeners
-   */
   const cleanupMessageRelay = () => {
-    if (pipToMainListener.value && relayTargetWindows.value.pipWin) {
-      relayTargetWindows.value.pipWin.removeEventListener('message', pipToMainListener.value)
-    }
-    if (mainToPipListener.value) {
-      window.removeEventListener('message', mainToPipListener.value)
+    if (pipToMainListener.value && relayPipWin.value) {
+      relayPipWin.value.removeEventListener('message', pipToMainListener.value)
     }
     pipToMainListener.value = null
-    mainToPipListener.value = null
-    relayTargetWindows.value = { pipWin: null, mainWin: null }
+    relayPipWin.value = null
   }
 
-  /**
-   * Set up message relay between main window and PiP iframe
-   * The main window sends to PiP window, but needs to reach the iframe inside it
-   * The iframe sends to its parent (PiP window), but needs to reach the main window
-   */
   const setupMessageRelay = (pipWin: Window) => {
     cleanupMessageRelay()
-    relayTargetWindows.value = { pipWin, mainWin: window }
+    relayPipWin.value = pipWin
 
     const isWakeLockMessage = (data: unknown) => {
-      return data && typeof data === 'object' && 'type' in data && 
-        (data.type === 'sync' || data.type === 'closed')
+      return data && typeof data === 'object' && 'type' in data &&
+        (data.type === 'wake-lock-sync' || data.type === 'pip-closed')
     }
     const isValidOrigin = (origin: string) => origin === window.location.origin
 
-    // Forward iframe → main window (for sync and closed messages)
     pipToMainListener.value = (event: MessageEvent) => {
       if (event.source === pipWin.frames[0] && isValidOrigin(event.origin) && isWakeLockMessage(event.data)) {
         window.postMessage(event.data, event.origin)
       }
     }
 
-    // Forward main window → iframe (only sync messages)
-    mainToPipListener.value = (event: MessageEvent) => {
-      if (event.source === window && isValidOrigin(event.origin) && pipWin.frames[0] && event.data?.type === 'sync') {
-        pipWin.frames[0].postMessage(event.data, event.origin)
-      }
-    }
-
     pipWin.addEventListener('message', pipToMainListener.value)
-    window.addEventListener('message', mainToPipListener.value)
   }
 
   /**
