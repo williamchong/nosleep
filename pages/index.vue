@@ -192,12 +192,25 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 const wakeLock = useWakeLock()
 const documentPip = useDocumentPiP()
+const colorMode = useColorMode()
 
 const { trackEvent } = useAnalytics()
 
 const handleExternalLinkClick = () => {
   trackEvent('external_link_click_blog')
 }
+
+watch(() => colorMode.preference, (newMode) => {
+  if (!wakeLock.hasActivePipWindow || !wakeLock.pipWindowRef) return
+  try {
+    const pipIframe = wakeLock.pipWindowRef.frames[0]
+    if (pipIframe) {
+      pipIframe.postMessage({ type: 'color-mode-sync', mode: newMode }, window.location.origin)
+    }
+  } catch (e) {
+    console.warn('Could not sync color mode to PiP:', e)
+  }
+})
 
 const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
   iframe.addEventListener('error', () => {
@@ -221,7 +234,7 @@ const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
   iframe.style.cssText = 'width:100%;height:100%;border:none;margin:0;padding:0'
 
   const baseUrl = window.location.origin
-  iframe.src = `${baseUrl}/pip?pip=1`
+  iframe.src = `${baseUrl}/pip?pip=1&colorMode=${colorMode.preference}`
 
   pipWin.document.documentElement.style.cssText = 'width:100%;height:100%;margin:0;padding:0'
   pipWin.document.body.style.cssText = 'width:100%;height:100%;margin:0;padding:0;overflow:hidden'
