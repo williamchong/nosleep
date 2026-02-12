@@ -21,8 +21,8 @@
           {{ $t('header.title') }}
         </h1>
         <p
-          class="text-gray-600 dark:text-gray-400"
-          :class="wakeLock.isPipMode ? 'text-xs' : 'text-sm sm:text-base lg:text-lg'"
+          v-if="!wakeLock.isPipMode"
+          class="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg"
         >
           {{ $t('header.subtitle') }}
         </p>
@@ -62,25 +62,19 @@
           <StatusAnimation :is-active="wakeLock.isActive" :is-pip-mode="wakeLock.isPipMode" @toggle="handleWakeLockToggle" />
         </ClientOnly>
 
-        <button
-          class="w-full font-semibold transition-all duration-200 focus:outline-none"
-          :class="[
-            buttonClasses,
-            wakeLock.isPipMode
-              ? 'py-3 px-4 rounded-lg text-base focus:ring-2'
-              : 'py-4 px-6 sm:py-6 sm:px-8 lg:py-8 rounded-xl sm:rounded-2xl text-lg sm:text-xl lg:text-2xl focus:ring-2 sm:focus:ring-4'
-          ]"
-          @click="handleWakeLockToggle"
-        >
-          {{ buttonText }}
-        </button>
+        <template v-if="!wakeLock.isPipMode">
+          <button
+            class="w-full font-semibold transition-all duration-200 focus:outline-none py-4 px-6 sm:py-6 sm:px-8 lg:py-8 rounded-xl sm:rounded-2xl text-lg sm:text-xl lg:text-2xl focus:ring-2 sm:focus:ring-4"
+            :class="buttonClasses"
+            @click="handleWakeLockToggle"
+          >
+            {{ buttonText }}
+          </button>
 
-        <div
-          class="text-gray-700 dark:text-gray-300"
-          :class="wakeLock.isPipMode ? 'text-xs' : 'text-sm'"
-        >
-          {{ statusText }}
-        </div>
+          <div class="text-gray-700 dark:text-gray-300 text-sm">
+            {{ statusText }}
+          </div>
+        </template>
 
         <div v-if="!wakeLock.hasActivePipWindow" class="pt-2 sm:pt-3 lg:pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
