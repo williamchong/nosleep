@@ -188,11 +188,14 @@
 </template>
 
 <script setup lang="ts">
+import { useEventListener } from '@vueuse/core'
+
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 const wakeLock = useWakeLock()
 const documentPip = useDocumentPiP()
 const colorMode = useColorMode()
+const pipIframe = ref<HTMLIFrameElement | null>(null)
 
 const { trackEvent } = useAnalytics()
 
@@ -203,33 +206,44 @@ const handleExternalLinkClick = () => {
 watch(() => colorMode.preference, (newMode) => {
   if (!wakeLock.hasActivePipWindow || !wakeLock.pipWindowRef) return
   try {
-    const pipIframe = wakeLock.pipWindowRef.frames[0]
-    if (pipIframe) {
-      pipIframe.postMessage({ type: 'color-mode-sync', mode: newMode }, window.location.origin)
+    const pipFrame = wakeLock.pipWindowRef.frames[0]
+    if (pipFrame) {
+      pipFrame.postMessage({ type: 'color-mode-sync', mode: newMode }, window.location.origin)
     }
   } catch (e) {
     console.warn('Could not sync color mode to PiP:', e)
   }
 })
 
+useEventListener(pipIframe, 'error', () => {
+  console.error('Failed to load PiP iframe')
+  trackEvent('pip_iframe_load_failed')
+  wakeLock.pipWindowRef = null
+})
+
+useEventListener(pipIframe, 'load', async () => {
+  await delay(500)
+
+  if (pipIframe.value?.contentWindow) {
+    wakeLock.transferStateToPip(pipIframe.value.contentWindow)
+    await wakeLock.forceReleaseParent()
+  } else {
+    console.error('Unable to access iframe.contentWindow')
+    trackEvent('pip_iframe_contentWindow_unavailable')
+  }
+})
+
+useEventListener(() => wakeLock.pipWindowRef, 'pagehide', () => {
+  pipIframe.value = null
+  wakeLock.handlePipClosed({
+    isActive: wakeLock.isActive,
+    timerActive: wakeLock.timerActive,
+    remainingTime: wakeLock.remainingTime
+  })
+})
+
 const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
-  iframe.addEventListener('error', () => {
-    console.error('Failed to load PiP iframe')
-    trackEvent('pip_iframe_load_failed')
-    wakeLock.pipWindowRef = null
-  })
-
-  iframe.addEventListener('load', async () => {
-    await delay(500)
-
-    if (iframe.contentWindow) {
-      wakeLock.transferStateToPip(iframe.contentWindow)
-      await wakeLock.forceReleaseParent()
-    } else {
-      console.error('Unable to access iframe.contentWindow')
-      trackEvent('pip_iframe_contentWindow_unavailable')
-    }
-  })
+  pipIframe.value = iframe
 
   iframe.style.cssText = 'width:100%;height:100%;border:none;margin:0;padding:0'
 
@@ -258,17 +272,10 @@ const openDocumentPiP = async () => {
 
     documentPip.setupMessageRelay(pipWin)
 
-    pipWin.addEventListener('pagehide', () => {
-      wakeLock.handlePipClosed({
-        isActive: wakeLock.isActive,
-        timerActive: wakeLock.timerActive,
-        remainingTime: wakeLock.remainingTime
-      })
-    })
-
     trackEvent('pip_window_opened_from_cta')
     return true
   } catch (error) {
+    pipIframe.value = null
     console.error('Failed to open Document PiP:', error)
     trackEvent('pip_window_open_exception')
     return false

@@ -1,11 +1,11 @@
+import { useEventListener } from '@vueuse/core'
+
 /**
  * Type definition for experimental Document Picture-in-Picture API
  */
-interface DocumentPictureInPictureAPI {
+interface DocumentPictureInPictureAPI extends EventTarget {
   window: Window | null
   requestWindow: (options?: { width?: number; height?: number }) => Promise<Window>
-  addEventListener: (event: string, handler: (e: Event & { window: Window }) => void) => void
-  removeEventListener: (event: string, handler: (e: Event & { window: Window }) => void) => void
 }
 
 declare global {
@@ -24,9 +24,7 @@ export const useDocumentPiP = () => {
   const isPipSupported = ref(false)
   const pipWindow = ref<Window | null>(null)
   const hasPipWindow = computed(() => pipWindow.value !== null && !pipWindow.value.closed)
-  const enterEventHandler = ref<((e: Event & { window: Window }) => void) | null>(null)
 
-  const pipToMainListener = ref<((event: MessageEvent) => void) | null>(null)
   const relayPipWin = ref<Window | null>(null)
 
   const checkPipSupport = () => {
@@ -35,31 +33,25 @@ export const useDocumentPiP = () => {
     }
   }
 
-  const cleanupMessageRelay = () => {
-    if (pipToMainListener.value && relayPipWin.value) {
-      relayPipWin.value.removeEventListener('message', pipToMainListener.value)
+  const isWakeLockMessage = (data: unknown) => {
+    return data && typeof data === 'object' && 'type' in data &&
+      (data.type === 'wake-lock-sync' || data.type === 'pip-closed')
+  }
+
+  useEventListener(relayPipWin, 'message', (event: MessageEvent) => {
+    if (relayPipWin.value && event.source === relayPipWin.value.frames[0] &&
+      event.origin === window.location.origin && isWakeLockMessage(event.data)) {
+      window.postMessage(event.data, event.origin)
     }
-    pipToMainListener.value = null
+  })
+
+  const cleanupMessageRelay = () => {
     relayPipWin.value = null
   }
 
   const setupMessageRelay = (pipWin: Window) => {
     cleanupMessageRelay()
     relayPipWin.value = pipWin
-
-    const isWakeLockMessage = (data: unknown) => {
-      return data && typeof data === 'object' && 'type' in data &&
-        (data.type === 'wake-lock-sync' || data.type === 'pip-closed')
-    }
-    const isValidOrigin = (origin: string) => origin === window.location.origin
-
-    pipToMainListener.value = (event: MessageEvent) => {
-      if (event.source === pipWin.frames[0] && isValidOrigin(event.origin) && isWakeLockMessage(event.data)) {
-        window.postMessage(event.data, event.origin)
-      }
-    }
-
-    pipWin.addEventListener('message', pipToMainListener.value)
   }
 
   /**
@@ -111,23 +103,20 @@ export const useDocumentPiP = () => {
     cleanupMessageRelay()
   }
 
+  useEventListener(
+    () => isPipSupported.value && typeof window !== 'undefined' ? window.documentPictureInPicture : undefined,
+    'enter',
+    (event: Event & { window: Window }) => {
+      pipWindow.value = event.window
+      trackEvent('pip_enter_event_fired')
+    }
+  )
+
   onMounted(() => {
     checkPipSupport()
-
-    if (isPipSupported.value && window.documentPictureInPicture) {
-      enterEventHandler.value = (event) => {
-        pipWindow.value = event.window
-        trackEvent('pip_enter_event_fired')
-      }
-      window.documentPictureInPicture.addEventListener('enter', enterEventHandler.value)
-    }
   })
 
   onUnmounted(() => {
-    if (enterEventHandler.value && window.documentPictureInPicture) {
-      window.documentPictureInPicture.removeEventListener('enter', enterEventHandler.value)
-      enterEventHandler.value = null
-    }
     closePipWindow()
   })
 

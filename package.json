@@ -22,6 +22,7 @@
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@pinia/nuxt": "^0.11.3",
     "@sentry/nuxt": "^10.15.0",
+    "@vueuse/core": "^14.2.1",
     "lottie-web": "^5.13.0",
     "nuxt": "^3.20.2",
     "nuxt-gtag": "^3.0.3",

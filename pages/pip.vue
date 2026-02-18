@@ -5,6 +5,8 @@
 </template>
 
 <script setup lang="ts">
+import { useEventListener } from '@vueuse/core'
+
 const route = useRoute()
 const colorMode = useColorMode()
 
@@ -13,12 +15,12 @@ onMounted(() => {
   if (initialMode) {
     colorMode.preference = initialMode
   }
+})
 
-  window.addEventListener('message', (event: MessageEvent) => {
-    if (event.origin !== window.location.origin) return
-    if (event.data?.type === 'color-mode-sync' && event.data.mode) {
-      colorMode.preference = event.data.mode
-    }
-  })
+useEventListener('message', (event: MessageEvent) => {
+  if (event.origin !== window.location.origin) return
+  if (event.data?.type === 'color-mode-sync' && event.data.mode) {
+    colorMode.preference = event.data.mode
+  }
 })
 </script>
