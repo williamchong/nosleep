@@ -59,7 +59,7 @@
 
       <template v-else>
         <ClientOnly>
-          <StatusAnimation :is-active="wakeLock.isActive" :is-pip-mode="wakeLock.isPipMode" @toggle="handleWakeLockToggle" />
+          <StatusAnimation :is-active="wakeLock.isEffectivelyActive" :is-pip-mode="wakeLock.isPipMode" @toggle="handleWakeLockToggle" />
         </ClientOnly>
 
         <template v-if="!wakeLock.isPipMode">
@@ -147,7 +147,7 @@ const {
 })
 
 const gradientBackgroundClasses = computed(() => {
-  if (wakeLock.isActive) {
+  if (wakeLock.isEffectivelyActive) {
     return 'bg-gradient-to-b from-orange-100 via-amber-50/50 to-white dark:from-orange-950/40 dark:via-yellow-950/20 dark:to-gray-900'
   }
   return 'bg-gradient-to-b from-blue-100 via-blue-50 to-white dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-gray-900'

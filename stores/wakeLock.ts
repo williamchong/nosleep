@@ -21,6 +21,7 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
   const isActive = ref(false)
 
   let nativeWakeLock: UseWakeLockReturn | null = null
+  const nativeIsActive = ref(false)
 
   const isIframePip = ref(false)
   const isPipMode = ref(false)
@@ -37,6 +38,10 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
 
   const isParentWithActivePip = computed(() =>
     !isIframePip.value && hasActivePipWindow.value
+  )
+
+  const isEffectivelyActive = computed(() =>
+    isParentWithActivePip.value ? isActive.value : nativeIsActive.value
   )
 
   function clearTimerInterval() {
@@ -323,6 +328,9 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     if (options?.nativeWakeLock) {
       nativeWakeLock = options.nativeWakeLock
       isSupported.value = nativeWakeLock.isSupported.value
+      watch(nativeWakeLock.isActive, (val) => {
+        nativeIsActive.value = val
+      }, { immediate: true })
     }
 
     if (typeof window !== 'undefined') {
@@ -379,6 +387,7 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     pipWindowRef,
     hasActivePipWindow,
     isParentWithActivePip,
+    isEffectivelyActive,
     acquire,
     release,
     toggle,
