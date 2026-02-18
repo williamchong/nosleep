@@ -129,7 +129,7 @@ const props = withDefaults(defineProps<Props>(), {
   autoAcquire: false
 })
 
-const wakeLock = useWakeLock()
+const wakeLock = useWakeLockManager()
 const showTimerSection = ref(false)
 
 const { trackEvent } = useAnalytics()

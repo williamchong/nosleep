@@ -192,7 +192,7 @@ import { useEventListener } from '@vueuse/core'
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
-const wakeLock = useWakeLock()
+const wakeLock = useWakeLockManager()
 const documentPip = useDocumentPiP()
 const colorMode = useColorMode()
 const pipIframe = ref<HTMLIFrameElement | null>(null)

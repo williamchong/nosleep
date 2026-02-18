@@ -1,4 +1,4 @@
-export const useWakeLock = () => {
+export const useWakeLockManager = () => {
   const store = useWakeLockStore()
 
   onMounted(() => {
