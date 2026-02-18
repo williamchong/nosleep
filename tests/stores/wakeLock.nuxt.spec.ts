@@ -1,28 +1,25 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { computed, shallowRef } from 'vue'
 import { useWakeLockStore } from '~/stores/wakeLock'
+import type { UseWakeLockReturn } from '@vueuse/core'
 
-// Mock navigator.wakeLock API
 const mockRelease = vi.fn()
-const mockAddEventListener = vi.fn()
-const mockSentinel = {
-  release: mockRelease,
-  addEventListener: mockAddEventListener,
-}
+const mockRequest = vi.fn()
+const mockSentinel = shallowRef<{ release: () => Promise<void> } | null>(null)
 
-function installWakeLockMock() {
-  Object.defineProperty(navigator, 'wakeLock', {
-    value: {
-      request: vi.fn().mockResolvedValue(mockSentinel),
-    },
-    writable: true,
-    configurable: true,
-  })
-}
-
-function removeWakeLockMock() {
-  if ('wakeLock' in navigator) {
-    // @ts-expect-error -- deleting browser API for test
-    delete navigator.wakeLock
+function createMockNativeWakeLock(supported = true): UseWakeLockReturn {
+  mockSentinel.value = null
+  return {
+    isSupported: computed(() => supported),
+    isActive: computed(() => !!mockSentinel.value),
+    sentinel: mockSentinel as UseWakeLockReturn['sentinel'],
+    request: mockRequest.mockImplementation(async () => {
+      mockSentinel.value = { release: mockRelease }
+    }),
+    forceRequest: vi.fn(),
+    release: mockRelease.mockImplementation(async () => {
+      mockSentinel.value = null
+    }),
   }
 }
 
@@ -31,13 +28,14 @@ describe('wakeLock store', () => {
 
   beforeEach(() => {
     store = useWakeLockStore()
+    store.isActive = false
     mockRelease.mockReset()
-    mockAddEventListener.mockReset()
+    mockRequest.mockReset()
+    mockSentinel.value = null
   })
 
   afterEach(() => {
     store.stopTimer()
-    removeWakeLockMock()
   })
 
   describe('formatTime', () => {
@@ -62,17 +60,17 @@ describe('wakeLock store', () => {
     })
   })
 
-  describe('checkSupport', () => {
-    it('detects wakeLock API support', async () => {
-      installWakeLockMock()
-      await store.checkSupport()
+  describe('initialize', () => {
+    it('sets isSupported from nativeWakeLock', () => {
+      const nativeWakeLock = createMockNativeWakeLock(true)
+      store.initialize({ nativeWakeLock })
       expect(store.isSupported).toBe(true)
       expect(store.isLoading).toBe(false)
     })
 
-    it('detects missing wakeLock API', async () => {
-      removeWakeLockMock()
-      await store.checkSupport()
+    it('detects unsupported when nativeWakeLock says false', () => {
+      const nativeWakeLock = createMockNativeWakeLock(false)
+      store.initialize({ nativeWakeLock })
       expect(store.isSupported).toBe(false)
       expect(store.isLoading).toBe(false)
     })
@@ -80,15 +78,15 @@ describe('wakeLock store', () => {
 
   describe('acquire and release', () => {
     beforeEach(() => {
-      installWakeLockMock()
-      store.isSupported = true
+      const nativeWakeLock = createMockNativeWakeLock(true)
+      store.initialize({ nativeWakeLock })
     })
 
     it('acquires wake lock and sets isActive', async () => {
       const result = await store.acquire()
       expect(result).toBe(true)
       expect(store.isActive).toBe(true)
-      expect(navigator.wakeLock.request).toHaveBeenCalledWith('screen')
+      expect(mockRequest).toHaveBeenCalledWith('screen')
     })
 
     it('releases wake lock and sets isActive false', async () => {
@@ -114,14 +112,15 @@ describe('wakeLock store', () => {
     })
 
     it('returns false when not supported', async () => {
-      store.isSupported = false
+      const nativeWakeLock = createMockNativeWakeLock(false)
+      store.initialize({ nativeWakeLock })
       const result = await store.acquire()
       expect(result).toBe(false)
       expect(store.isActive).toBe(false)
     })
 
     it('returns false when acquire fails', async () => {
-      ;(navigator.wakeLock.request as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('NotAllowedError'))
+      mockRequest.mockRejectedValueOnce(new Error('NotAllowedError'))
       const result = await store.acquire()
       expect(result).toBe(false)
       expect(store.isActive).toBe(false)
@@ -131,8 +130,8 @@ describe('wakeLock store', () => {
   describe('startTimer and stopTimer', () => {
     beforeEach(() => {
       vi.useFakeTimers()
-      installWakeLockMock()
-      store.isSupported = true
+      const nativeWakeLock = createMockNativeWakeLock(true)
+      store.initialize({ nativeWakeLock })
     })
 
     afterEach(() => {

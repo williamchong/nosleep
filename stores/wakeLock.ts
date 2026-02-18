@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import type { UseWakeLockReturn } from '@vueuse/core'
 
 interface WakeLockState {
   isActive: boolean
@@ -18,7 +19,8 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
   const isLoading = ref(true)
   const isSupported = ref(false)
   const isActive = ref(false)
-  const wakeLock = ref<WakeLockSentinel | null>(null)
+
+  let nativeWakeLock: UseWakeLockReturn | null = null
 
   const isIframePip = ref(false)
   const isPipMode = ref(false)
@@ -36,18 +38,6 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
   const isParentWithActivePip = computed(() =>
     !isIframePip.value && hasActivePipWindow.value
   )
-
-  async function checkSupport() {
-    isLoading.value = true
-    if (route.query.fallback === '1') {
-      isSupported.value = false
-      isLoading.value = false
-      return
-    }
-
-    isSupported.value = 'wakeLock' in navigator
-    isLoading.value = false
-  }
 
   function clearTimerInterval() {
     if (timerInterval.value) {
@@ -71,25 +61,6 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     }, 1000)
   }
 
-  async function establishNativeWakeLock() {
-    try {
-      wakeLock.value = await navigator.wakeLock.request('screen')
-      wakeLock.value.addEventListener('release', () => {
-        const timerStatus = timerActive.value ? 'with_timer' : 'without_timer'
-        trackEvent(`wake_lock_auto_released_${timerStatus}`)
-        wakeLock.value = null
-        if (!hasActivePipWindow.value) {
-          isActive.value = false
-        }
-      })
-      return true
-    } catch (error) {
-      console.error('Failed to establish wake lock:', error)
-      trackEvent('wake_lock_acquire_failed')
-      return false
-    }
-  }
-
   async function acquire() {
     if (isAcquiring.value) {
       return false
@@ -101,25 +72,28 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
         return false
       }
 
-      if (isIframePip.value && !isSupported.value) {
-        return false
-      }
-
       if (!isSupported.value) {
         return false
       }
 
-      const success = await establishNativeWakeLock()
-      if (success) {
-        isActive.value = true
-
-        if (isIframePip.value) {
-          syncWakeLockState()
-        }
-        return true
-      } else {
+      if (!nativeWakeLock) {
         return false
       }
+
+      try {
+        await nativeWakeLock.request('screen')
+      } catch (error) {
+        console.error('Failed to acquire wake lock:', error)
+        trackEvent('wake_lock_acquire_failed')
+        return false
+      }
+
+      isActive.value = true
+
+      if (isIframePip.value) {
+        syncWakeLockState()
+      }
+      return true
     } finally {
       isAcquiring.value = false
     }
@@ -136,15 +110,14 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
         return
       }
 
-      if (wakeLock.value) {
+      if (nativeWakeLock?.sentinel.value) {
         try {
-          await wakeLock.value.release()
-          wakeLock.value = null
-          isActive.value = false
+          await nativeWakeLock.release()
         } catch (error) {
           console.error('Failed to release wake lock:', error)
         }
       }
+      isActive.value = false
 
       stopTimer()
 
@@ -159,10 +132,9 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
   async function forceReleaseParent() {
     if (isIframePip.value) return
 
-    if (wakeLock.value) {
+    if (nativeWakeLock?.sentinel.value) {
       try {
-        await wakeLock.value.release()
-        wakeLock.value = null
+        await nativeWakeLock.release()
       } catch (error) {
         console.error('Failed to release parent wake lock:', error)
       }
@@ -308,22 +280,19 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
         }
       } else {
         isActive.value = false
-        wakeLock.value = null
         clearTimerInterval()
         timerActive.value = false
         remainingTime.value = 0
       }
     } else {
-      if (wakeLock.value) {
+      if (nativeWakeLock?.sentinel.value) {
         try {
-          await wakeLock.value.release()
-          wakeLock.value = null
+          await nativeWakeLock.release()
           isActive.value = false
         } catch (error) {
           console.error(error)
           trackEvent('wake_lock_state_cleanup_error')
           isActive.value = false
-          wakeLock.value = null
         }
       }
       clearTimerInterval()
@@ -350,8 +319,17 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     }
   }
 
-  async function initialize() {
+  function initialize(options?: { nativeWakeLock: UseWakeLockReturn }) {
+    if (options?.nativeWakeLock) {
+      nativeWakeLock = options.nativeWakeLock
+      isSupported.value = nativeWakeLock.isSupported.value
+    }
+
     if (typeof window !== 'undefined') {
+      if (route.query.fallback === '1') {
+        isSupported.value = false
+      }
+
       isPipMode.value = route.query.pip === '1'
       isIframePip.value = isPipMode.value && window.parent !== window
 
@@ -378,7 +356,7 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
       }
     }
 
-    await checkSupport()
+    isLoading.value = false
   }
 
   function cleanup() {
@@ -401,7 +379,6 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     pipWindowRef,
     hasActivePipWindow,
     isParentWithActivePip,
-    checkSupport,
     acquire,
     release,
     toggle,
