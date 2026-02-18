@@ -192,9 +192,17 @@ import { useEventListener } from '@vueuse/core'
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
+const { t } = useI18n()
 const wakeLock = useWakeLockManager()
 const documentPip = useDocumentPiP()
 const colorMode = useColorMode()
+
+useHead({
+  title: computed(() => {
+    const base = t('header.title')
+    return wakeLock.isEffectivelyActive ? `☀️ ${base}` : `🌙 ${base}`
+  })
+})
 const pipIframe = ref<HTMLIFrameElement | null>(null)
 
 const { trackEvent } = useAnalytics()
