@@ -1,4 +1,4 @@
-import { useEventListener } from '@vueuse/core'
+import { useEventListener, useSupported } from '@vueuse/core'
 
 /**
  * Type definition for experimental Document Picture-in-Picture API
@@ -21,17 +21,11 @@ declare global {
 export const useDocumentPiP = () => {
   const { trackEvent } = useAnalytics()
 
-  const isPipSupported = ref(false)
+  const isPipSupported = useSupported(() => 'documentPictureInPicture' in window)
   const pipWindow = ref<Window | null>(null)
   const hasPipWindow = computed(() => pipWindow.value !== null && !pipWindow.value.closed)
 
   const relayPipWin = ref<Window | null>(null)
-
-  const checkPipSupport = () => {
-    if (typeof window !== 'undefined') {
-      isPipSupported.value = 'documentPictureInPicture' in window
-    }
-  }
 
   const isWakeLockMessage = (data: unknown) => {
     return data && typeof data === 'object' && 'type' in data &&
@@ -111,10 +105,6 @@ export const useDocumentPiP = () => {
       trackEvent('pip_enter_event_fired')
     }
   )
-
-  onMounted(() => {
-    checkPipSupport()
-  })
 
   onUnmounted(() => {
     closePipWindow()

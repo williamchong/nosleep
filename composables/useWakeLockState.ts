@@ -1,4 +1,4 @@
-import { useWakeLock, useEventListener } from '@vueuse/core'
+import { useWakeLock, useEventListener, useIntervalFn } from '@vueuse/core'
 import type { UseWakeLockReturn } from '@vueuse/core'
 
 interface WakeLockState {
@@ -26,7 +26,9 @@ const pipWindowRef = ref<Window | null>(null)
 const timerActive = ref(false)
 const timerDuration = ref(0)
 const remainingTime = ref(0)
-const timerInterval = ref<NodeJS.Timeout | null>(null)
+// Callback set inside useWakeLockState(); all callers produce equivalent closures over the same module-level state
+let _onTimerTick: (() => void) | null = null
+const { pause: pauseTimer, resume: resumeTimer } = useIntervalFn(() => _onTimerTick?.(), 1000, { immediate: false })
 
 const isAcquiring = ref(false)
 
@@ -47,11 +49,18 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
   const { trackEvent } = useAnalytics()
   let route: ReturnType<typeof useRoute> | null = null
 
-  function clearTimerInterval() {
-    if (timerInterval.value) {
-      clearInterval(timerInterval.value)
-      timerInterval.value = null
+  _onTimerTick = () => {
+    remainingTime.value--
+    if (remainingTime.value <= 0) {
+      trackEvent('timer_expired_auto_release')
+      release()
+    } else if (isIframePip.value) {
+      syncWakeLockState()
     }
+  }
+
+  function clearTimerInterval() {
+    pauseTimer()
   }
 
   function syncWakeLockState() {
@@ -112,18 +121,8 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
   }
 
   function createTimerInterval() {
-    clearTimerInterval()
-
-    timerInterval.value = setInterval(() => {
-      remainingTime.value--
-
-      if (remainingTime.value <= 0) {
-        trackEvent('timer_expired_auto_release')
-        release()
-      } else if (isIframePip.value) {
-        syncWakeLockState()
-      }
-    }, 1000)
+    pauseTimer()
+    resumeTimer()
   }
 
   async function release() {
