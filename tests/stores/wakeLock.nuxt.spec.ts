@@ -35,7 +35,7 @@ describe('wakeLock store', () => {
   })
 
   afterEach(() => {
-    store.stopTimer()
+    store.cleanup()
   })
 
   describe('formatTime', () => {
@@ -112,6 +112,7 @@ describe('wakeLock store', () => {
     })
 
     it('returns false when not supported', async () => {
+      store.cleanup()
       const nativeWakeLock = createMockNativeWakeLock(false)
       store.initialize({ nativeWakeLock })
       const result = await store.acquire()

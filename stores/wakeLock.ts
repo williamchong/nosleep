@@ -325,7 +325,7 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
   }
 
   function initialize(options?: { nativeWakeLock: UseWakeLockReturn }) {
-    if (options?.nativeWakeLock) {
+    if (options?.nativeWakeLock && !nativeWakeLock) {
       nativeWakeLock = options.nativeWakeLock
       isSupported.value = nativeWakeLock.isSupported.value
       watch(nativeWakeLock.isActive, (val) => {
@@ -369,6 +369,7 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
 
   function cleanup() {
     release()
+    nativeWakeLock = null
 
     if (typeof window !== 'undefined') {
       window.removeEventListener('message', handleMessage)
