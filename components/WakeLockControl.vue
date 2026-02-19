@@ -1,9 +1,13 @@
 <template>
   <div>
     <div
-      class="absolute inset-x-0 top-0 h-[100vh] transition-all duration-700 pointer-events-none"
-      :class="gradientBackgroundClasses"
-      />
+      class="absolute inset-x-0 top-0 h-[100vh] pointer-events-none transition-opacity duration-700 bg-gradient-to-b from-blue-100 via-blue-50 to-white dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-gray-900"
+      :class="wakeLock.isEffectivelyActive ? 'opacity-0' : 'opacity-100'"
+    />
+    <div
+      class="absolute inset-x-0 top-0 h-[100vh] pointer-events-none transition-opacity duration-700 bg-gradient-to-b from-orange-100 via-amber-50/50 to-white dark:from-orange-950/40 dark:via-yellow-950/20 dark:to-gray-900"
+      :class="wakeLock.isEffectivelyActive ? 'opacity-100' : 'opacity-0'"
+    />
 
     <div
       class="relative flex items-center justify-center p-2 sm:p-4"
@@ -144,13 +148,6 @@ const {
 } = useWakeLockUI({
   isPipMode: wakeLock.isPipMode,
   hasActivePipWindow: computed(() => wakeLock.hasActivePipWindow)
-})
-
-const gradientBackgroundClasses = computed(() => {
-  if (wakeLock.isEffectivelyActive) {
-    return 'bg-gradient-to-b from-orange-100 via-amber-50/50 to-white dark:from-orange-950/40 dark:via-yellow-950/20 dark:to-gray-900'
-  }
-  return 'bg-gradient-to-b from-blue-100 via-blue-50 to-white dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-gray-900'
 })
 
 const toggleTimerSection = () => {
