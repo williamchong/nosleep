@@ -60,17 +60,19 @@ describe('wakeLock state', () => {
     })
   })
 
-  describe('initialize', () => {
+  describe('setup with nativeWakeLock', () => {
     it('sets isSupported from nativeWakeLock', () => {
+      state.cleanup()
       const nativeWakeLock = createMockNativeWakeLock(true)
-      state.initialize({ nativeWakeLock })
+      state = useWakeLockState({ nativeWakeLock })
       expect(state.isSupported).toBe(true)
       expect(state.isLoading).toBe(false)
     })
 
     it('detects unsupported when nativeWakeLock says false', () => {
+      state.cleanup()
       const nativeWakeLock = createMockNativeWakeLock(false)
-      state.initialize({ nativeWakeLock })
+      state = useWakeLockState({ nativeWakeLock })
       expect(state.isSupported).toBe(false)
       expect(state.isLoading).toBe(false)
     })
@@ -78,8 +80,9 @@ describe('wakeLock state', () => {
 
   describe('acquire and release', () => {
     beforeEach(() => {
+      state.cleanup()
       const nativeWakeLock = createMockNativeWakeLock(true)
-      state.initialize({ nativeWakeLock })
+      state = useWakeLockState({ nativeWakeLock })
     })
 
     it('acquires wake lock and sets isActive', async () => {
@@ -114,7 +117,7 @@ describe('wakeLock state', () => {
     it('returns false when not supported', async () => {
       state.cleanup()
       const nativeWakeLock = createMockNativeWakeLock(false)
-      state.initialize({ nativeWakeLock })
+      state = useWakeLockState({ nativeWakeLock })
       const result = await state.acquire()
       expect(result).toBe(false)
       expect(state.isActive).toBe(false)
@@ -131,8 +134,9 @@ describe('wakeLock state', () => {
   describe('startTimer and stopTimer', () => {
     beforeEach(() => {
       vi.useFakeTimers()
+      state.cleanup()
       const nativeWakeLock = createMockNativeWakeLock(true)
-      state.initialize({ nativeWakeLock })
+      state = useWakeLockState({ nativeWakeLock })
     })
 
     afterEach(() => {

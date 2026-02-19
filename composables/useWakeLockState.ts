@@ -43,7 +43,7 @@ const isEffectivelyActive = computed(() =>
 const _messageTarget = ref<Window>()
 const _beforeUnloadTarget = ref<Window>()
 
-export function useWakeLockState() {
+export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }) {
   const { trackEvent } = useAnalytics()
   let route: ReturnType<typeof useRoute> | null = null
 
@@ -345,28 +345,12 @@ export function useWakeLockState() {
     }
   }
 
-  function initialize(options?: { nativeWakeLock: UseWakeLockReturn }) {
-    if (options?.nativeWakeLock && !nativeWakeLock) {
-      nativeWakeLock = options.nativeWakeLock
-      isSupported.value = nativeWakeLock.isSupported.value
-      watch(nativeWakeLock.isActive, (val) => {
-        nativeIsActive.value = val
-      }, { immediate: true })
-    }
-
-    if (route?.query.fallback === '1') {
-      isSupported.value = false
-    }
-
-    isPipMode.value = route?.query.pip === '1'
-    isIframePip.value = isPipMode.value && window.parent !== window
-
-    _messageTarget.value = window
-    if (isIframePip.value) {
-      _beforeUnloadTarget.value = window
-    }
-
-    isLoading.value = false
+  function setupNativeWakeLock(wakeLock: UseWakeLockReturn) {
+    nativeWakeLock = wakeLock
+    isSupported.value = wakeLock.isSupported.value
+    watch(wakeLock.isActive, (val) => {
+      nativeIsActive.value = val
+    }, { immediate: true })
   }
 
   function cleanup() {
@@ -382,15 +366,33 @@ export function useWakeLockState() {
     useEventListener(_messageTarget, 'message', handleMessage)
     useEventListener(_beforeUnloadTarget, 'beforeunload', handleBeforeUnload)
 
-    const localNativeWakeLock = useWakeLock()
+    // Set up nativeWakeLock synchronously so child components can acquire on mount
+    setupNativeWakeLock(useWakeLock())
 
+    if (route?.query.fallback === '1') {
+      isSupported.value = false
+    }
+
+    isPipMode.value = route?.query.pip === '1'
+
+    // Defer window-dependent parts to onMounted (not available during SSR)
     onMounted(() => {
-      initialize({ nativeWakeLock: localNativeWakeLock })
+      isIframePip.value = isPipMode.value && window.parent !== window
+
+      _messageTarget.value = window
+      if (isIframePip.value) {
+        _beforeUnloadTarget.value = window
+      }
+
+      isLoading.value = false
     })
 
     onUnmounted(() => {
       cleanup()
     })
+  } else if (options?.nativeWakeLock) {
+    setupNativeWakeLock(options.nativeWakeLock)
+    isLoading.value = false
   }
 
   return reactive({
@@ -416,7 +418,6 @@ export function useWakeLockState() {
     forceReleaseParent,
     transferStateToPip,
     handlePipClosed,
-    initialize,
     cleanup
   })
 }
