@@ -382,15 +382,10 @@ export function useWakeLockState() {
     useEventListener(_messageTarget, 'message', handleMessage)
     useEventListener(_beforeUnloadTarget, 'beforeunload', handleBeforeUnload)
 
-    let localNativeWakeLock: UseWakeLockReturn | undefined
-    if (!nativeWakeLock) {
-      localNativeWakeLock = useWakeLock()
-    }
+    const localNativeWakeLock = useWakeLock()
 
     onMounted(() => {
-      if (localNativeWakeLock) {
-        initialize({ nativeWakeLock: localNativeWakeLock })
-      }
+      initialize({ nativeWakeLock: localNativeWakeLock })
     })
 
     onUnmounted(() => {

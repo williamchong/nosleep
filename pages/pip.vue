@@ -1,12 +1,13 @@
 <template>
   <div class="relative bg-white dark:bg-gray-900 overflow-auto">
-    <WakeLockControl />
+    <WakeLockControl :wake-lock="wakeLock" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core'
 
+const wakeLock = useWakeLockState()
 const route = useRoute()
 const colorMode = useColorMode()
 const messageTarget = ref<Window>()

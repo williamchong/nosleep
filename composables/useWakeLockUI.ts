@@ -2,12 +2,10 @@
  * Shared UI logic for wake lock controls
  * Used by both main page and PiP window content
  */
-export const useWakeLockUI = (options: {
+export const useWakeLockUI = (wakeLockState: ReturnType<typeof useWakeLockState>, options: {
   isPipMode?: boolean
   hasActivePipWindow?: Ref<boolean> | ComputedRef<boolean>
 } = {}) => {
-  const wakeLockState = useWakeLockState()
-
   const { t } = useI18n()
   const { trackEvent } = useAnalytics()
   const { isPipMode = false, hasActivePipWindow = ref(false) } = options

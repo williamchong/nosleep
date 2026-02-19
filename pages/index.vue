@@ -17,7 +17,7 @@
       <DarkModeToggle />
     </div>
 
-    <WakeLockControl auto-acquire>
+    <WakeLockControl :wake-lock="wakeLock" auto-acquire>
       <template #extra-content>
         <FloatingWindowCTA
           :has-active-pip-window="wakeLock.hasActivePipWindow"

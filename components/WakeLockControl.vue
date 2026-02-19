@@ -126,6 +126,7 @@
 
 <script setup lang="ts">
 interface Props {
+  wakeLock: ReturnType<typeof useWakeLockState>
   autoAcquire?: boolean
 }
 
@@ -133,7 +134,7 @@ const props = withDefaults(defineProps<Props>(), {
   autoAcquire: false
 })
 
-const wakeLock = useWakeLockState()
+const wakeLock = props.wakeLock
 const showTimerSection = ref(false)
 
 const { trackEvent } = useAnalytics()
@@ -145,7 +146,7 @@ const {
   handleToggle: handleWakeLockToggle,
   handleTimerStart,
   handleTimerCancel
-} = useWakeLockUI({
+} = useWakeLockUI(wakeLock, {
   isPipMode: wakeLock.isPipMode,
   hasActivePipWindow: computed(() => wakeLock.hasActivePipWindow)
 })
