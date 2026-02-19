@@ -211,7 +211,7 @@ const handleExternalLinkClick = () => {
   trackEvent('external_link_click_blog')
 }
 
-watch(() => colorMode.preference, (newMode) => {
+watch(() => colorMode.value, (newMode) => {
   if (!wakeLock.hasActivePipWindow || !wakeLock.pipWindowRef) return
   try {
     const pipFrame = wakeLock.pipWindowRef.frames[0]
@@ -256,7 +256,7 @@ const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
   iframe.style.cssText = 'width:100%;height:100%;border:none;margin:0;padding:0'
 
   const baseUrl = window.location.origin
-  iframe.src = `${baseUrl}/pip?pip=1&colorMode=${colorMode.preference}`
+  iframe.src = `${baseUrl}/pip?pip=1&colorMode=${colorMode.value}`
 
   pipWin.document.documentElement.style.cssText = 'width:100%;height:100%;margin:0;padding:0'
   pipWin.document.body.style.cssText = 'width:100%;height:100%;margin:0;padding:0;overflow:hidden'

@@ -9,15 +9,17 @@ import { useEventListener } from '@vueuse/core'
 
 const route = useRoute()
 const colorMode = useColorMode()
+const messageTarget = ref<Window>()
 
 onMounted(() => {
   const initialMode = route.query.colorMode as string
   if (initialMode) {
     colorMode.preference = initialMode
   }
+  messageTarget.value = window
 })
 
-useEventListener('message', (event: MessageEvent) => {
+useEventListener(messageTarget, 'message', (event: MessageEvent) => {
   if (event.origin !== window.location.origin) return
   if (event.data?.type === 'color-mode-sync' && event.data.mode) {
     colorMode.preference = event.data.mode
