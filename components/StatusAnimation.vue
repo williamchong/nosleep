@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePreferredReducedMotion } from '@vueuse/core'
+import { usePreferredReducedMotion, useTimeoutFn } from '@vueuse/core'
 import lottie, { type AnimationItem } from 'lottie-web/build/player/lottie_light'
 
 const props = defineProps({
@@ -117,19 +117,17 @@ const loadAnimation = (path: string) => {
   })
 }
 
+// Swap animation at 180 degrees (halfway through rotation) and fade in
+const { start: startAnimationSwap } = useTimeoutFn(() => {
+  loadAnimation(currentAnimationPath.value)
+  opacity.value = 1
+}, 500, { immediate: false })
+
 // Watch for state changes and reload animation with rotation and fade
 watch(() => props.isActive, () => {
-  // Start fade out
   opacity.value = 0
-
-  // Rotate 360 degrees on every toggle
   rotationDegree.value += 360
-
-  // Swap animation at 180 degrees (halfway through rotation) and fade in
-  setTimeout(() => {
-    loadAnimation(currentAnimationPath.value)
-    opacity.value = 1
-  }, 500) // Half of the 1000ms rotation duration
+  startAnimationSwap()
 })
 
 watch(prefersReducedMotion, (reduced) => {

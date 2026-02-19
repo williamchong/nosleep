@@ -41,15 +41,10 @@ const props = defineProps({
 
 const emit = defineEmits(['open-window'])
 
-const isMobile = ref(false)
-
-onMounted(() => {
-  isMobile.value = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-})
-
 const shouldShow = computed(() => {
-  // Only show when PiP is supported, wake lock is supported, not on mobile, and not in PiP mode
-  return props.isPipSupported && props.isSupported && !isMobile.value && !props.isPipMode
+  // Only show when PiP is supported, wake lock is supported, and not in PiP mode
+  // isPipSupported already excludes mobile browsers (no mobile browser supports Document PiP)
+  return props.isPipSupported && props.isSupported && !props.isPipMode
 })
 
 const handleOpenWindow = () => {

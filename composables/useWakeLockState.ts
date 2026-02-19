@@ -1,4 +1,4 @@
-import { useWakeLock, useEventListener, useIntervalFn } from '@vueuse/core'
+import { useWakeLock, useEventListener, useIntervalFn, tryOnMounted, tryOnUnmounted } from '@vueuse/core'
 import type { UseWakeLockReturn } from '@vueuse/core'
 
 interface WakeLockState {
@@ -373,26 +373,27 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
     }
 
     isPipMode.value = route?.query.pip === '1'
-
-    // Defer window-dependent parts to onMounted (not available during SSR)
-    onMounted(() => {
-      isIframePip.value = isPipMode.value && window.parent !== window
-
-      _messageTarget.value = window
-      if (isIframePip.value) {
-        _beforeUnloadTarget.value = window
-      }
-
-      isLoading.value = false
-    })
-
-    onUnmounted(() => {
-      cleanup()
-    })
   } else if (options?.nativeWakeLock) {
     setupNativeWakeLock(options.nativeWakeLock)
     isLoading.value = false
   }
+
+  // Defer window-dependent parts to onMounted (not available during SSR).
+  // Outside a component context, tryOnMounted executes immediately; tryOnUnmounted is a no-op.
+  tryOnMounted(() => {
+    isIframePip.value = isPipMode.value && window.parent !== window
+
+    _messageTarget.value = window
+    if (isIframePip.value) {
+      _beforeUnloadTarget.value = window
+    }
+
+    isLoading.value = false
+  })
+
+  tryOnUnmounted(() => {
+    cleanup()
+  })
 
   return reactive({
     isLoading,
