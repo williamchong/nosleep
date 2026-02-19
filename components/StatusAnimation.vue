@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { useEventListener } from '@vueuse/core'
+import { usePreferredReducedMotion } from '@vueuse/core'
 import lottie, { type AnimationItem } from 'lottie-web/build/player/lottie_light'
 
 const props = defineProps({
@@ -48,8 +48,7 @@ defineEmits(['toggle'])
 
 const lottieContainer = ref<HTMLElement | null>(null)
 const animationInstance = ref<AnimationItem | null>(null)
-const prefersReducedMotion = ref(false)
-const reducedMotionQuery = ref<MediaQueryList | null>(null)
+const prefersReducedMotion = computed(() => usePreferredReducedMotion().value === 'reduce')
 const rotationDegree = ref(0)
 const opacity = ref(1)
 
@@ -133,9 +132,8 @@ watch(() => props.isActive, () => {
   }, 500) // Half of the 1000ms rotation duration
 })
 
-useEventListener(reducedMotionQuery, 'change', (e: MediaQueryListEvent) => {
-  prefersReducedMotion.value = e.matches
-  if (!e.matches) {
+watch(prefersReducedMotion, (reduced) => {
+  if (!reduced) {
     nextTick(() => {
       loadAnimation(currentAnimationPath.value)
     })
@@ -148,12 +146,6 @@ useEventListener(reducedMotionQuery, 'change', (e: MediaQueryListEvent) => {
 })
 
 onMounted(() => {
-  if (typeof window !== 'undefined') {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    prefersReducedMotion.value = mediaQuery.matches
-    reducedMotionQuery.value = mediaQuery
-  }
-
   if (!prefersReducedMotion.value) {
     loadAnimation(currentAnimationPath.value)
   }
