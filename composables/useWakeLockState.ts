@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { useWakeLock, useEventListener } from '@vueuse/core'
 import type { UseWakeLockReturn } from '@vueuse/core'
 
 interface WakeLockState {
@@ -12,37 +12,40 @@ interface WakeLockMessage {
   state?: WakeLockState
 }
 
-export const useWakeLockStore = defineStore('wakeLock', () => {
-  const route = useRoute()
+const isLoading = ref(true)
+const isSupported = ref(false)
+const isActive = ref(false)
+
+let nativeWakeLock: UseWakeLockReturn | null = null
+const nativeIsActive = ref(false)
+
+const isIframePip = ref(false)
+const isPipMode = ref(false)
+const pipWindowRef = ref<Window | null>(null)
+
+const timerActive = ref(false)
+const timerDuration = ref(0)
+const remainingTime = ref(0)
+const timerInterval = ref<NodeJS.Timeout | null>(null)
+
+const isAcquiring = ref(false)
+
+const hasActivePipWindow = computed(() => pipWindowRef.value !== null && !pipWindowRef.value.closed)
+
+const isParentWithActivePip = computed(() =>
+  !isIframePip.value && hasActivePipWindow.value
+)
+
+const isEffectivelyActive = computed(() =>
+  isParentWithActivePip.value ? isActive.value : nativeIsActive.value
+)
+
+const _messageTarget = ref<Window>()
+const _beforeUnloadTarget = ref<Window>()
+
+export function useWakeLockState() {
   const { trackEvent } = useAnalytics()
-
-  const isLoading = ref(true)
-  const isSupported = ref(false)
-  const isActive = ref(false)
-
-  let nativeWakeLock: UseWakeLockReturn | null = null
-  const nativeIsActive = ref(false)
-
-  const isIframePip = ref(false)
-  const isPipMode = ref(false)
-  const pipWindowRef = ref<Window | null>(null)
-
-  const timerActive = ref(false)
-  const timerDuration = ref(0)
-  const remainingTime = ref(0)
-  const timerInterval = ref<NodeJS.Timeout | null>(null)
-
-  const isAcquiring = ref(false)
-
-  const hasActivePipWindow = computed(() => pipWindowRef.value !== null && !pipWindowRef.value.closed)
-
-  const isParentWithActivePip = computed(() =>
-    !isIframePip.value && hasActivePipWindow.value
-  )
-
-  const isEffectivelyActive = computed(() =>
-    isParentWithActivePip.value ? isActive.value : nativeIsActive.value
-  )
+  let route: ReturnType<typeof useRoute> | null = null
 
   function clearTimerInterval() {
     if (timerInterval.value) {
@@ -51,19 +54,23 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     }
   }
 
-  function createTimerInterval() {
-    clearTimerInterval()
-
-    timerInterval.value = setInterval(() => {
-      remainingTime.value--
-
-      if (remainingTime.value <= 0) {
-        trackEvent('timer_expired_auto_release')
-        release()
-      } else if (isIframePip.value) {
-        syncWakeLockState()
+  function syncWakeLockState() {
+    const message: WakeLockMessage = {
+      type: 'wake-lock-sync',
+      state: {
+        isActive: isActive.value,
+        timerActive: timerActive.value,
+        remainingTime: remainingTime.value
       }
-    }, 1000)
+    }
+
+    if (isIframePip.value && window.parent !== window) {
+      try {
+        window.parent.postMessage(message, window.location.origin)
+      } catch (e) {
+        console.warn('Could not send to window.parent:', e)
+      }
+    }
   }
 
   async function acquire() {
@@ -102,6 +109,21 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     } finally {
       isAcquiring.value = false
     }
+  }
+
+  function createTimerInterval() {
+    clearTimerInterval()
+
+    timerInterval.value = setInterval(() => {
+      remainingTime.value--
+
+      if (remainingTime.value <= 0) {
+        trackEvent('timer_expired_auto_release')
+        release()
+      } else if (isIframePip.value) {
+        syncWakeLockState()
+      }
+    }, 1000)
   }
 
   async function release() {
@@ -216,25 +238,6 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     return `${minutes}:${secs.toString().padStart(2, '0')}`
   }
 
-  function syncWakeLockState() {
-    const message: WakeLockMessage = {
-      type: 'wake-lock-sync',
-      state: {
-        isActive: isActive.value,
-        timerActive: timerActive.value,
-        remainingTime: remainingTime.value
-      }
-    }
-
-    if (isIframePip.value && window.parent !== window) {
-      try {
-        window.parent.postMessage(message, window.location.origin)
-      } catch (e) {
-        console.warn('Could not send to window.parent:', e)
-      }
-    }
-  }
-
   async function handleWakeLockSync(state: WakeLockState) {
     if (isIframePip.value) {
       if (state.isActive && !isActive.value) {
@@ -324,6 +327,24 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     }
   }
 
+  function handleBeforeUnload() {
+    try {
+      if (window.parent && window.parent !== window) {
+        const message: WakeLockMessage = {
+          type: 'pip-closed',
+          state: {
+            isActive: isActive.value,
+            timerActive: timerActive.value,
+            remainingTime: remainingTime.value
+          }
+        }
+        window.parent.postMessage(message, window.location.origin)
+      }
+    } catch (e) {
+      console.warn('Could not send pip-closed message to parent:', e)
+    }
+  }
+
   function initialize(options?: { nativeWakeLock: UseWakeLockReturn }) {
     if (options?.nativeWakeLock && !nativeWakeLock) {
       nativeWakeLock = options.nativeWakeLock
@@ -333,35 +354,16 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
       }, { immediate: true })
     }
 
-    if (typeof window !== 'undefined') {
-      if (route.query.fallback === '1') {
-        isSupported.value = false
-      }
+    if (route?.query.fallback === '1') {
+      isSupported.value = false
+    }
 
-      isPipMode.value = route.query.pip === '1'
-      isIframePip.value = isPipMode.value && window.parent !== window
+    isPipMode.value = route?.query.pip === '1'
+    isIframePip.value = isPipMode.value && window.parent !== window
 
-      window.addEventListener('message', handleMessage)
-
-      if (isIframePip.value) {
-        window.addEventListener('beforeunload', () => {
-          try {
-            if (window.parent && window.parent !== window) {
-              const message: WakeLockMessage = {
-                type: 'pip-closed',
-                state: {
-                  isActive: isActive.value,
-                  timerActive: timerActive.value,
-                  remainingTime: remainingTime.value
-                }
-              }
-              window.parent.postMessage(message, window.location.origin)
-            }
-          } catch (e) {
-            console.warn('Could not send pip-closed message to parent:', e)
-          }
-        })
-      }
+    _messageTarget.value = window
+    if (isIframePip.value) {
+      _beforeUnloadTarget.value = window
     }
 
     isLoading.value = false
@@ -370,13 +372,33 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
   function cleanup() {
     release()
     nativeWakeLock = null
-
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('message', handleMessage)
-    }
+    _messageTarget.value = undefined
+    _beforeUnloadTarget.value = undefined
   }
 
-  return {
+  if (getCurrentInstance()) {
+    route = useRoute()
+
+    useEventListener(_messageTarget, 'message', handleMessage)
+    useEventListener(_beforeUnloadTarget, 'beforeunload', handleBeforeUnload)
+
+    let localNativeWakeLock: UseWakeLockReturn | undefined
+    if (!nativeWakeLock) {
+      localNativeWakeLock = useWakeLock()
+    }
+
+    onMounted(() => {
+      if (localNativeWakeLock) {
+        initialize({ nativeWakeLock: localNativeWakeLock })
+      }
+    })
+
+    onUnmounted(() => {
+      cleanup()
+    })
+  }
+
+  return reactive({
     isLoading,
     isSupported,
     isActive,
@@ -401,5 +423,5 @@ export const useWakeLockStore = defineStore('wakeLock', () => {
     handlePipClosed,
     initialize,
     cleanup
-  }
-})
+  })
+}

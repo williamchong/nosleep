@@ -104,7 +104,7 @@ export const useDocumentPiP = () => {
   }
 
   useEventListener(
-    () => isPipSupported.value && typeof window !== 'undefined' ? window.documentPictureInPicture : undefined,
+    () => isPipSupported.value ? window.documentPictureInPicture : undefined,
     'enter',
     (event: Event & { window: Window }) => {
       pipWindow.value = event.window

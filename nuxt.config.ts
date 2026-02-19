@@ -8,8 +8,7 @@ export default defineNuxtConfig({
     '@nuxtjs/sitemap',
     '@nuxtjs/tailwindcss',
     '@sentry/nuxt/module',
-    '@nuxtjs/color-mode',
-    '@pinia/nuxt'
+    '@nuxtjs/color-mode'
   ],
 
   site: {

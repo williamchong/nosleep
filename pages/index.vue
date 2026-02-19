@@ -193,7 +193,7 @@ import { useEventListener } from '@vueuse/core'
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 const { t } = useI18n()
-const wakeLock = useWakeLockManager()
+const wakeLock = useWakeLockState()
 const documentPip = useDocumentPiP()
 const colorMode = useColorMode()
 
@@ -290,15 +290,6 @@ const openDocumentPiP = async () => {
   }
 }
 
-const isPipWindowOpen = () => {
-  try {
-    return wakeLock.pipWindowRef && !wakeLock.pipWindowRef.closed
-  } catch (e) {
-    console.warn('Could not access PiP window:', e)
-    return false
-  }
-}
-
 const openFloatingWindow = async () => {
   // If PiP is not supported, do nothing
   if (!documentPip.isPipSupported.value) {
@@ -307,7 +298,7 @@ const openFloatingWindow = async () => {
   }
 
   // If PiP window is already open, just focus it
-  if (wakeLock.hasActivePipWindow && isPipWindowOpen()) {
+  if (wakeLock.hasActivePipWindow) {
     try {
       wakeLock.pipWindowRef!.focus()
       trackEvent('pip_focus_from_cta_button')

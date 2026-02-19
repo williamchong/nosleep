@@ -6,16 +6,14 @@ export const useWakeLockUI = (options: {
   isPipMode?: boolean
   hasActivePipWindow?: Ref<boolean> | ComputedRef<boolean>
 } = {}) => {
-  const wakeLockStore = useWakeLockStore()
-  const { isActive, pipWindowRef } = storeToRefs(wakeLockStore)
-  const { toggle, startTimer, stopTimer } = wakeLockStore
+  const wakeLockState = useWakeLockState()
 
   const { t } = useI18n()
   const { trackEvent } = useAnalytics()
   const { isPipMode = false, hasActivePipWindow = ref(false) } = options
 
   const statusText = computed(() =>
-    isActive.value ? t('status.deviceAwake') : t('status.deviceSleeping')
+    wakeLockState.isActive ? t('status.deviceAwake') : t('status.deviceSleeping')
   )
 
   const buttonClasses = computed(() => {
@@ -24,7 +22,7 @@ export const useWakeLockUI = (options: {
       return 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-200 focus:ring-blue-300'
     }
 
-    if (isActive.value) {
+    if (wakeLockState.isActive) {
       return 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-200 focus:ring-green-300'
     }
 
@@ -38,7 +36,7 @@ export const useWakeLockUI = (options: {
       return t('button.focusToPopup')
     }
 
-    if (isActive.value) {
+    if (wakeLockState.isActive) {
       return t('button.deviceAwake')
     }
     return t('button.clickToKeepAwake')
@@ -46,10 +44,10 @@ export const useWakeLockUI = (options: {
 
   const handleToggle = async () => {
     // If parent has active PiP window, focus to it instead
-    if (hasActivePipWindow.value && !isPipMode && pipWindowRef.value) {
+    if (hasActivePipWindow.value && !isPipMode && wakeLockState.pipWindowRef) {
       try {
-        if (!pipWindowRef.value.closed) {
-          pipWindowRef.value.focus()
+        if (!wakeLockState.pipWindowRef.closed) {
+          wakeLockState.pipWindowRef.focus()
           trackEvent('pip_focus_from_main_button')
           return
         }
@@ -60,9 +58,9 @@ export const useWakeLockUI = (options: {
     }
 
     try {
-      await toggle()
+      await wakeLockState.toggle()
 
-      const action = isActive.value ? 'activate' : 'deactivate'
+      const action = wakeLockState.isActive ? 'activate' : 'deactivate'
       const prefix = isPipMode ? 'pip' : 'main'
       trackEvent(`${prefix}_toggle_${action}`)
     } catch (error) {
@@ -73,7 +71,7 @@ export const useWakeLockUI = (options: {
 
   const handleTimerStart = async (minutes: number) => {
     try {
-      const success = await startTimer(minutes)
+      const success = await wakeLockState.startTimer(minutes)
       if (success) {
         const prefix = isPipMode ? 'pip' : 'main'
         trackEvent(`${prefix}_timer_start`)
@@ -84,7 +82,7 @@ export const useWakeLockUI = (options: {
   }
 
   const handleTimerCancel = () => {
-    stopTimer()
+    wakeLockState.stopTimer()
     const prefix = isPipMode ? 'pip' : 'main'
     trackEvent(`${prefix}_timer_cancel`)
   }

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { computed, shallowRef } from 'vue'
-import { useWakeLockStore } from '~/stores/wakeLock'
+import { useWakeLockState } from '~/composables/useWakeLockState'
 import type { UseWakeLockReturn } from '@vueuse/core'
 
 const mockRelease = vi.fn()
@@ -23,108 +23,108 @@ function createMockNativeWakeLock(supported = true): UseWakeLockReturn {
   }
 }
 
-describe('wakeLock store', () => {
-  let store: ReturnType<typeof useWakeLockStore>
+describe('wakeLock state', () => {
+  let state: ReturnType<typeof useWakeLockState>
 
   beforeEach(() => {
-    store = useWakeLockStore()
-    store.isActive = false
+    state = useWakeLockState()
+    state.isActive = false
     mockRelease.mockReset()
     mockRequest.mockReset()
     mockSentinel.value = null
   })
 
   afterEach(() => {
-    store.cleanup()
+    state.cleanup()
   })
 
   describe('formatTime', () => {
     it('formats zero', () => {
-      expect(store.formatTime(0)).toBe('0:00')
+      expect(state.formatTime(0)).toBe('0:00')
     })
 
     it('formats seconds only', () => {
-      expect(store.formatTime(45)).toBe('0:45')
+      expect(state.formatTime(45)).toBe('0:45')
     })
 
     it('formats minutes and seconds', () => {
-      expect(store.formatTime(125)).toBe('2:05')
+      expect(state.formatTime(125)).toBe('2:05')
     })
 
     it('formats hours, minutes, and seconds', () => {
-      expect(store.formatTime(3661)).toBe('1:01:01')
+      expect(state.formatTime(3661)).toBe('1:01:01')
     })
 
     it('formats exact hour', () => {
-      expect(store.formatTime(3600)).toBe('1:00:00')
+      expect(state.formatTime(3600)).toBe('1:00:00')
     })
   })
 
   describe('initialize', () => {
     it('sets isSupported from nativeWakeLock', () => {
       const nativeWakeLock = createMockNativeWakeLock(true)
-      store.initialize({ nativeWakeLock })
-      expect(store.isSupported).toBe(true)
-      expect(store.isLoading).toBe(false)
+      state.initialize({ nativeWakeLock })
+      expect(state.isSupported).toBe(true)
+      expect(state.isLoading).toBe(false)
     })
 
     it('detects unsupported when nativeWakeLock says false', () => {
       const nativeWakeLock = createMockNativeWakeLock(false)
-      store.initialize({ nativeWakeLock })
-      expect(store.isSupported).toBe(false)
-      expect(store.isLoading).toBe(false)
+      state.initialize({ nativeWakeLock })
+      expect(state.isSupported).toBe(false)
+      expect(state.isLoading).toBe(false)
     })
   })
 
   describe('acquire and release', () => {
     beforeEach(() => {
       const nativeWakeLock = createMockNativeWakeLock(true)
-      store.initialize({ nativeWakeLock })
+      state.initialize({ nativeWakeLock })
     })
 
     it('acquires wake lock and sets isActive', async () => {
-      const result = await store.acquire()
+      const result = await state.acquire()
       expect(result).toBe(true)
-      expect(store.isActive).toBe(true)
+      expect(state.isActive).toBe(true)
       expect(mockRequest).toHaveBeenCalledWith('screen')
     })
 
     it('releases wake lock and sets isActive false', async () => {
-      await store.acquire()
-      expect(store.isActive).toBe(true)
+      await state.acquire()
+      expect(state.isActive).toBe(true)
 
-      await store.release()
-      expect(store.isActive).toBe(false)
+      await state.release()
+      expect(state.isActive).toBe(false)
       expect(mockRelease).toHaveBeenCalled()
     })
 
     it('toggle acquires when inactive', async () => {
-      expect(store.isActive).toBe(false)
-      await store.toggle()
-      expect(store.isActive).toBe(true)
+      expect(state.isActive).toBe(false)
+      await state.toggle()
+      expect(state.isActive).toBe(true)
     })
 
     it('toggle releases when active', async () => {
-      await store.acquire()
-      expect(store.isActive).toBe(true)
-      await store.toggle()
-      expect(store.isActive).toBe(false)
+      await state.acquire()
+      expect(state.isActive).toBe(true)
+      await state.toggle()
+      expect(state.isActive).toBe(false)
     })
 
     it('returns false when not supported', async () => {
-      store.cleanup()
+      state.cleanup()
       const nativeWakeLock = createMockNativeWakeLock(false)
-      store.initialize({ nativeWakeLock })
-      const result = await store.acquire()
+      state.initialize({ nativeWakeLock })
+      const result = await state.acquire()
       expect(result).toBe(false)
-      expect(store.isActive).toBe(false)
+      expect(state.isActive).toBe(false)
     })
 
     it('returns false when acquire fails', async () => {
       mockRequest.mockRejectedValueOnce(new Error('NotAllowedError'))
-      const result = await store.acquire()
+      const result = await state.acquire()
       expect(result).toBe(false)
-      expect(store.isActive).toBe(false)
+      expect(state.isActive).toBe(false)
     })
   })
 
@@ -132,7 +132,7 @@ describe('wakeLock store', () => {
     beforeEach(() => {
       vi.useFakeTimers()
       const nativeWakeLock = createMockNativeWakeLock(true)
-      store.initialize({ nativeWakeLock })
+      state.initialize({ nativeWakeLock })
     })
 
     afterEach(() => {
@@ -140,54 +140,54 @@ describe('wakeLock store', () => {
     })
 
     it('startTimer sets timer state and acquires wake lock', async () => {
-      const result = await store.startTimer(5)
+      const result = await state.startTimer(5)
       expect(result).toBe(true)
-      expect(store.isActive).toBe(true)
-      expect(store.timerActive).toBe(true)
-      expect(store.timerDuration).toBe(5)
-      expect(store.remainingTime).toBe(300)
+      expect(state.isActive).toBe(true)
+      expect(state.timerActive).toBe(true)
+      expect(state.timerDuration).toBe(5)
+      expect(state.remainingTime).toBe(300)
     })
 
     it('startTimer rejects zero or negative minutes', async () => {
-      expect(await store.startTimer(0)).toBe(false)
-      expect(await store.startTimer(-1)).toBe(false)
-      expect(store.timerActive).toBe(false)
+      expect(await state.startTimer(0)).toBe(false)
+      expect(await state.startTimer(-1)).toBe(false)
+      expect(state.timerActive).toBe(false)
     })
 
     it('timer counts down each second', async () => {
-      await store.startTimer(1)
-      expect(store.remainingTime).toBe(60)
+      await state.startTimer(1)
+      expect(state.remainingTime).toBe(60)
 
       vi.advanceTimersByTime(10_000)
-      expect(store.remainingTime).toBe(50)
+      expect(state.remainingTime).toBe(50)
     })
 
     it('stopTimer resets timer state', async () => {
-      await store.startTimer(5)
-      expect(store.timerActive).toBe(true)
+      await state.startTimer(5)
+      expect(state.timerActive).toBe(true)
 
-      store.stopTimer()
-      expect(store.timerActive).toBe(false)
-      expect(store.remainingTime).toBe(0)
+      state.stopTimer()
+      expect(state.timerActive).toBe(false)
+      expect(state.remainingTime).toBe(0)
     })
 
     it('stopTimer halts countdown', async () => {
-      await store.startTimer(1)
+      await state.startTimer(1)
       vi.advanceTimersByTime(5000)
-      expect(store.remainingTime).toBe(55)
+      expect(state.remainingTime).toBe(55)
 
-      store.stopTimer()
-      const frozenTime = store.remainingTime
+      state.stopTimer()
+      const frozenTime = state.remainingTime
 
       vi.advanceTimersByTime(10_000)
-      expect(store.remainingTime).toBe(frozenTime)
+      expect(state.remainingTime).toBe(frozenTime)
     })
 
     it('timer auto-releases wake lock when it expires', async () => {
-      await store.startTimer(1)
+      await state.startTimer(1)
       vi.advanceTimersByTime(60_000)
 
-      expect(store.remainingTime).toBeLessThanOrEqual(0)
+      expect(state.remainingTime).toBeLessThanOrEqual(0)
       expect(mockRelease).toHaveBeenCalled()
     })
   })

@@ -28,15 +28,15 @@ npm run test             # Run Vitest tests
 
 ### State Management Architecture
 
-The app uses **Pinia** for centralized state management in `stores/wakeLock.ts`. This is the single source of truth for all wake lock state, timer state, and PiP (Picture-in-Picture) window management.
+The app uses a **single composable with module-level state** (`composables/useWakeLockState.ts`) as the source of truth for all wake lock state, timer state, and PiP window management. Module-level `ref()`s provide singleton behavior — all components share the same state within a window. Each window (main vs PiP iframe) gets its own module scope, so state is automatically isolated per-window.
 
-**Key Principle**: The `useWakeLock()` composable in `composables/useWakeLock.ts` is a thin wrapper that returns the Pinia store. All components should use this composable, which handles lifecycle hooks (`onMounted`/`onUnmounted`) automatically.
+**Key Principle**: All components should use `useWakeLockState()`. This composable handles lifecycle hooks (`onMounted`/`onUnmounted`) automatically when called within a component setup context.
 
 ### Wake Lock State Flow
 
-1. **Native Wake Lock**: Uses browser's `navigator.wakeLock.request('screen')` API
-2. **Store manages**: `isActive`, `wakeLock` sentinel, timer state, PiP window refs
-3. **Auto-release handling**: Wake lock automatically releases when tab loses visibility; store syncs state accordingly
+1. **Native Wake Lock**: Uses browser's `navigator.wakeLock.request('screen')` API via `@vueuse/core`'s `useWakeLock()`
+2. **Composable manages**: `isActive`, wake lock sentinel, timer state, PiP window refs
+3. **Auto-release handling**: Wake lock automatically releases when tab loses visibility; composable syncs state accordingly
 
 ### Picture-in-Picture (PiP) Architecture
 
@@ -46,7 +46,7 @@ The app uses the **Document Picture-in-Picture API** (`useDocumentPiP.ts`) for a
 - Parent window ↔ PiP window communicate via `postMessage` API
 - PiP window runs as iframe with special handling (`isIframePip` flag)
 - Message relay system in `useDocumentPiP.ts` forwards messages between main window ↔ PiP window ↔ iframe
-- Store's `syncWakeLockState()` broadcasts state changes to connected windows
+- `syncWakeLockState()` broadcasts state changes to connected windows
 
 **State Synchronization Rules**:
 - When PiP window is active, parent's wake lock is released
@@ -56,7 +56,7 @@ The app uses the **Document Picture-in-Picture API** (`useDocumentPiP.ts`) for a
 
 ### Timer System
 
-Timer is managed entirely in the Pinia store:
+Timer is managed entirely in the wake lock composable:
 - `startTimer(minutes)`: Acquires wake lock + starts countdown interval
 - Interval updates `remainingTime` every second, syncs to PiP
 - Auto-releases wake lock when timer expires
@@ -71,13 +71,10 @@ Events tracked include: wake lock acquire/release, timer actions, PiP window ope
 ## Key Files
 
 ### Composables
-- `composables/useWakeLock.ts`: Main composable, wraps Pinia store with lifecycle
+- `composables/useWakeLockState.ts`: **Central state management** — all wake lock, timer, and PiP state + lifecycle hooks
 - `composables/useDocumentPiP.ts`: Document PiP API management + message relay
 - `composables/useAnalytics.ts`: Analytics tracking (GA via nuxt-gtag)
 - `composables/useWakeLockUI.ts`: UI-specific logic (toggle/timer handlers, button state and styling)
-
-### Store
-- `stores/wakeLock.ts`: **Central state management** - all wake lock, timer, and PiP state lives here
 
 ### Components
 - `WakeLockControl.vue`: Main toggle button component
