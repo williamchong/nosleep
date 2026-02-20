@@ -21,7 +21,7 @@ declare global {
 export const useDocumentPiP = () => {
   const { trackEvent } = useAnalytics()
 
-  const isPipSupported = useSupported(() => 'documentPictureInPicture' in window)
+  const isPipSupported = useSupported(() => typeof window !== 'undefined' && 'documentPictureInPicture' in window)
   const pipWindow = ref<Window | null>(null)
   const hasPipWindow = computed(() => pipWindow.value !== null && !pipWindow.value.closed)
 
