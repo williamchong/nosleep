@@ -53,90 +53,16 @@ Browsers without Screen Wake Lock API will see a clear error message with upgrad
 
 **Note**: The app automatically detects your browser's capabilities. For the best experience, use the floating window feature on supported browsers.
 
-## Setup
-
-```bash
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
 ## Development
 
-Start the development server on `http://localhost:3000`:
-
 ```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Preview the production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-## Testing
-
-Run unit tests:
-
-```bash
-# npm
-npm run test
-
-# pnpm
-pnpm test
-
-# yarn
-yarn test
-
-# bun
-bun run test
+npm install              # Install dependencies
+npm run dev              # Start dev server on http://localhost:3000
+npm run build            # Build for production
+npm run preview          # Preview production build
+npm run test             # Run unit tests
+npm run lint             # Run ESLint
+npm run typecheck        # Run TypeScript type checking
 ```
 
 ## 📖 How to Use
@@ -192,18 +118,10 @@ bun run test
 - **Nuxt 3**: Fast, modern web framework for optimal performance
 - **Screen Wake Lock API**: Standard browser API for preventing screen sleep
 - **Document Picture-in-Picture**: Advanced floating window support (when available)
-- **Pinia State Management**: Centralized state for cross-window synchronization
+- **Composable-based State**: Reactive composables for cross-window synchronization
 - **Lottie Animations**: Beautiful, lightweight sun/moon animations
 - **Tailwind CSS**: Responsive design that works on any screen size
 - **i18n Support**: Multi-language support (English, Chinese, Japanese)
-
-### Key Technical Features
-- **Cross-Window Sync**: Floating window and main page stay perfectly synchronized
-- **Smart State Management**: Automatic handling of window focus and visibility
-- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
-- **Dark Mode**: Automatic theme switching based on system preferences
-- **SEO Optimized**: Structured data and meta tags for search engines
-- **Lightweight**: Fast loading with no unnecessary overhead
 
 ### Browser APIs Used
 - [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API) - Prevents screen sleep
@@ -237,7 +155,7 @@ A: No, you need an internet connection to load the page initially. Once loaded, 
 
 Want to contribute or run locally? See the development sections above for setup instructions.
 
-**Tech Stack**: Nuxt 3, Vue 3, TypeScript, Pinia, Tailwind CSS, Vitest
+**Tech Stack**: Nuxt 3, Vue 3, TypeScript, Tailwind CSS, Vitest
 
 **Contributing**: Issues and pull requests welcome! Check out the code on GitHub.
 
