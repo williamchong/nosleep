@@ -199,7 +199,7 @@ const colorMode = useColorMode()
 
 useHead({
   title: computed(() => {
-    const base = t('header.title')
+    const base = t('site.title')
     return wakeLock.isEffectivelyActive ? `☀️ ${base}` : `🌙 ${base}`
   })
 })
