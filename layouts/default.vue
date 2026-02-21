@@ -1,5 +1,6 @@
 <template>
   <div>
+    <NuxtPwaManifest />
     <slot />
   </div>
 </template>
@@ -24,7 +25,11 @@ useHead({
     lang: i18nHead.value.htmlAttrs!.lang
   },
   link: [...(i18nHead.value.link || [])],
-  meta: [...(i18nHead.value.meta || [])],
+  meta: [
+    ...(i18nHead.value.meta || []),
+    { name: 'theme-color', content: '#ffffff', media: '(prefers-color-scheme: light)' },
+    { name: 'theme-color', content: '#111827', media: '(prefers-color-scheme: dark)' },
+  ],
   script: [
     {
       type: 'application/ld+json',

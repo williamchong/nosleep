@@ -223,6 +223,10 @@ watch(() => colorMode.value, (newMode) => {
   }
 })
 
+useEventListener(window, 'appinstalled', () => {
+  trackEvent('pwa_app_installed')
+})
+
 useEventListener(pipIframe, 'error', () => {
   console.error('Failed to load PiP iframe')
   trackEvent('pip_iframe_load_failed')
