@@ -1,31 +1,20 @@
 <template>
   <div class="relative bg-white dark:bg-gray-900">
-    <ClientOnly>
-      <noscript>
-        <div class="bg-yellow-50 dark:bg-yellow-950/30 border-b border-yellow-200 dark:border-yellow-800 p-4 text-center">
-          <p class="text-yellow-900 dark:text-yellow-100 font-semibold">
-            ⚠️ JavaScript Required
-          </p>
-          <p class="text-yellow-800 dark:text-yellow-200 text-sm mt-1">
-            This web application requires JavaScript to be enabled in your browser to function. Please enable JavaScript and reload the page.
-          </p>
-        </div>
-      </noscript>
-    </ClientOnly>
-
     <div class="fixed top-4 right-4 z-50">
       <DarkModeToggle />
     </div>
 
     <WakeLockControl :wake-lock="wakeLock" auto-acquire>
       <template #extra-content>
-        <FloatingWindowCTA
-          :has-active-pip-window="wakeLock.hasActivePipWindow"
-          :is-pip-mode="wakeLock.isPipMode"
-          :is-supported="wakeLock.isSupported"
-          :is-pip-supported="documentPip.isPipSupported.value"
-          @open-window="openFloatingWindow"
-        />
+        <ClientOnly>
+          <FloatingWindowCTA
+            :has-active-pip-window="wakeLock.hasActivePipWindow"
+            :is-pip-mode="wakeLock.isPipMode"
+            :is-supported="wakeLock.isSupported"
+            :is-pip-supported="documentPip.isPipSupported.value"
+            @open-window="openFloatingWindow"
+          />
+        </ClientOnly>
       </template>
     </WakeLockControl>
 
