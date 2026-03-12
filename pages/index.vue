@@ -70,7 +70,7 @@
             </li>
           </ul>
           <p class="text-sm text-gray-500 dark:text-gray-400 mt-6 text-center italic border-t border-green-200 dark:border-green-800 pt-4">
-            <span class="font-semibold">Compare to:</span>
+            <span class="font-semibold">{{ $t('sections.alternatives.compareTo') }}</span>
             {{ $t('sections.alternatives.vsCaffeine') }},
             {{ $t('sections.alternatives.vsAmphetamine') }},
             {{ $t('sections.alternatives.vsInsomniaX') }},

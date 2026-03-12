@@ -125,7 +125,8 @@
       "vsAmphetamine": "vs Amphetamine (Mac)",
       "vsInsomniaX": "vs InsomniaX (Windows)",
       "vsPowerPlant": "vs PowerPlant (Windows)",
-      "comparisonNote": "これらのアプリはダウンロードとインストールが必要です。NoSleepはブラウザで直接動作し、同じ機能を提供します。"
+      "comparisonNote": "これらのアプリはダウンロードとインストールが必要です。NoSleepはブラウザで直接動作し、同じ機能を提供します。",
+      "compareTo": "比較："
     },
     "howToUse": {
       "title": "NoSleepの使い方 - シンプル3ステップガイド",

@@ -13,7 +13,7 @@
   },
   "header": {
     "title": "NoSleep",
-    "subtitle": "Keep your screen on and prevent computer from sleeping"
+    "subtitle": "One click keeps your screen awake — no downloads needed"
   },
   "button": {
     "deviceAwake": "Device Awake",
@@ -125,7 +125,8 @@
       "vsAmphetamine": "vs Amphetamine (Mac)",
       "vsInsomniaX": "vs InsomniaX (Windows)",
       "vsPowerPlant": "vs PowerPlant (Windows)",
-      "comparisonNote": "Those apps require download and installation. NoSleep runs directly in your browser with the same functionality."
+      "comparisonNote": "Those apps require download and installation. NoSleep runs directly in your browser with the same functionality.",
+      "compareTo": "Compare to:"
     },
     "howToUse": {
       "title": "How to Use NoSleep - Simple 3-Step Guide",

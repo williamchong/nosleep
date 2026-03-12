@@ -1,19 +1,19 @@
 {
   "site": {
-    "title": "NoSleep: 防止螢幕休眠 | 下載工作專用計時器工具",
+    "title": "NoSleep：一鍵防止電腦休眠 | 免費線上工具，無需安裝",
     "description": "下載、工作、簡報時保持螢幕喚醒。設定自訂休眠計時器(1-480分鐘)。支援所有瀏覽器裝置。免費網頁工具。",
-    "keywords": "防止電腦休眠, 螢幕逾時關閉, 下載輔助工具, 簡報螢幕鎖定, 不休眠, 保持喚醒, 防止休眠, 休眠計時器, 裝置喚醒, 螢幕喚醒鎖, 自動休眠, 電腦喚醒, 流動電話喚醒, 喚醒鎖計時器",
+    "keywords": "防止電腦休眠, 螢幕逾時關閉, 下載輔助工具, 簡報螢幕鎖定, 不休眠, 保持喚醒, 防止休眠, 休眠計時器, 裝置喚醒, 螢幕喚醒鎖, 自動休眠, 電腦喚醒, 手機喚醒, 喚醒鎖計時器, 螢幕常亮, 電腦不自動關機, Mac 防休眠, Windows 防止自動休眠, 手提電腦防休眠, 免安裝防休眠工具, 螢幕不關閉, 防止自動鎖屏, 線上防休眠, 保持螢幕常亮",
     "author": "William Chong",
     "name": "NoSleep"
   },
   "meta": {
-    "ogTitle": "NoSleep: 防止螢幕休眠 | 下載工作專用計時器工具",
+    "ogTitle": "NoSleep：一鍵防止電腦休眠 | 免費線上工具，無需安裝",
     "ogDescription": "下載、工作、簡報時保持螢幕喚醒。設定自訂休眠計時器(1-480分鐘)。支援所有瀏覽器裝置。免費網頁工具。",
-    "applicationDescription": "一個網頁工具，使用 Screen Wake Lock API 防止您的電腦或流動電話裝置進入休眠，具備可自訂的自動休眠計時器和動畫視覺回饋。"
+    "applicationDescription": "一個網頁工具，使用 Screen Wake Lock API 防止您的電腦或手機裝置進入休眠，具備可自訂的自動休眠計時器和動畫視覺回饋。"
   },
   "header": {
     "title": "NoSleep",
-    "subtitle": "保持螢幕開啟，防止電腦休眠"
+    "subtitle": "一鍵保持螢幕喚醒，無需安裝任何軟件"
   },
   "button": {
     "deviceAwake": "裝置喚醒",
@@ -85,7 +85,7 @@
         },
         {
           "emoji": "💻",
-          "title": "簡報時筆記型電腦休眠",
+          "title": "簡報時手提電腦休眠",
           "description": "重要會議和演示期間防止螢幕逾時"
         },
         {
@@ -125,7 +125,8 @@
       "vsAmphetamine": "vs Amphetamine (Mac)",
       "vsInsomniaX": "vs InsomniaX (Windows)",
       "vsPowerPlant": "vs PowerPlant (Windows)",
-      "comparisonNote": "這些應用程式需要下載和安裝。NoSleep 直接在瀏覽器中運作，具有相同功能。"
+      "comparisonNote": "無需下載安裝 Caffeine、Amphetamine 等軟件，直接在瀏覽器使用，功能相同且跨平台。",
+      "compareTo": "對比："
     },
     "howToUse": {
       "title": "如何使用 NoSleep - 簡單 3 步指南",
@@ -182,15 +183,15 @@
     },
     "about": {
       "title": "關於",
-      "description": "由 William Chong 建構的簡單實用網頁工具。在我的部落格查看更多專案和文章。",
-      "visitBlog": "造訪我的部落格"
+      "description": "由 William Chong 建構的簡單實用網頁工具。在我的博客查看更多專案和文章。",
+      "visitBlog": "造訪我的博客"
     }
   },
   "structuredData": {
     "howTo": {
       "main": {
         "name": "如何防止螢幕休眠",
-        "description": "使用 NoSleep 網頁工具防止電腦或流動電話裝置進入休眠的逐步指南。",
+        "description": "使用 NoSleep 網頁工具防止電腦或手機裝置進入休眠的逐步指南。",
         "step1Name": "開啟 NoSleep 網站",
         "step1Text": "在瀏覽器中開啟此網站（Chrome、Edge、Safari 或 Firefox）",
         "step2Name": "點擊保持螢幕喚醒",
