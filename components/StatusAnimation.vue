@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative mx-auto cursor-pointer transition-all duration-500"
+    class="relative mx-auto cursor-pointer transition-[transform,filter] duration-500"
     :class="[containerClasses, sizeClasses]"
     tabindex="0"
     role="button"
