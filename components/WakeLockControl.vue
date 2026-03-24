@@ -251,17 +251,14 @@ if (wakeLock.isPipMode) {
   })
 }
 
-const PIP_RESTORED_WIDTH = 240
-const PIP_RESTORED_HEIGHT = 280
-const PIP_MINIMIZED_WIDTH = 240
-const PIP_MINIMIZED_HEIGHT = 52
-
 const togglePipSize = () => {
   const pipWin = window.parent !== window ? window.parent : window
   if (isCompactPip.value) {
     pipWin.resizeTo(PIP_RESTORED_WIDTH, PIP_RESTORED_HEIGHT)
+    setPipSizePreference('restored')
   } else {
     pipWin.resizeTo(PIP_MINIMIZED_WIDTH, PIP_MINIMIZED_HEIGHT)
+    setPipSizePreference('minimized')
   }
   trackEvent(isCompactPip.value ? 'pip_restore' : 'pip_minimize')
 }

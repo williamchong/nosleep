@@ -258,7 +258,11 @@ const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
 
 const openDocumentPiP = async () => {
   try {
-    const pipWin = await documentPip.openPipWindow(240, 280)
+    const preferMinimized = getPipSizePreference() === 'minimized'
+    const pipWin = await documentPip.openPipWindow(
+      PIP_RESTORED_WIDTH,
+      preferMinimized ? PIP_MINIMIZED_HEIGHT : PIP_RESTORED_HEIGHT
+    )
 
     if (!pipWin) {
       console.warn('Failed to open Document PiP window')
