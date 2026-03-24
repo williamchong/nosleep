@@ -1,18 +1,88 @@
 <template>
   <div>
+    <!-- Shared background gradients -->
     <div
-      class="absolute inset-x-0 top-0 h-[100vh] pointer-events-none transition-opacity duration-700 bg-gradient-to-b from-blue-100 via-blue-50 to-white dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-gray-900"
+      class="absolute inset-0 pointer-events-none transition-opacity duration-700 bg-gradient-to-b from-blue-100 via-blue-50 to-white dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-gray-900"
       :class="wakeLock.isEffectivelyActive ? 'opacity-0' : 'opacity-100'"
     />
     <div
-      class="absolute inset-x-0 top-0 h-[100vh] pointer-events-none transition-opacity duration-700 bg-gradient-to-b from-orange-100 via-amber-50/50 to-white dark:from-orange-950/40 dark:via-yellow-950/20 dark:to-gray-900"
+      class="absolute inset-0 pointer-events-none transition-opacity duration-700 bg-gradient-to-b from-orange-100 via-amber-50/50 to-white dark:from-orange-950/40 dark:via-yellow-950/20 dark:to-gray-900"
       :class="wakeLock.isEffectivelyActive ? 'opacity-100' : 'opacity-0'"
     />
+
+    <template v-if="isCompactPip">
+      <div class="relative flex items-center justify-center h-[100vh] px-3">
+        <div class="flex items-center gap-2.5 w-full">
+          <button
+            class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-1"
+            :class="wakeLock.isEffectivelyActive
+              ? 'bg-green-500 hover:bg-green-600 text-white focus:ring-green-300 shadow-lg shadow-green-200 dark:shadow-green-900/50'
+              : 'bg-red-500 hover:bg-red-600 text-white focus:ring-red-300 shadow-lg shadow-red-200 dark:shadow-red-900/50'"
+            :aria-label="wakeLock.isEffectivelyActive ? $t('status.ariaLabelAwake') : $t('status.ariaLabelSleep')"
+            @click="handleWakeLockToggle"
+          >
+            <span :class="compactEmojiClass" :style="compactEmojiStyle">{{ compactEmoji }}</span>
+          </button>
+
+          <div class="flex-1 min-w-0 text-center">
+            <template v-if="wakeLock.timerActive">
+              <span class="font-mono text-sm font-bold text-blue-600 dark:text-blue-400">
+                {{ wakeLock.formatTime(wakeLock.remainingTime) }}
+              </span>
+            </template>
+            <template v-else>
+              <span
+                class="text-xs font-medium truncate block"
+                :class="wakeLock.isEffectivelyActive ? 'text-green-700 dark:text-green-300' : 'text-gray-600 dark:text-gray-400'"
+              >
+                {{ wakeLock.isEffectivelyActive ? $t('pip.statusActive') : $t('pip.statusInactive') }}
+              </span>
+            </template>
+          </div>
+
+          <button
+            v-if="wakeLock.timerActive"
+            class="flex-shrink-0 w-7 h-7 rounded-lg bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-red-300"
+            :aria-label="$t('button.cancelTimer')"
+            @click="handleTimerCancel"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <button
+            class="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-200/60 dark:hover:bg-gray-700/60 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+            :aria-label="$t('pip.restore')"
+            @click="togglePipSize"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <template v-else>
 
     <div
       class="relative flex items-center justify-center p-2 sm:p-4"
       :class="wakeLock.isPipMode ? 'min-h-[100vh]' : 'min-h-screen'"
     >
+    <!-- Minimize button in standard PiP layout -->
+    <button
+      v-if="wakeLock.isPipMode"
+      class="absolute top-2 right-2 z-10 w-7 h-7 rounded flex items-center justify-center text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+      :aria-label="$t('pip.minimize')"
+      @click="togglePipSize"
+    >
+      <!-- Minimize (horizontal line) icon -->
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" d="M5 12h14" />
+      </svg>
+    </button>
+
     <div
       class="w-full text-center"
       :class="wakeLock.isPipMode ? 'max-w-sm space-y-3' : 'max-w-2xl space-y-4 sm:space-y-6 lg:space-y-8'"
@@ -121,10 +191,13 @@
       <slot name="extra-content" />
     </div>
     </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useWindowSize, useTimeoutFn } from '@vueuse/core'
+
 interface Props {
   wakeLock: ReturnType<typeof useWakeLockState>
   autoAcquire?: boolean
@@ -138,6 +211,60 @@ const wakeLock = props.wakeLock
 const showTimerSection = ref(false)
 
 const { trackEvent } = useAnalytics()
+
+// Only attach resize listener in PiP mode to avoid overhead on main page
+const windowHeight = wakeLock.isPipMode ? useWindowSize().height : ref(Infinity)
+const isCompactPip = computed(() => wakeLock.isPipMode && windowHeight.value <= 100)
+
+const emojiForState = (active: boolean) => active ? '☀️' : '🌙'
+
+const compactOpacity = ref(1)
+const compactEmoji = ref(emojiForState(wakeLock.isEffectivelyActive))
+const isSwapping = ref(false)
+
+const compactEmojiStyle = computed(() => ({
+  display: 'inline-block',
+  opacity: compactOpacity.value,
+  transition: isSwapping.value ? 'opacity 0.5s ease-in-out' : undefined
+}))
+
+const compactEmojiClass = computed(() =>
+  !isSwapping.value && wakeLock.isEffectivelyActive ? 'compact-spin-active' : ''
+)
+
+// Clears isSwapping after opacity transition finishes so spin can resume
+const { start: finishSwap } = useTimeoutFn(() => {
+  isSwapping.value = false
+}, 500, { immediate: false })
+
+const { start: startCompactSwap } = useTimeoutFn(() => {
+  compactEmoji.value = emojiForState(wakeLock.isEffectivelyActive)
+  compactOpacity.value = 1
+  finishSwap()
+}, 500, { immediate: false })
+
+if (wakeLock.isPipMode) {
+  watch(() => wakeLock.isEffectivelyActive, () => {
+    isSwapping.value = true
+    compactOpacity.value = 0
+    startCompactSwap()
+  })
+}
+
+const PIP_RESTORED_WIDTH = 240
+const PIP_RESTORED_HEIGHT = 280
+const PIP_MINIMIZED_WIDTH = 240
+const PIP_MINIMIZED_HEIGHT = 52
+
+const togglePipSize = () => {
+  const pipWin = window.parent !== window ? window.parent : window
+  if (isCompactPip.value) {
+    pipWin.resizeTo(PIP_RESTORED_WIDTH, PIP_RESTORED_HEIGHT)
+  } else {
+    pipWin.resizeTo(PIP_MINIMIZED_WIDTH, PIP_MINIMIZED_HEIGHT)
+  }
+  trackEvent(isCompactPip.value ? 'pip_restore' : 'pip_minimize')
+}
 
 const {
   statusText,
@@ -179,3 +306,14 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+@keyframes compact-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.compact-spin-active {
+  animation: compact-spin 20s linear infinite;
+}
+</style>

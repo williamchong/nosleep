@@ -71,7 +71,11 @@
     "alternative": "（或者：保持此分頁始終活躍）"
   },
   "pip": {
-    "title": "NoSleep - 浮動視窗"
+    "title": "NoSleep - 浮動視窗",
+    "minimize": "最小化視窗",
+    "restore": "還原視窗",
+    "statusActive": "防止休眠中",
+    "statusInactive": "已休眠"
   },
   "sections": {
     "problems": {

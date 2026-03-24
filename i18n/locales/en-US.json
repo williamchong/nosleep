@@ -71,7 +71,11 @@
     "alternative": "(Alternatively: Keep this tab always active)"
   },
   "pip": {
-    "title": "NoSleep - Floating Window"
+    "title": "NoSleep - Floating Window",
+    "minimize": "Minimize window",
+    "restore": "Restore window",
+    "statusActive": "NoSleep",
+    "statusInactive": "Sleeping"
   },
   "sections": {
     "problems": {

@@ -71,7 +71,11 @@
     "alternative": "（または：このタブを常にアクティブに保つ）"
   },
   "pip": {
-    "title": "NoSleep - フローティングウィンドウ"
+    "title": "NoSleep - フローティングウィンドウ",
+    "minimize": "ウィンドウを最小化",
+    "restore": "ウィンドウを復元",
+    "statusActive": "スリープ防止中",
+    "statusInactive": "スリープ中"
   },
   "sections": {
     "problems": {

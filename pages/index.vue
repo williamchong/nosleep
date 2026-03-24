@@ -258,7 +258,7 @@ const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
 
 const openDocumentPiP = async () => {
   try {
-    const pipWin = await documentPip.openPipWindow(240, 240)
+    const pipWin = await documentPip.openPipWindow(240, 280)
 
     if (!pipWin) {
       console.warn('Failed to open Document PiP window')
