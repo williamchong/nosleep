@@ -14,10 +14,10 @@
       <div class="relative flex items-center justify-center h-[100vh] px-3">
         <div class="flex items-center gap-2.5 w-full">
           <button
-            class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-1"
+            class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-base transition-[background,box-shadow] duration-500 focus:outline-none focus:ring-2 focus:ring-offset-1"
             :class="wakeLock.isEffectivelyActive
-              ? 'bg-green-500 hover:bg-green-600 text-white focus:ring-green-300 shadow-lg shadow-green-200 dark:shadow-green-900/50'
-              : 'bg-red-500 hover:bg-red-600 text-white focus:ring-red-300 shadow-lg shadow-red-200 dark:shadow-red-900/50'"
+              ? 'compact-btn-sun focus:ring-amber-300'
+              : 'compact-btn-moon focus:ring-indigo-300'"
             :aria-label="wakeLock.isEffectivelyActive ? $t('status.ariaLabelAwake') : $t('status.ariaLabelSleep')"
             @click="handleWakeLockToggle"
           >
@@ -33,7 +33,7 @@
             <template v-else>
               <span
                 class="text-xs font-medium truncate block"
-                :class="wakeLock.isEffectivelyActive ? 'text-green-700 dark:text-green-300' : 'text-gray-600 dark:text-gray-400'"
+                :class="wakeLock.isEffectivelyActive ? 'text-amber-700 dark:text-amber-300' : 'text-indigo-600 dark:text-indigo-300'"
               >
                 {{ wakeLock.isEffectivelyActive ? $t('pip.statusActive') : $t('pip.statusInactive') }}
               </span>
@@ -231,9 +231,10 @@ const compactEmojiStyle = computed(() => ({
   transition: isSwapping.value ? 'opacity 0.5s ease-in-out' : undefined
 }))
 
-const compactEmojiClass = computed(() =>
-  !isSwapping.value && wakeLock.isEffectivelyActive ? 'compact-spin-active' : ''
-)
+const compactEmojiClass = computed(() => {
+  if (isSwapping.value) return ''
+  return wakeLock.isEffectivelyActive ? 'compact-spin-active' : 'compact-wobble'
+})
 
 // Clears isSwapping after opacity transition finishes so spin can resume
 const { start: finishSwap } = useTimeoutFn(() => {
@@ -315,5 +316,45 @@ onMounted(async () => {
 
 .compact-spin-active {
   animation: compact-spin 20s linear infinite;
+}
+
+@keyframes compact-wobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-4deg); }
+  75% { transform: rotate(4deg); }
+}
+
+.compact-wobble {
+  animation: compact-wobble 3s ease-in-out infinite;
+}
+
+.compact-btn-sun {
+  background: radial-gradient(circle at 40% 40%, rgba(253, 230, 138, 0.7), rgba(251, 191, 36, 0.5));
+  box-shadow: 0 0 8px 2px rgba(251, 191, 36, 0.25);
+}
+
+.compact-btn-sun:hover {
+  background: radial-gradient(circle at 40% 40%, rgba(253, 230, 138, 0.8), rgba(251, 191, 36, 0.6));
+  box-shadow: 0 0 10px 3px rgba(251, 191, 36, 0.35);
+}
+
+:is(.dark) .compact-btn-sun {
+  background: radial-gradient(circle at 40% 40%, rgba(253, 230, 138, 0.35), rgba(251, 191, 36, 0.25));
+  box-shadow: 0 0 10px 3px rgba(251, 191, 36, 0.3);
+}
+
+.compact-btn-moon {
+  background: radial-gradient(circle at 60% 40%, rgba(165, 180, 252, 0.65), rgba(99, 102, 241, 0.45));
+  box-shadow: 0 0 8px 2px rgba(99, 102, 241, 0.25);
+}
+
+.compact-btn-moon:hover {
+  background: radial-gradient(circle at 60% 40%, rgba(165, 180, 252, 0.75), rgba(99, 102, 241, 0.55));
+  box-shadow: 0 0 10px 3px rgba(99, 102, 241, 0.35);
+}
+
+:is(.dark) .compact-btn-moon {
+  background: radial-gradient(circle at 60% 40%, rgba(129, 140, 248, 0.35), rgba(79, 70, 229, 0.25));
+  box-shadow: 0 0 10px 3px rgba(129, 140, 248, 0.25);
 }
 </style>
