@@ -196,7 +196,7 @@
 </template>
 
 <script setup lang="ts">
-import { useWindowSize, useTimeoutFn } from '@vueuse/core'
+import { useWindowSize, useTimeoutFn, useMounted } from '@vueuse/core'
 
 interface Props {
   wakeLock: ReturnType<typeof useWakeLockState>
@@ -214,7 +214,10 @@ const { trackEvent } = useAnalytics()
 
 // Only attach resize listener in PiP mode to avoid overhead on main page
 const windowHeight = wakeLock.isPipMode ? useWindowSize().height : ref(Infinity)
-const isCompactPip = computed(() => wakeLock.isPipMode && windowHeight.value <= 100)
+// Defer compact layout to after mount so SSR always renders the standard PiP layout,
+// avoiding hydration mismatch from window dimensions unavailable during SSR.
+const isMounted = useMounted()
+const isCompactPip = computed(() => isMounted.value && wakeLock.isPipMode && windowHeight.value <= 100)
 
 const emojiForState = (active: boolean) => active ? '☀️' : '🌙'
 
