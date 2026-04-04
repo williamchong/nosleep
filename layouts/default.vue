@@ -9,6 +9,8 @@
 const { t } = useI18n()
 const i18nHead = useLocaleHead()
 
+const siteUrl = useRuntimeConfig().public.siteUrl as string
+
 useSeoMeta({
   title: t('site.title'),
   description: t('site.description'),
@@ -17,6 +19,12 @@ useSeoMeta({
   ogTitle: t('meta.ogTitle'),
   ogDescription: t('meta.ogDescription'),
   ogType: 'website',
+  ogImage: `${siteUrl}/images/og-image.png`,
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
+  ogImageType: 'image/png',
+  twitterCard: 'summary_large_image',
+  twitterImage: `${siteUrl}/images/og-image.png`,
 })
 
 // JSON-LD structured data for SEO
