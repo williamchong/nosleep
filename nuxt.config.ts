@@ -93,8 +93,13 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
-      navigateFallback: '/',
       globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2}'],
+      // Strip PiP query params so /pip?pip=1&colorMode=dark matches the precached /pip entry.
+      ignoreURLParametersMatching: [/^pip$/, /^colorMode$/],
+      // Disable @vite-pwa/nuxt's default navigateFallback ('/'), which otherwise registers a
+      // catch-all NavigationRoute that serves index.html for any precache miss — hijacking
+      // routes like /pip when their URL carries query params.
+      navigateFallback: null,
     },
     client: {
       installPrompt: true,
