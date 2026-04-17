@@ -158,7 +158,7 @@
           {{ $t('sections.about.description') }}
         </p>
         <a
-          href="https://blog.williamchong.cloud"
+          href="https://blog.williamchong.cloud/?utm_source=nosleep&amp;utm_medium=referral&amp;utm_campaign=about"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
