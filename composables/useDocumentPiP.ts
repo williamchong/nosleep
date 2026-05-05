@@ -14,6 +14,13 @@ declare global {
   }
 }
 
+export type PipOpenStatus = 'opened' | 'focused_existing' | 'unsupported' | 'failed'
+
+export interface PipOpenResult {
+  window: Window | null
+  status: PipOpenStatus
+}
+
 /**
  * Composable for managing Document Picture-in-Picture API
  * Provides always-on-top floating window functionality
@@ -49,42 +56,31 @@ export const useDocumentPiP = () => {
   }
 
   /**
-   * Open a Document Picture-in-Picture window
-   * @param width - Window width
-   * @param height - Window height
-   * @returns The PiP window or null if failed
+   * Open a Document Picture-in-Picture window. Tracking is the caller's
+   * responsibility — the caller knows the `source` (cta, etc.).
    */
-  const openPipWindow = async (width: number, height: number): Promise<Window | null> => {
+  const openPipWindow = async (width: number, height: number): Promise<PipOpenResult> => {
     if (!isPipSupported.value) {
       console.warn('Document Picture-in-Picture API not supported')
-      return null
+      return { window: null, status: 'unsupported' }
     }
 
     try {
       const docPip = window.documentPictureInPicture
-
-      if (!docPip) {
-        return null
-      }
+      if (!docPip) return { window: null, status: 'unsupported' }
 
       if (docPip.window) {
         pipWindow.value = docPip.window
         docPip.window.focus()
-        trackEvent('pip_window_focus_existing')
-        return docPip.window
+        return { window: docPip.window, status: 'focused_existing' }
       }
 
-      const newPipWindow = await docPip.requestWindow({
-        width,
-        height
-      })
-
+      const newPipWindow = await docPip.requestWindow({ width, height })
       pipWindow.value = newPipWindow
-      return newPipWindow
+      return { window: newPipWindow, status: 'opened' }
     } catch (error) {
       console.error('Failed to open Document PiP window:', error)
-      trackEvent('pip_window_open_failed')
-      return null
+      return { window: null, status: 'failed' }
     }
   }
 
@@ -92,7 +88,7 @@ export const useDocumentPiP = () => {
     if (pipWindow.value && !pipWindow.value.closed) {
       pipWindow.value.close()
       pipWindow.value = null
-      trackEvent('pip_window_closed_programmatically')
+      trackEvent('pip_window_closed', { method: 'programmatic' })
     }
     cleanupMessageRelay()
   }
@@ -102,7 +98,6 @@ export const useDocumentPiP = () => {
     'enter',
     (event: Event & { window: Window }) => {
       pipWindow.value = event.window
-      trackEvent('pip_enter_event_fired')
     }
   )
 

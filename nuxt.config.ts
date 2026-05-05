@@ -3,6 +3,7 @@ export default defineNuxtConfig({
   modules: [
     'nuxt-gtag',
     '@nuxt/eslint',
+    '@nuxt/scripts',
     '@nuxt/test-utils/module',
     '@nuxtjs/i18n',
     '@nuxtjs/sitemap',
@@ -19,6 +20,22 @@ export default defineNuxtConfig({
 
   gtag: {
     id: 'G-RCQBVKVP25',
+  },
+
+  scripts: {
+    privacy: false,
+    defaultScriptOptions: {
+      bundle: false,
+    },
+    registry: {
+      posthog: {
+        apiKey: 'phc_sNVSnBwyYLmDRxqcESGVNSr8yGdUp2nBwJ6zP45L6Duz',
+        region: 'us',
+        scriptOptions: {
+          trigger: 'onNuxtReady',
+        },
+      },
+    },
   },
 
   i18n: {

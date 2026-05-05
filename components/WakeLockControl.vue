@@ -257,14 +257,14 @@ if (wakeLock.isPipMode) {
 
 const togglePipSize = () => {
   const pipWin = window.parent !== window ? window.parent : window
-  if (isCompactPip.value) {
-    pipWin.resizeTo(PIP_RESTORED_WIDTH, PIP_RESTORED_HEIGHT)
-    setPipSizePreference('restored')
-  } else {
-    pipWin.resizeTo(PIP_MINIMIZED_WIDTH, PIP_MINIMIZED_HEIGHT)
-    setPipSizePreference('minimized')
-  }
-  trackEvent(isCompactPip.value ? 'pip_restore' : 'pip_minimize')
+  const restoring = isCompactPip.value
+  const [width, height] = restoring
+    ? [PIP_RESTORED_WIDTH, PIP_RESTORED_HEIGHT]
+    : [PIP_MINIMIZED_WIDTH, PIP_MINIMIZED_HEIGHT]
+  pipWin.resizeTo(width, height)
+  const newSize = restoring ? 'restored' : 'minimized'
+  setPipSizePreference(newSize)
+  trackEvent('pip_size_changed', { size: newSize })
 }
 
 const {
@@ -281,30 +281,31 @@ const {
 
 const toggleTimerSection = () => {
   showTimerSection.value = !showTimerSection.value
-  const action = showTimerSection.value ? 'expand' : 'collapse'
-  trackEvent(`timer_section_${action}`)
+  trackEvent('timer_section_toggled', {
+    action: showTimerSection.value ? 'expand' : 'collapse',
+  })
 }
 
 onMounted(async () => {
   if (!props.autoAcquire) return
 
-  let autoAcquireSuccess = false
-
-  if (wakeLock.isSupported) {
-    try {
-      autoAcquireSuccess = await wakeLock.acquire()
-    } catch (error) {
-      console.error('Auto-acquire error:', error)
-      trackEvent('wake_lock_auto_acquire_failed')
-      console.log('Auto-start failed, user interaction required')
-    }
-
-    const acquireStatus = autoAcquireSuccess ? 'success' : 'failed'
-    const eventPrefix = wakeLock.isPipMode ? 'pip_init_auto' : 'app_init_supported_auto'
-    trackEvent(`${eventPrefix}_${acquireStatus}`)
-  } else if (!wakeLock.isPipMode) {
-    trackEvent('app_init_unsupported_browser')
+  if (!wakeLock.isSupported) {
+    trackEvent('app_init', { surface: wakeLock.surface, supported: false })
+    return
   }
+
+  let autoAcquireSuccess = false
+  try {
+    autoAcquireSuccess = await wakeLock.acquire()
+  } catch (error) {
+    console.error('Auto-acquire error:', error)
+  }
+
+  trackEvent('app_init', {
+    surface: wakeLock.surface,
+    supported: true,
+    auto_acquire_result: autoAcquireSuccess ? 'success' : 'failed',
+  })
 })
 </script>
 

@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { computed, shallowRef } from 'vue'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useWakeLockState } from '~/composables/useWakeLockState'
 import type { UseWakeLockReturn } from '@vueuse/core'
+
+const { mockTrackEvent } = vi.hoisted(() => ({ mockTrackEvent: vi.fn() }))
+mockNuxtImport('useAnalytics', () => () => ({ trackEvent: mockTrackEvent }))
 
 const mockRelease = vi.fn()
 const mockRequest = vi.fn()
@@ -31,6 +35,7 @@ describe('wakeLock state', () => {
     state.isActive = false
     mockRelease.mockReset()
     mockRequest.mockReset()
+    mockTrackEvent.mockReset()
     mockSentinel.value = null
   })
 
@@ -193,6 +198,60 @@ describe('wakeLock state', () => {
 
       expect(state.remainingTime).toBeLessThanOrEqual(0)
       expect(mockRelease).toHaveBeenCalled()
+    })
+  })
+
+  describe('session_ended events', () => {
+    beforeEach(() => {
+      state.cleanup()
+      const nativeWakeLock = createMockNativeWakeLock(true)
+      state = useWakeLockState({ nativeWakeLock })
+    })
+
+    const sessionEndCalls = () =>
+      mockTrackEvent.mock.calls.filter(([name]) => name === 'wake_lock_session_ended')
+
+    it('emits session_ended with user_toggle on toggle off', async () => {
+      await state.toggle()
+      await state.toggle()
+      const calls = sessionEndCalls()
+      expect(calls).toHaveLength(1)
+      expect(calls[0][1]).toMatchObject({ ended_by: 'user_toggle', surface: 'main' })
+      expect(calls[0][1].duration_seconds).toBeGreaterThanOrEqual(0)
+    })
+
+    it('emits session_ended with timer_expired when timer runs out', async () => {
+      vi.useFakeTimers()
+      await state.startTimer(1)
+      vi.advanceTimersByTime(60_000)
+      await vi.runOnlyPendingTimersAsync()
+      vi.useRealTimers()
+
+      const calls = sessionEndCalls()
+      expect(calls).toHaveLength(1)
+      expect(calls[0][1]).toMatchObject({ ended_by: 'timer_expired', had_timer: true })
+    })
+
+    it('emits session_ended with pip_transfer when state moves to PiP', async () => {
+      await state.acquire()
+      const targetWindow = { postMessage: vi.fn() } as unknown as Window
+      state.transferStateToPip(targetWindow)
+      const calls = sessionEndCalls()
+      expect(calls).toHaveLength(1)
+      expect(calls[0][1]).toMatchObject({ ended_by: 'pip_transfer' })
+    })
+
+    it('does not emit session_ended on release when no session was started', async () => {
+      await state.release()
+      expect(sessionEndCalls()).toHaveLength(0)
+    })
+
+    it('cleanup emits session_ended with ended_by: cleanup so the timestamp does not leak', async () => {
+      await state.acquire()
+      state.cleanup()
+      const calls = sessionEndCalls()
+      expect(calls).toHaveLength(1)
+      expect(calls[0][1]).toMatchObject({ ended_by: 'cleanup' })
     })
   })
 })

@@ -46,7 +46,7 @@ export const useWakeLockUI = (wakeLockState: ReturnType<typeof useWakeLockState>
       try {
         if (!wakeLockState.pipWindowRef.closed) {
           wakeLockState.pipWindowRef.focus()
-          trackEvent('pip_focus_from_main_button')
+          trackEvent('pip_focus', { source: 'main_button' })
           return
         }
       } catch (e) {
@@ -57,22 +57,27 @@ export const useWakeLockUI = (wakeLockState: ReturnType<typeof useWakeLockState>
 
     try {
       await wakeLockState.toggle()
-
       const action = wakeLockState.isActive ? 'activate' : 'deactivate'
-      const prefix = isPipMode ? 'pip' : 'main'
-      trackEvent(`${prefix}_toggle_${action}`)
+      trackEvent('wake_lock_toggled', { surface: wakeLockState.surface, action })
     } catch (error) {
       console.error('Failed to toggle wake lock:', error)
-      trackEvent(`${isPipMode ? 'pip' : 'main'}_toggle_failed`)
+      trackEvent('client_error', {
+        kind: 'wake_lock_toggle_failed',
+        surface: wakeLockState.surface,
+        message: error instanceof Error ? error.message : String(error),
+      })
     }
   }
 
-  const handleTimerStart = async (minutes: number) => {
+  const handleTimerStart = async (minutes: number, preset?: string) => {
     try {
       const success = await wakeLockState.startTimer(minutes)
       if (success) {
-        const prefix = isPipMode ? 'pip' : 'main'
-        trackEvent(`${prefix}_timer_start`)
+        trackEvent('timer_started', {
+          surface: wakeLockState.surface,
+          duration_minutes: minutes,
+          preset: preset ?? 'unknown'
+        })
       }
     } catch (error) {
       console.error('Failed to start timer:', error)
@@ -80,9 +85,9 @@ export const useWakeLockUI = (wakeLockState: ReturnType<typeof useWakeLockState>
   }
 
   const handleTimerCancel = () => {
+    const timeRemaining = wakeLockState.remainingTime
     wakeLockState.stopTimer()
-    const prefix = isPipMode ? 'pip' : 'main'
-    trackEvent(`${prefix}_timer_cancel`)
+    trackEvent('timer_cancelled', { surface: wakeLockState.surface, time_remaining_seconds: timeRemaining })
   }
 
   return {

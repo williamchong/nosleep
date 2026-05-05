@@ -42,7 +42,6 @@
           max="480"
           step="1"
           class="w-full h-2 bg-gray-300 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider slider-blue"
-          @change="handleSliderChange"
         >
         <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
           <span>1 min</span>
@@ -85,7 +84,6 @@ defineProps({
 const emit = defineEmits(['start', 'cancel'])
 
 const { t } = useI18n()
-const { trackEvent } = useAnalytics()
 
 const selectedPreset = ref('60')
 const customMinutes = ref(60)
@@ -109,16 +107,11 @@ const startButtonText = computed(() => {
 
 const handlePresetSelect = (value: string) => {
   selectedPreset.value = value
-  trackEvent('timer_tab_selected')
-}
-
-const handleSliderChange = () => {
-  trackEvent('timer_custom_slider_used')
 }
 
 const handleStart = () => {
   const minutes = selectedPreset.value === 'custom' ? customMinutes.value : parseInt(selectedPreset.value)
-  emit('start', minutes)
+  emit('start', minutes, selectedPreset.value)
 }
 
 const handleCancel = () => {

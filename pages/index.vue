@@ -197,7 +197,7 @@ const pipIframe = ref<HTMLIFrameElement | null>(null)
 const { trackEvent } = useAnalytics()
 
 const handleExternalLinkClick = () => {
-  trackEvent('external_link_click_blog')
+  trackEvent('external_link_click', { destination: 'blog' })
 }
 
 watch(() => colorMode.value, (newMode) => {
@@ -218,7 +218,7 @@ useEventListener(window, 'appinstalled', () => {
 
 useEventListener(pipIframe, 'error', () => {
   console.error('Failed to load PiP iframe')
-  trackEvent('pip_iframe_load_failed')
+  trackEvent('client_error', { kind: 'pip_iframe_load_failed' })
   wakeLock.pipWindowRef = null
 })
 
@@ -230,7 +230,7 @@ useEventListener(pipIframe, 'load', async () => {
     await wakeLock.forceReleaseParent()
   } else {
     console.error('Unable to access iframe.contentWindow')
-    trackEvent('pip_iframe_contentWindow_unavailable')
+    trackEvent('client_error', { kind: 'pip_iframe_content_window_unavailable' })
   }
 })
 
@@ -259,30 +259,24 @@ const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
 const openDocumentPiP = async () => {
   try {
     const preferMinimized = getPipSizePreference() === 'minimized'
-    const pipWin = await documentPip.openPipWindow(
+    const { window: pipWin, status } = await documentPip.openPipWindow(
       PIP_RESTORED_WIDTH,
       preferMinimized ? PIP_MINIMIZED_HEIGHT : PIP_RESTORED_HEIGHT
     )
 
-    if (!pipWin) {
-      console.warn('Failed to open Document PiP window')
-      trackEvent('pip_window_open_returned_null')
-      return false
-    }
+    trackEvent('pip_window_open', { result: status, source: 'cta' })
+
+    if (!pipWin) return false
 
     const iframe = pipWin.document.createElement('iframe')
     setupPipIframe(pipWin, iframe)
-
     wakeLock.pipWindowRef = pipWin
-
     documentPip.setupMessageRelay(pipWin)
-
-    trackEvent('pip_window_opened_from_cta')
     return true
   } catch (error) {
     pipIframe.value = null
     console.error('Failed to open Document PiP:', error)
-    trackEvent('pip_window_open_exception')
+    trackEvent('pip_window_open', { result: 'exception', source: 'cta' })
     return false
   }
 }
@@ -298,7 +292,7 @@ const openFloatingWindow = async () => {
   if (wakeLock.hasActivePipWindow) {
     try {
       wakeLock.pipWindowRef!.focus()
-      trackEvent('pip_focus_from_cta_button')
+      trackEvent('pip_focus', { source: 'cta_button' })
       return
     } catch (e) {
       console.warn('Could not focus PiP window:', e)

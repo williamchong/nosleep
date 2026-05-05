@@ -12,6 +12,14 @@ interface WakeLockMessage {
   state?: WakeLockState
 }
 
+type WakeLockSurface = 'main' | 'pip'
+type SessionEndReason =
+  | 'user_toggle'
+  | 'timer_expired'
+  | 'pip_transfer'
+  | 'parent_sync'
+  | 'cleanup'
+
 const isLoading = ref(true)
 const isSupported = ref(false)
 const isActive = ref(false)
@@ -32,6 +40,8 @@ const { pause: pauseTimer, resume: resumeTimer } = useIntervalFn(() => _onTimerT
 
 const isAcquiring = ref(false)
 
+const sessionStartedAt = ref<number | null>(null)
+
 const hasActivePipWindow = computed(() => pipWindowRef.value !== null && !pipWindowRef.value.closed)
 
 const isParentWithActivePip = computed(() =>
@@ -42,6 +52,8 @@ const isEffectivelyActive = computed(() =>
   isParentWithActivePip.value ? isActive.value : nativeIsActive.value
 )
 
+const surface = computed<WakeLockSurface>(() => isIframePip.value ? 'pip' : 'main')
+
 const _messageTarget = ref<Window>()
 const _beforeUnloadTarget = ref<Window>()
 
@@ -49,11 +61,23 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
   const { trackEvent } = useAnalytics()
   let route: ReturnType<typeof useRoute> | null = null
 
+  function endSession(endedBy: SessionEndReason) {
+    if (sessionStartedAt.value === null) return
+    const durationSeconds = Math.round((Date.now() - sessionStartedAt.value) / 1000)
+    trackEvent('wake_lock_session_ended', {
+      duration_seconds: durationSeconds,
+      ended_by: endedBy,
+      had_timer: timerActive.value,
+      surface: surface.value,
+    })
+    sessionStartedAt.value = null
+  }
+
   _onTimerTick = () => {
     remainingTime.value--
     if (remainingTime.value <= 0) {
-      trackEvent('timer_expired_auto_release')
-      release()
+      trackEvent('timer_expired', { duration_minutes: timerDuration.value })
+      release('timer_expired')
     } else if (isIframePip.value) {
       syncWakeLockState()
     }
@@ -110,6 +134,7 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
       }
 
       isActive.value = true
+      sessionStartedAt.value ??= Date.now()
 
       if (isIframePip.value) {
         syncWakeLockState()
@@ -125,7 +150,7 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
     resumeTimer()
   }
 
-  async function release() {
+  async function release(endedBy: SessionEndReason = 'user_toggle') {
     if (isAcquiring.value) {
       return
     }
@@ -144,6 +169,7 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
         }
       }
       isActive.value = false
+      endSession(endedBy)
 
       stopTimer()
 
@@ -169,7 +195,7 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
 
   async function toggle() {
     if (isActive.value) {
-      await release()
+      await release('user_toggle')
     } else {
       await acquire()
     }
@@ -220,6 +246,8 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
     }
     targetWindow.postMessage(message, window.location.origin)
 
+    endSession('pip_transfer')
+
     clearTimerInterval()
     timerActive.value = false
     timerDuration.value = 0
@@ -243,7 +271,7 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
         const success = await acquire()
         if (!success) return
       } else if (!state.isActive && isActive.value) {
-        await release()
+        await release('parent_sync')
         return
       }
       if (state.timerActive && state.remainingTime > 0 && !timerActive.value) {
@@ -270,16 +298,17 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
     timerActive.value = hadTimer
     remainingTime.value = timeRemaining
 
-    const activeStatus = wasActive ? 'was_active' : 'was_inactive'
-    const timerStatus = hadTimer ? 'with_timer' : 'without_timer'
-    trackEvent(`pip_closed_${activeStatus}_${timerStatus}`)
+    trackEvent('pip_closed', {
+      was_active: wasActive,
+      had_timer: hadTimer,
+      time_remaining_seconds: timeRemaining,
+    })
 
     await nextTick()
 
     if (wasActive) {
       const reacquireSuccess = await acquire()
-      const result = reacquireSuccess ? 'success' : 'failed'
-      trackEvent(`wake_lock_reacquire_${result}`)
+      trackEvent('wake_lock_reacquire', { result: reacquireSuccess ? 'success' : 'failed' })
 
       if (reacquireSuccess) {
         if (hadTimer && timeRemaining > 0) {
@@ -298,7 +327,10 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
           isActive.value = false
         } catch (error) {
           console.error(error)
-          trackEvent('wake_lock_state_cleanup_error')
+          trackEvent('client_error', {
+            kind: 'wake_lock_state_cleanup',
+            message: error instanceof Error ? error.message : String(error),
+          })
           isActive.value = false
         }
       }
@@ -310,7 +342,11 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
 
   function handleMessage(event: MessageEvent<WakeLockMessage>) {
     if (event.origin !== window.location.origin) {
-      trackEvent('cross_window_message_origin_mismatch')
+      trackEvent('client_error', {
+        kind: 'cross_window_origin_mismatch',
+        origin: event.origin,
+        expected: window.location.origin,
+      })
       return
     }
 
@@ -353,7 +389,10 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
   }
 
   function cleanup() {
-    release()
+    // Emit session-end synchronously so callers don't need to await; the
+    // subsequent release() sees sessionStartedAt=null and is a no-op for tracking.
+    endSession('cleanup')
+    void release('cleanup')
     nativeWakeLock = null
     _messageTarget.value = undefined
     _beforeUnloadTarget.value = undefined
@@ -408,6 +447,7 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
     hasActivePipWindow,
     isParentWithActivePip,
     isEffectivelyActive,
+    surface,
     acquire,
     release,
     toggle,
