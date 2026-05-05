@@ -79,6 +79,7 @@ export default defineNuxtConfig({
   },
 
   pwa: {
+    registerType: 'autoUpdate',
     manifest: {
       name: 'NoSleep',
       short_name: 'NoSleep',
