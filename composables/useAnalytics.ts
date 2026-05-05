@@ -1,10 +1,10 @@
 export const useAnalytics = () => {
-  const { proxy } = useScriptPostHog()
+  const { proxy: ga } = useScriptGoogleAnalytics()
+  const { proxy: ph } = useScriptPostHog()
 
-  // gtag's `useTrackEvent` only accepts a name; PostHog gets the structured props.
   const trackEvent = (eventName: string, props?: Record<string, unknown>) => {
-    useTrackEvent(eventName)
-    proxy.posthog.capture(eventName, props)
+    ga.gtag('event', eventName, props)
+    ph.posthog.capture(eventName, props)
   }
 
   return {

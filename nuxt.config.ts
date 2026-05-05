@@ -1,7 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
-    'nuxt-gtag',
     '@nuxt/eslint',
     '@nuxt/scripts',
     '@nuxt/test-utils/module',
@@ -18,16 +17,18 @@ export default defineNuxtConfig({
     name: 'NoSleep',
   },
 
-  gtag: {
-    id: 'G-RCQBVKVP25',
-  },
-
   scripts: {
     privacy: false,
     defaultScriptOptions: {
       bundle: false,
     },
     registry: {
+      googleAnalytics: {
+        id: 'G-RCQBVKVP25',
+        scriptOptions: {
+          trigger: 'onNuxtReady',
+        },
+      },
       posthog: {
         apiKey: 'phc_sNVSnBwyYLmDRxqcESGVNSr8yGdUp2nBwJ6zP45L6Duz',
         region: 'us',
