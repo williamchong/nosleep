@@ -25,6 +25,7 @@
     "@vueuse/core": "^14.2.1",
     "lottie-web": "^5.13.0",
     "nuxt": "^3.20.2",
+    "posthog-js": "^1.372.8",
     "vue": "latest",
     "vue-router": "latest"
   },

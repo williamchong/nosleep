@@ -19,22 +19,19 @@ export default defineNuxtConfig({
 
   scripts: {
     privacy: false,
-    defaultScriptOptions: {
-      bundle: false,
-    },
     registry: {
       googleAnalytics: {
         id: 'G-RCQBVKVP25',
-        scriptOptions: {
-          trigger: 'onNuxtReady',
-        },
+        bundle: false,
+        proxy: false,
+        trigger: 'onNuxtReady',
       },
       posthog: {
         apiKey: 'phc_sNVSnBwyYLmDRxqcESGVNSr8yGdUp2nBwJ6zP45L6Duz',
+        bundle: false,
+        proxy: false,
         region: 'us',
-        scriptOptions: {
-          trigger: 'onNuxtReady',
-        },
+        trigger: 'onNuxtReady',
       },
     },
   },
