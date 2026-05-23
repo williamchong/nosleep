@@ -115,7 +115,7 @@ npm run typecheck        # Run TypeScript type checking
 ## ⚡ Technical Details
 
 ### Built With Modern Web Technologies
-- **Nuxt 3**: Fast, modern web framework for optimal performance
+- **Nuxt 4**: Fast, modern web framework for optimal performance
 - **Screen Wake Lock API**: Standard browser API for preventing screen sleep
 - **Document Picture-in-Picture**: Advanced floating window support (when available)
 - **Composable-based State**: Reactive composables for cross-window synchronization
@@ -155,7 +155,7 @@ A: No, you need an internet connection to load the page initially. Once loaded, 
 
 Want to contribute or run locally? See the development sections above for setup instructions.
 
-**Tech Stack**: Nuxt 3, Vue 3, TypeScript, Tailwind CSS, Vitest
+**Tech Stack**: Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Vitest
 
 **Contributing**: Issues and pull requests welcome! Check out the code on GitHub.
 

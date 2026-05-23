@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-NoSleep is a Nuxt 3 web application that prevents computers and mobile devices from going to sleep using the browser's Screen Wake Lock API. It features a timer system, Picture-in-Picture support, and cross-window state synchronization.
+NoSleep is a Nuxt 4 web application that prevents computers and mobile devices from going to sleep using the browser's Screen Wake Lock API. It features a timer system, Picture-in-Picture support, and cross-window state synchronization.
 
 ## Common Commands
 
@@ -28,7 +28,7 @@ npm run test             # Run Vitest tests
 
 ### State Management Architecture
 
-The app uses a **single composable with module-level state** (`composables/useWakeLockState.ts`) as the source of truth for all wake lock state, timer state, and PiP window management. Module-level `ref()`s provide singleton behavior — all components share the same state within a window. Each window (main vs PiP iframe) gets its own module scope, so state is automatically isolated per-window.
+The app uses a **single composable with module-level state** (`app/composables/useWakeLockState.ts`) as the source of truth for all wake lock state, timer state, and PiP window management. Module-level `ref()`s provide singleton behavior — all components share the same state within a window. Each window (main vs PiP iframe) gets its own module scope, so state is automatically isolated per-window.
 
 **Key Principle**: All components should use `useWakeLockState()`. This composable handles lifecycle hooks (`onMounted`/`onUnmounted`) automatically when called within a component setup context.
 
@@ -71,10 +71,10 @@ Events tracked include: wake lock acquire/release, timer actions, PiP window ope
 ## Key Files
 
 ### Composables
-- `composables/useWakeLockState.ts`: **Central state management** — all wake lock, timer, and PiP state + lifecycle hooks
-- `composables/useDocumentPiP.ts`: Document PiP API management + message relay
-- `composables/useAnalytics.ts`: Analytics tracking (GA via nuxt-gtag)
-- `composables/useWakeLockUI.ts`: UI-specific logic (toggle/timer handlers, button state and styling)
+- `app/composables/useWakeLockState.ts`: **Central state management** — all wake lock, timer, and PiP state + lifecycle hooks
+- `app/composables/useDocumentPiP.ts`: Document PiP API management + message relay
+- `app/composables/useAnalytics.ts`: Analytics tracking (GA via nuxt-gtag)
+- `app/composables/useWakeLockUI.ts`: UI-specific logic (toggle/timer handlers, button state and styling)
 
 ### Components
 - `WakeLockControl.vue`: Main toggle button component
@@ -84,8 +84,8 @@ Events tracked include: wake lock acquire/release, timer actions, PiP window ope
 - `DarkModeToggle.vue`: Theme switcher
 
 ### Pages
-- `pages/index.vue`: Main application page
-- `pages/pip.vue`: PiP iframe content page (loaded inside Document PiP window with `?pip=1`)
+- `app/pages/index.vue`: Main application page
+- `app/pages/pip.vue`: PiP iframe content page (loaded inside Document PiP window with `?pip=1`)
 
 ## Browser API Requirements
 
@@ -107,7 +107,7 @@ Tests use Vitest with `@nuxt/test-utils`. Configuration in `vitest.config.ts`.
 
 ## Development Notes
 
-- Node.js version: >=20.0.0 (specified in `package.json` engine)
+- Node.js version: >=24.0.0 (specified in `package.json` engines)
 - Nuxt auto-imports composables, components, and utilities
 - Dark mode: Class-based (`dark` class), uses `@nuxtjs/color-mode`
 - Tailwind CSS configured with dark mode support
