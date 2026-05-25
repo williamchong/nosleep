@@ -85,7 +85,7 @@ Events tracked include: wake lock acquire/release, timer actions, PiP window ope
 
 ### Pages
 - `app/pages/index.vue`: Main application page
-- `app/pages/pip.vue`: PiP iframe content page (loaded inside Document PiP window with `?pip=1`)
+- `app/pages/pip.vue`: PiP iframe content page (loaded inside Document PiP window). It declares `definePageMeta({ pip: true })`, and `useWakeLockState` reads `route.meta.pip` to enable PiP mode — route meta survives static prerender/hydration, whereas a URL query is dropped while a prerendered page hydrates. The initial theme is passed via `?colorMode=`.
 
 ## Browser API Requirements
 

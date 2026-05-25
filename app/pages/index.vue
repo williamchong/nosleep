@@ -217,7 +217,8 @@ const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
   iframe.style.cssText = 'width:100%;height:100%;border:none;margin:0;padding:0'
 
   const baseUrl = window.location.origin
-  iframe.src = `${baseUrl}/pip?pip=1&colorMode=${colorMode.value}`
+  // PiP mode is identified by the /pip path itself; only the initial theme is passed as a query.
+  iframe.src = `${baseUrl}${PIP_PATH}?colorMode=${colorMode.value}`
 
   pipWin.document.documentElement.style.cssText = 'width:100%;height:100%;margin:0;padding:0'
   pipWin.document.body.style.cssText = 'width:100%;height:100%;margin:0;padding:0;overflow:hidden'
