@@ -17,19 +17,20 @@
   },
   "dependencies": {
     "@nuxt/scripts": "^1.1.1",
-    "@nuxtjs/color-mode": "^4.0.0",
+    "@nuxt/ui": "^4.8.0",
     "@nuxtjs/i18n": "^10.4.0",
     "@nuxtjs/sitemap": "^8.0.15",
-    "@nuxtjs/tailwindcss": "^6.14.0",
     "@sentry/nuxt": "^10.53.1",
     "@vueuse/core": "^14.3.0",
     "lottie-web": "^5.13.0",
     "nuxt": "^4.4.6",
     "posthog-js": "^1.372.8",
+    "tailwindcss": "^4.3.0",
     "vue": "latest",
     "vue-router": "latest"
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.109",
     "@nuxt/eslint": "^1.15.2",
     "@nuxt/test-utils": "^4.0.3",
     "@vite-pwa/nuxt": "^1.1.1",

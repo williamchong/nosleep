@@ -109,6 +109,9 @@ Tests use Vitest with `@nuxt/test-utils`. Configuration in `vitest.config.ts`.
 
 - Node.js version: >=24.0.0 (specified in `package.json` engines)
 - Nuxt auto-imports composables, components, and utilities
-- Dark mode: Class-based (`dark` class), uses `@nuxtjs/color-mode`
-- Tailwind CSS configured with dark mode support
+- UI: [Nuxt UI](https://ui.nuxt.com) v4 (Tailwind CSS v4 + Reka UI). Components are auto-imported (`UButton`, `UAccordion`, `UAlert`, `UIcon`, `USlider`, etc.); `<UApp>` wraps the app in `app/app.vue`
+- Styling: Tailwind CSS v4 via Nuxt UI — config is CSS-first in `app/assets/css/main.css` (`@import "tailwindcss"; @import "@nuxt/ui";`). No `tailwind.config`. Prefer Nuxt UI design tokens (`text-muted`, `text-highlighted`, `bg-default`, `border-default`, `text-primary`) over raw gray/blue utilities
+- Theme: semantic colors mapped in `app/app.config.ts` (`primary: blue`, `neutral: gray`); use `color="primary|success|error|neutral"` on Nuxt UI components
+- Icons: Lucide via `@nuxt/icon`, bundled locally (`@iconify-json/lucide`) so they render offline / inside the PiP iframe. Reference as `i-lucide-*`
+- Dark mode: Class-based (`dark` class), via `@nuxtjs/color-mode` (auto-registered by Nuxt UI; configured under the `colorMode` key in `nuxt.config.ts`)
 - Sentry integration for error tracking (client + server configs)

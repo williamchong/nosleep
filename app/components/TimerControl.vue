@@ -2,61 +2,55 @@
   <div class="space-y-3">
     <!-- Active Timer Display -->
     <div v-if="timerActive" class="text-center space-y-2">
-      <div class="font-mono text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
+      <div class="font-mono text-xl sm:text-2xl font-bold text-primary">
         {{ formatTime(remainingTime) }}
       </div>
-      <button
+      <UButton
         v-if="!disabled"
-        class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs font-medium"
+        color="error"
+        size="xs"
+        :label="$t('button.cancel')"
         @click="handleCancel"
-      >
-        {{ $t('button.cancel') }}
-      </button>
+      />
     </div>
 
     <!-- Timer Setup -->
     <div v-else-if="!disabled" class="space-y-2">
-      <!-- Tab/Chip Interface - Smaller -->
+      <!-- Preset chips -->
       <div class="flex flex-wrap justify-center gap-1.5">
-        <button
+        <UButton
           v-for="preset in presets"
           :key="preset.value"
-          class="px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-300 dark:focus:ring-blue-600"
-          :class="selectedPreset === preset.value ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'"
+          size="sm"
+          class="rounded-full"
+          :color="selectedPreset === preset.value ? 'primary' : 'neutral'"
+          :variant="selectedPreset === preset.value ? 'solid' : 'soft'"
+          :label="preset.label"
           @click="handlePresetSelect(preset.value)"
-        >
-          {{ preset.label }}
-        </button>
+        />
       </div>
 
       <!-- Custom Slider (shown when Custom is selected) -->
-      <div v-if="selectedPreset === 'custom'" class="space-y-1.5 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+      <div v-if="selectedPreset === 'custom'" class="space-y-2 bg-elevated/50 rounded-lg p-3">
         <div class="flex items-center justify-between">
-          <label class="text-xs font-medium text-gray-700 dark:text-gray-300">{{ $t('timer.customDuration') }}</label>
-          <span class="text-xs font-bold text-gray-900 dark:text-gray-100">{{ customMinutes }} {{ $t('timer.minutes') }}</span>
+          <label class="text-xs font-medium text-muted">{{ $t('timer.customDuration') }}</label>
+          <span class="text-xs font-bold text-highlighted">{{ customMinutes }} {{ $t('timer.minutes') }}</span>
         </div>
-        <input
-          v-model.number="customMinutes"
-          type="range"
-          min="1"
-          max="480"
-          step="1"
-          class="w-full h-2 bg-gray-300 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider slider-blue"
-        >
-        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+        <USlider v-model="customMinutes" :min="1" :max="480" :step="1" />
+        <div class="flex justify-between text-xs text-dimmed">
           <span>1 min</span>
           <span>480 min</span>
         </div>
       </div>
 
-      <!-- Start Button - Smaller and less prominent -->
-      <button
+      <!-- Start Button -->
+      <UButton
         :disabled="!canStart"
-        class="w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 disabled:opacity-50 disabled:cursor-not-allowed bg-blue-500 hover:bg-blue-600 text-white"
+        block
+        color="primary"
+        :label="startButtonText"
         @click="handleStart"
-      >
-        {{ startButtonText }}
-      </button>
+      />
     </div>
   </div>
 </template>
@@ -118,24 +112,3 @@ const handleCancel = () => {
   emit('cancel')
 }
 </script>
-
-<style scoped>
-/* Custom slider styles */
-.slider::-webkit-slider-thumb {
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  cursor: pointer;
-  background: #3b82f6;
-}
-
-.slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  cursor: pointer;
-  border: none;
-  background: #3b82f6;
-}
-</style>

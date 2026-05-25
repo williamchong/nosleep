@@ -14,18 +14,11 @@ export const useWakeLockUI = (wakeLockState: ReturnType<typeof useWakeLockState>
     wakeLockState.isActive ? t('status.deviceAwake') : t('status.deviceSleeping')
   )
 
-  const buttonClasses = computed(() => {
-    // Focus to PiP button - use blue to indicate action (only on main page)
-    if (hasActivePipWindow.value && !isPipMode) {
-      return 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-200 focus:ring-blue-300'
-    }
-
-    if (wakeLockState.isActive) {
-      return 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-200 focus:ring-green-300'
-    }
-
-    // Inactive state - use red to show "ready to activate"
-    return 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-200 focus:ring-red-300'
+  // Hero toggle color by state: primary = focus-to-popup action, success = awake, error = ready to activate.
+  const buttonColor = computed<'primary' | 'success' | 'error'>(() => {
+    if (hasActivePipWindow.value && !isPipMode) return 'primary'
+    if (wakeLockState.isActive) return 'success'
+    return 'error'
   })
 
   const buttonText = computed(() => {
@@ -92,7 +85,7 @@ export const useWakeLockUI = (wakeLockState: ReturnType<typeof useWakeLockState>
 
   return {
     statusText,
-    buttonClasses,
+    buttonColor,
     buttonText,
     handleToggle,
     handleTimerStart,

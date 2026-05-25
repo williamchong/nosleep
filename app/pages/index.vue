@@ -1,5 +1,5 @@
 <template>
-  <div class="relative bg-white dark:bg-gray-900">
+  <div class="relative bg-default">
     <div class="fixed top-4 right-4 z-50">
       <DarkModeToggle />
     </div>
@@ -20,102 +20,80 @@
 
     <div class="max-w-4xl mx-auto mt-8 px-4 space-y-12">
       <section class="bg-blue-50 dark:bg-blue-950/30 rounded-xl p-8 space-y-6">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">{{ $t('sections.howToUse.title') }}
+        <h2 class="text-2xl font-bold text-highlighted text-center">{{ $t('sections.howToUse.title') }}
         </h2>
         <div class="max-w-2xl mx-auto">
           <ol class="space-y-4">
             <li v-for="(step, index) in $tm('sections.howToUse.steps')" :key="index" class="flex items-start space-x-3">
               <span
-                class="flex-shrink-0 w-8 h-8 bg-blue-600 dark:bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold"
+                class="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-semibold"
               >
                 {{ Number(index) + 1 }}
               </span>
-              <p class="text-gray-700 dark:text-gray-300 text-lg">{{ $rt(step) }}</p>
+              <p class="text-toned text-lg">{{ $rt(step) }}</p>
             </li>
           </ol>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-4 text-center italic">
+          <p class="text-sm text-muted mt-4 text-center italic">
             {{ $t('sections.howToUse.note') }}
           </p>
         </div>
       </section>
 
-      <section class="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/20 rounded-xl p-8 space-y-6">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">{{ $t('sections.problems.title') }}</h2>
-        <p class="text-center text-gray-600 dark:text-gray-400">{{ $t('sections.problems.subtitle') }}</p>
+      <section class="bg-linear-to-br from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/20 rounded-xl p-8 space-y-6">
+        <h2 class="text-2xl font-bold text-highlighted text-center">{{ $t('sections.problems.title') }}</h2>
+        <p class="text-center text-muted">{{ $t('sections.problems.subtitle') }}</p>
         <div class="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
           <div
             v-for="(_, index) in $tm('sections.problems.items')"
             :key="index"
-            class="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm border border-orange-200 dark:border-orange-800 hover:shadow-md transition-shadow"
+            class="bg-default rounded-lg p-5 shadow-sm border border-orange-200 dark:border-orange-800 hover:shadow-md transition-shadow"
           >
             <div class="flex items-start space-x-3">
               <span class="text-2xl">{{ $t(`sections.problems.items[${index}].emoji`) }}</span>
               <div>
-                <h3 class="font-semibold text-gray-900 dark:text-gray-100 mb-1">{{ $t(`sections.problems.items[${index}].title`) }}</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $t(`sections.problems.items[${index}].description`) }}</p>
+                <h3 class="font-semibold text-highlighted mb-1">{{ $t(`sections.problems.items[${index}].title`) }}</h3>
+                <p class="text-sm text-muted">{{ $t(`sections.problems.items[${index}].description`) }}</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 rounded-xl p-8 space-y-6">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">{{ $t('sections.alternatives.title') }}</h2>
-        <p class="text-center text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">{{ $t('sections.alternatives.subtitle') }}</p>
+      <section class="bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 rounded-xl p-8 space-y-6">
+        <h2 class="text-2xl font-bold text-highlighted text-center">{{ $t('sections.alternatives.title') }}</h2>
+        <p class="text-center text-muted max-w-2xl mx-auto">{{ $t('sections.alternatives.subtitle') }}</p>
         <div class="max-w-3xl mx-auto">
           <ul class="space-y-3">
             <li v-for="(feature, index) in $tm('sections.alternatives.features')" :key="index" class="flex items-start space-x-3">
-              <span class="text-green-600 dark:text-green-400 text-xl font-bold">✓</span>
-              <span class="text-gray-700 dark:text-gray-300">{{ $rt(feature) }}</span>
+              <UIcon name="i-lucide-check" class="text-success text-xl shrink-0 mt-0.5" />
+              <span class="text-toned">{{ $rt(feature) }}</span>
             </li>
           </ul>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-6 text-center italic border-t border-green-200 dark:border-green-800 pt-4">
+          <p class="text-sm text-muted mt-6 text-center italic border-t border-green-200 dark:border-green-800 pt-4">
             <span class="font-semibold">{{ $t('sections.alternatives.compareTo') }}</span>
             {{ $t('sections.alternatives.vsCaffeine') }},
             {{ $t('sections.alternatives.vsAmphetamine') }},
             {{ $t('sections.alternatives.vsInsomniaX') }},
             {{ $t('sections.alternatives.vsPowerPlant') }}
           </p>
-          <p class="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center">
+          <p class="text-xs text-dimmed mt-2 text-center">
             {{ $t('sections.alternatives.comparisonNote') }}
           </p>
         </div>
       </section>
 
       <section class="space-y-8">
-        <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 text-center">{{ $t('sections.faq.title') }}</h2>
+        <h2 class="text-3xl font-bold text-highlighted text-center">{{ $t('sections.faq.title') }}</h2>
 
-        <div class="grid gap-6">
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{{
-              $t('sections.faq.useCases.question') }}
-            </h3>
-            <ul class="text-gray-600 dark:text-gray-400 space-y-2">
+        <UAccordion :items="faqItems" type="multiple" :unmount-on-hide="false">
+          <template #useCases-body>
+            <ul class="space-y-2 text-muted">
               <li v-for="(answer, index) in $tm('sections.faq.useCases.answers')" :key="index">• {{ $rt(answer) }}</li>
             </ul>
-          </div>
+          </template>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{{
-              $t('sections.faq.howItWorks.question') }}
-            </h3>
-            <p class="text-gray-600 dark:text-gray-400">{{ $t('sections.faq.howItWorks.answer') }}</p>
-          </div>
-
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{{
-              $t('sections.faq.safety.question') }}
-            </h3>
-            <p class="text-gray-600 dark:text-gray-400">
-              {{ $t('sections.faq.safety.answer') }}
-            </p>
-          </div>
-
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{{
-              $t('sections.faq.browserSupport.question') }}
-            </h3>
-            <div class="text-gray-600 dark:text-gray-400">
+          <template #browserSupport-body>
+            <div class="text-muted">
               <p class="mb-2"><strong>{{ $t('sections.faq.browserSupport.nativeApiTitle') }}</strong></p>
               <ul class="space-y-1 mb-4">
                 <li v-for="(browser, index) in $tm('sections.faq.browserSupport.nativeApiBrowsers')" :key="index">• {{
@@ -130,47 +108,26 @@
               </ul>
               <p class="text-sm mt-2 italic">{{ $t('sections.faq.browserSupport.note') }}</p>
             </div>
-          </div>
-
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{{
-              $t('sections.faq.timerFeature.question') }}
-            </h3>
-            <p class="text-gray-600 dark:text-gray-400">
-              {{ $t('sections.faq.timerFeature.answer') }}
-            </p>
-          </div>
-
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{{
-              $t('sections.faq.properUsage.question') }}
-            </h3>
-            <p class="text-gray-600 dark:text-gray-400">
-              {{ $t('sections.faq.properUsage.answer') }}
-            </p>
-          </div>
-        </div>
+          </template>
+        </UAccordion>
       </section>
 
-      <section class="text-center space-y-4 border-t border-gray-200 dark:border-gray-700 pt-12 pb-16">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $t('sections.about.title') }}</h2>
-        <p class="text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
+      <section class="text-center space-y-4 border-t border-default pt-12 pb-16">
+        <h2 class="text-2xl font-bold text-highlighted">{{ $t('sections.about.title') }}</h2>
+        <p class="text-muted max-w-xl mx-auto">
           {{ $t('sections.about.description') }}
         </p>
-        <a
-          href="https://blog.williamchong.cloud/?utm_source=nosleep&amp;utm_medium=referral&amp;utm_campaign=about"
+        <UButton
+          :to="blogUrl"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          external
+          color="primary"
+          size="lg"
+          icon="i-lucide-badge-check"
+          :label="$t('sections.about.visitBlog')"
           @click="handleExternalLinkClick"
-        >
-          <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-            <path
-              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
-            />
-          </svg>
-          {{ $t('sections.about.visitBlog') }}
-        </a>
+        />
       </section>
     </div>
   </div>
@@ -185,6 +142,17 @@ const { t } = useI18n()
 const wakeLock = useWakeLockState()
 const documentPip = useDocumentPiP()
 const colorMode = useColorMode()
+
+const blogUrl = 'https://blog.williamchong.cloud/?utm_source=nosleep&utm_medium=referral&utm_campaign=about'
+
+const faqItems = computed(() => [
+  { label: t('sections.faq.useCases.question'), slot: 'useCases' as const },
+  { label: t('sections.faq.howItWorks.question'), content: t('sections.faq.howItWorks.answer') },
+  { label: t('sections.faq.safety.question'), content: t('sections.faq.safety.answer') },
+  { label: t('sections.faq.browserSupport.question'), slot: 'browserSupport' as const },
+  { label: t('sections.faq.timerFeature.question'), content: t('sections.faq.timerFeature.answer') },
+  { label: t('sections.faq.properUsage.question'), content: t('sections.faq.properUsage.answer') },
+])
 
 useHead({
   title: computed(() => {

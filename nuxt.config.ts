@@ -2,15 +2,24 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
+    '@nuxt/ui',
     '@nuxt/scripts',
     '@nuxt/test-utils/module',
     '@nuxtjs/i18n',
     '@nuxtjs/sitemap',
-    '@nuxtjs/tailwindcss',
     '@sentry/nuxt/module',
-    '@nuxtjs/color-mode',
     '@vite-pwa/nuxt',
   ],
+
+  css: ['~/assets/css/main.css'],
+
+  // Embed used lucide icons in the client bundle so they render offline (PWA)
+  // and inside the Document PiP iframe without a runtime fetch.
+  icon: {
+    clientBundle: {
+      scan: true,
+    },
+  },
 
   site: {
     url: 'https://nosleep.williamchong.cloud',
@@ -68,12 +77,6 @@ export default defineNuxtConfig({
     classSuffix: '', // Use 'dark' class instead of 'dark-mode'
     preference: 'system', // Default to system preference
     fallback: 'light', // Fallback color mode
-  },
-
-  tailwindcss: {
-    config: {
-      darkMode: 'class', // Enable class-based dark mode
-    }
   },
 
   sentry: {

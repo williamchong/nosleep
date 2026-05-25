@@ -1,5 +1,5 @@
 <template>
-  <div class="relative bg-white dark:bg-gray-900 overflow-auto">
+  <div class="relative bg-default overflow-auto">
     <WakeLockControl :wake-lock="wakeLock" />
   </div>
 </template>

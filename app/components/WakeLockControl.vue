@@ -2,11 +2,11 @@
   <div>
     <!-- Shared background gradients -->
     <div
-      class="absolute inset-0 pointer-events-none transition-opacity duration-700 bg-gradient-to-b from-blue-100 via-blue-50 to-white dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-gray-900"
+      class="absolute inset-0 pointer-events-none transition-opacity duration-700 bg-linear-to-b from-blue-100 via-blue-50 to-white dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-gray-900"
       :class="wakeLock.isEffectivelyActive ? 'opacity-0' : 'opacity-100'"
     />
     <div
-      class="absolute inset-0 pointer-events-none transition-opacity duration-700 bg-gradient-to-b from-orange-100 via-amber-50/50 to-white dark:from-orange-950/40 dark:via-yellow-950/20 dark:to-gray-900"
+      class="absolute inset-0 pointer-events-none transition-opacity duration-700 bg-linear-to-b from-orange-100 via-amber-50/50 to-white dark:from-orange-950/40 dark:via-yellow-950/20 dark:to-gray-900"
       :class="wakeLock.isEffectivelyActive ? 'opacity-100' : 'opacity-0'"
     />
 
@@ -14,7 +14,7 @@
       <div class="relative flex items-center justify-center h-[100vh] px-3">
         <div class="flex items-center gap-2.5 w-full">
           <button
-            class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-base transition-[background,box-shadow] duration-500 focus:outline-none focus:ring-2 focus:ring-offset-1"
+            class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-base transition-[background,box-shadow] duration-500 focus:outline-hidden focus:ring-2 focus:ring-offset-1"
             :class="wakeLock.isEffectivelyActive
               ? 'compact-btn-sun focus:ring-amber-300'
               : 'compact-btn-moon focus:ring-indigo-300'"
@@ -26,7 +26,7 @@
 
           <div class="flex-1 min-w-0 text-center">
             <template v-if="wakeLock.timerActive">
-              <span class="font-mono text-sm font-bold text-blue-600 dark:text-blue-400">
+              <span class="font-mono text-sm font-bold text-primary">
                 {{ wakeLock.formatTime(wakeLock.remainingTime) }}
               </span>
             </template>
@@ -40,26 +40,27 @@
             </template>
           </div>
 
-          <button
+          <UButton
             v-if="wakeLock.timerActive"
-            class="flex-shrink-0 w-7 h-7 rounded-lg bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-red-300"
+            color="error"
+            size="xs"
+            square
+            icon="i-lucide-x"
+            class="flex-shrink-0"
             :aria-label="$t('button.cancelTimer')"
             @click="handleTimerCancel"
-          >
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          />
 
-          <button
-            class="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-200/60 dark:hover:bg-gray-700/60 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+          <UButton
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            square
+            icon="i-lucide-maximize-2"
+            class="flex-shrink-0"
             :aria-label="$t('pip.restore')"
             @click="togglePipSize"
-          >
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-            </svg>
-          </button>
+          />
         </div>
       </div>
     </template>
@@ -71,17 +72,17 @@
       :class="wakeLock.isPipMode ? 'min-h-[100vh]' : 'min-h-screen'"
     >
     <!-- Minimize button in standard PiP layout -->
-    <button
+    <UButton
       v-if="wakeLock.isPipMode"
-      class="absolute top-2 right-2 z-10 w-7 h-7 rounded flex items-center justify-center text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+      color="neutral"
+      variant="ghost"
+      size="xs"
+      square
+      icon="i-lucide-minus"
+      class="absolute top-2 right-2 z-10"
       :aria-label="$t('pip.minimize')"
       @click="togglePipSize"
-    >
-      <!-- Minimize (horizontal line) icon -->
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" d="M5 12h14" />
-      </svg>
-    </button>
+    />
 
     <div
       class="w-full text-center"
@@ -89,14 +90,14 @@
     >
       <div>
         <h1
-          class="font-bold text-gray-900 dark:text-gray-100"
+          class="font-bold text-highlighted"
           :class="wakeLock.isPipMode ? 'text-xl mb-1' : 'text-2xl sm:text-3xl lg:text-4xl mb-1 sm:mb-2'"
         >
           {{ $t('header.title') }}
         </h1>
         <p
           v-if="!wakeLock.isPipMode"
-          class="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg"
+          class="text-muted text-sm sm:text-base lg:text-lg"
         >
           {{ $t('header.subtitle') }}
         </p>
@@ -104,32 +105,26 @@
 
       <div v-if="wakeLock.isLoading" class="mt-2 sm:mt-4 p-8 sm:p-12 lg:p-16">
         <div class="flex flex-col items-center justify-center space-y-4 sm:space-y-6">
-          <div class="relative">
-            <div class="w-12 h-12 sm:w-16 sm:h-16 border-4 border-blue-200 dark:border-blue-800 rounded-full" />
-            <div class="absolute top-0 left-0 w-12 h-12 sm:w-16 sm:h-16 border-4 border-blue-600 dark:border-blue-400 rounded-full border-t-transparent animate-spin" />
-          </div>
-          <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
+          <UIcon name="i-lucide-loader-circle" class="size-12 sm:size-16 animate-spin text-primary" />
+          <p class="text-muted text-sm sm:text-base lg:text-lg">
             {{ $t('loading.message') }}
           </p>
         </div>
       </div>
 
-      <div v-else-if="!wakeLock.isSupported" class="mt-2 sm:mt-4 p-3 sm:p-4 lg:p-6 bg-red-50 dark:bg-red-950/30 rounded-lg sm:rounded-xl border border-red-200 dark:border-red-800">
-        <div class="flex items-start space-x-2 sm:space-x-3">
-          <div class="text-2xl sm:text-3xl">😞</div>
-          <div>
-            <h3 class="text-base sm:text-lg font-semibold text-red-900 dark:text-red-100 mb-1 sm:mb-2">
-              {{ $t('unsupported.title') }}
-            </h3>
-            <p class="text-red-700 dark:text-red-300 text-xs sm:text-sm mb-1 sm:mb-2">
-              {{ $t('unsupported.message') }}
-            </p>
-            <p class="text-red-600 dark:text-red-400 text-xs">
-              {{ $t('unsupported.suggestion') }}
-            </p>
-          </div>
-        </div>
-      </div>
+      <UAlert
+        v-else-if="!wakeLock.isSupported"
+        color="error"
+        variant="subtle"
+        icon="i-lucide-frown"
+        :title="$t('unsupported.title')"
+        class="text-left"
+      >
+        <template #description>
+          <p>{{ $t('unsupported.message') }}</p>
+          <p class="mt-1 text-xs opacity-80">{{ $t('unsupported.suggestion') }}</p>
+        </template>
+      </UAlert>
 
       <template v-else>
         <ClientOnly>
@@ -137,54 +132,40 @@
         </ClientOnly>
 
         <template v-if="!wakeLock.isPipMode">
-          <button
-            class="w-full font-semibold transition-all duration-200 focus:outline-none py-4 px-6 sm:py-6 sm:px-8 lg:py-8 rounded-xl sm:rounded-2xl text-lg sm:text-xl lg:text-2xl focus:ring-2 sm:focus:ring-4"
-            :class="buttonClasses"
+          <UButton
+            block
+            size="xl"
+            :color="buttonColor"
+            :label="buttonText"
+            :ui="heroButtonUi"
             @click="handleWakeLockToggle"
-          >
-            {{ buttonText }}
-          </button>
+          />
 
-          <div class="text-gray-700 dark:text-gray-300 text-sm">
+          <div class="text-toned text-sm">
             {{ statusText }}
           </div>
         </template>
 
-        <div v-if="!wakeLock.hasActivePipWindow" class="pt-2 sm:pt-3 lg:pt-4 border-t border-gray-200 dark:border-gray-700">
-          <button
+        <div v-if="!wakeLock.hasActivePipWindow" class="pt-2 sm:pt-3 lg:pt-4 border-t border-default">
+          <UButton
             v-if="!wakeLock.timerActive"
-            class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors inline-flex items-center space-x-1 mb-2 sm:mb-3"
-            @click="toggleTimerSection">
-            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path
-                d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"
-              />
-            </svg>
-            <span>
-              {{ wakeLock.timerActive ? $t('timer.label') : (showTimerSection ? $t('timer.labelExpanded') : $t('timer.label')) }}
-            </span>
-            <svg
-              class="w-2 h-2 sm:w-3 sm:h-3 transition-transform"
-              :class="{ 'rotate-180': showTimerSection }"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </button>
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            icon="i-lucide-clock"
+            :trailing-icon="showTimerSection ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+            :label="showTimerSection ? $t('timer.labelExpanded') : $t('timer.label')"
+            class="mb-2 sm:mb-3"
+            @click="toggleTimerSection"
+          />
 
-          <div v-if="showTimerSection || wakeLock.timerActive">
-            <TimerControl
-              :timer-active="wakeLock.timerActive"
-              :remaining-time="wakeLock.remainingTime"
-              :format-time="wakeLock.formatTime"
-              @start="handleTimerStart"
-              @cancel="handleTimerCancel" />
-          </div>
+          <TimerControl
+            v-if="showTimerSection || wakeLock.timerActive"
+            :timer-active="wakeLock.timerActive"
+            :remaining-time="wakeLock.remainingTime"
+            :format-time="wakeLock.formatTime"
+            @start="handleTimerStart"
+            @cancel="handleTimerCancel" />
         </div>
       </template>
 
@@ -209,6 +190,11 @@ const props = withDefaults(defineProps<Props>(), {
 
 const wakeLock = props.wakeLock
 const showTimerSection = ref(false)
+
+// :ui.base merges over UButton's size variant via tailwind-merge, letting these oversized utilities win.
+const heroButtonUi = {
+  base: 'justify-center font-semibold transition-all duration-200 py-4 px-6 sm:py-6 sm:px-8 lg:py-8 rounded-xl sm:rounded-2xl text-lg sm:text-xl lg:text-2xl'
+}
 
 const { trackEvent } = useAnalytics()
 
@@ -269,7 +255,7 @@ const togglePipSize = () => {
 
 const {
   statusText,
-  buttonClasses,
+  buttonColor,
   buttonText,
   handleToggle: handleWakeLockToggle,
   handleTimerStart,
