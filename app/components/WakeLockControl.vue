@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="relative">
     <!-- Shared background gradients -->
     <div
       class="absolute inset-0 pointer-events-none transition-opacity duration-700 bg-linear-to-b from-blue-100 via-blue-50 to-white dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-gray-900"
