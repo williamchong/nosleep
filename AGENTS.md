@@ -6,24 +6,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 NoSleep is a Nuxt 4 web application that prevents computers and mobile devices from going to sleep using the browser's Screen Wake Lock API. It features a timer system, Picture-in-Picture support, and cross-window state synchronization.
 
-## Common Commands
-
-### Development
-```bash
-npm run dev              # Start dev server on http://localhost:3000
-npm run build            # Build for production
-npm run preview          # Preview production build
-npm install              # Install dependencies
-npm run postinstall      # Run Nuxt prepare (auto-runs after install)
-```
-
-### Code Quality
-```bash
-npm run lint             # Run ESLint on all files
-npm run typecheck        # Run TypeScript type checking
-npm run test             # Run Vitest tests
-```
-
 ## Architecture
 
 ### State Management Architecture
@@ -54,6 +36,8 @@ The app uses the **Document Picture-in-Picture API** (`useDocumentPiP.ts`) for a
 - Parent UI becomes read-only (controlled by `isParentWithActivePip` computed)
 - Closing PiP window triggers reacquisition of wake lock in parent
 
+**PiP page (`app/pages/pip.vue`)**: it declares `definePageMeta({ pip: true })`, and `useWakeLockState` reads `route.meta.pip` to enable PiP mode — route meta survives static prerender/hydration, whereas a URL query is dropped while a prerendered page hydrates. The initial theme is passed via `?colorMode=`.
+
 ### Timer System
 
 Timer is managed entirely in the wake lock composable:
@@ -62,53 +46,14 @@ Timer is managed entirely in the wake lock composable:
 - Auto-releases wake lock when timer expires
 - `stopTimer()`: Clears interval, resets state
 
-### Analytics Integration
-
-`useAnalytics.ts` composable tracks events to Google Analytics (via `nuxt-gtag`).
-
-Events tracked include: wake lock acquire/release, timer actions, PiP window operations.
-
-## Key Files
-
-### Composables
-- `app/composables/useWakeLockState.ts`: **Central state management** — all wake lock, timer, and PiP state + lifecycle hooks
-- `app/composables/useDocumentPiP.ts`: Document PiP API management + message relay
-- `app/composables/useAnalytics.ts`: Analytics tracking (GA via nuxt-gtag)
-- `app/composables/useWakeLockUI.ts`: UI-specific logic (toggle/timer handlers, button state and styling)
-
-### Components
-- `WakeLockControl.vue`: Main toggle button component
-- `TimerControl.vue`: Timer input and countdown display
-- `StatusAnimation.vue`: Lottie sun/moon animations
-- `FloatingWindowCTA.vue`: PiP window launch button
-- `DarkModeToggle.vue`: Theme switcher
-
-### Pages
-- `app/pages/index.vue`: Main application page
-- `app/pages/pip.vue`: PiP iframe content page (loaded inside Document PiP window). It declares `definePageMeta({ pip: true })`, and `useWakeLockState` reads `route.meta.pip` to enable PiP mode — route meta survives static prerender/hydration, whereas a URL query is dropped while a prerendered page hydrates. The initial theme is passed via `?colorMode=`.
-
 ## Browser API Requirements
 
 The app **requires** the Screen Wake Lock API. Browsers without support see an error message prompting upgrade. Check for support: `'wakeLock' in navigator`
 
 Optional Document PiP API enhances UX. If unsupported, the PiP button is hidden.
 
-## Internationalization (i18n)
-
-Configured in `nuxt.config.ts`:
-- Default locale: `en` (English)
-- Supported: `en-US`, `zh-HK`, `ja-JP`
-- Translation files: `i18n/locales/*.json`
-- Strategy: `prefix_and_default` (e.g., `/en/`, `/zh/`, default `/`)
-
-## Testing
-
-Tests use Vitest with `@nuxt/test-utils`. Configuration in `vitest.config.ts`.
-
 ## Development Notes
 
-- Node.js version: >=24.0.0 (specified in `package.json` engines)
-- Nuxt auto-imports composables, components, and utilities
 - UI: [Nuxt UI](https://ui.nuxt.com) v4 (Tailwind CSS v4 + Reka UI). Components are auto-imported (`UButton`, `UAccordion`, `UAlert`, `UIcon`, `USlider`, etc.); `<UApp>` wraps the app in `app/app.vue`
 - Styling: Tailwind CSS v4 via Nuxt UI — config is CSS-first in `app/assets/css/main.css` (`@import "tailwindcss"; @import "@nuxt/ui";`). No `tailwind.config`. Prefer Nuxt UI design tokens (`text-muted`, `text-highlighted`, `bg-default`, `border-default`, `text-primary`) over raw gray/blue utilities
 - Theme: semantic colors mapped in `app/app.config.ts` (`primary: blue`, `neutral: gray`); use `color="primary|success|error|neutral"` on Nuxt UI components
