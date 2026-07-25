@@ -134,9 +134,7 @@
 </template>
 
 <script setup lang="ts">
-import { useEventListener } from '@vueuse/core'
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+import { useEventListener, promiseTimeout } from '@vueuse/core'
 
 const { t } = useI18n()
 const wakeLock = useWakeLockState()
@@ -191,7 +189,7 @@ useEventListener(pipIframe, 'error', () => {
 })
 
 useEventListener(pipIframe, 'load', async () => {
-  await delay(500)
+  await promiseTimeout(500)
 
   if (pipIframe.value?.contentWindow) {
     wakeLock.transferStateToPip(pipIframe.value.contentWindow)
@@ -204,11 +202,7 @@ useEventListener(pipIframe, 'load', async () => {
 
 useEventListener(() => wakeLock.pipWindowRef, 'pagehide', () => {
   pipIframe.value = null
-  wakeLock.handlePipClosed({
-    isActive: wakeLock.isActive,
-    timerActive: wakeLock.timerActive,
-    remainingTime: wakeLock.remainingTime
-  })
+  wakeLock.handlePipClosed(wakeLock.snapshotState())
 })
 
 const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {

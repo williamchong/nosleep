@@ -47,8 +47,12 @@ const props = defineProps({
 defineEmits(['toggle'])
 
 const lottieContainer = ref<HTMLElement | null>(null)
-const animationInstance = ref<AnimationItem | null>(null)
-const prefersReducedMotion = computed(() => usePreferredReducedMotion().value === 'reduce')
+// shallowRef so the player's layer/renderer graph isn't deep-proxied on every load
+const animationInstance = shallowRef<AnimationItem | null>(null)
+// Registered once in setup: called inside a computed getter this would add a matchMedia
+// listener on every re-evaluation, outside any scope that could dispose them.
+const reducedMotion = usePreferredReducedMotion()
+const prefersReducedMotion = computed(() => reducedMotion.value === 'reduce')
 const rotationDegree = ref(0)
 const opacity = ref(1)
 

@@ -9,7 +9,7 @@
       color="primary"
       icon="i-lucide-picture-in-picture-2"
       :label="hasActivePipWindow ? $t('floatingWindow.focusButton') : $t('floatingWindow.openButton')"
-      @click="handleOpenWindow"
+      @click="$emit('open-window')"
     />
 
     <p class="text-xs text-center text-indigo-600 dark:text-indigo-400 italic">
@@ -18,35 +18,19 @@
   </div>
 </template>
 
-<script setup>
-const props = defineProps({
-  hasActivePipWindow: {
-    type: Boolean,
-    required: true
-  },
-  isPipMode: {
-    type: Boolean,
-    required: true
-  },
-  isSupported: {
-    type: Boolean,
-    required: true
-  },
-  isPipSupported: {
-    type: Boolean,
-    required: true
-  }
-})
+<script setup lang="ts">
+const props = defineProps<{
+  hasActivePipWindow: boolean
+  isPipMode: boolean
+  isSupported: boolean
+  isPipSupported: boolean
+}>()
 
-const emit = defineEmits(['open-window'])
+defineEmits<{ 'open-window': [] }>()
 
 const shouldShow = computed(() => {
   // Only show when PiP is supported, wake lock is supported, and not in PiP mode
   // isPipSupported already excludes mobile browsers (no mobile browser supports Document PiP)
   return props.isPipSupported && props.isSupported && !props.isPipMode
 })
-
-const handleOpenWindow = () => {
-  emit('open-window')
-}
 </script>

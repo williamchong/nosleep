@@ -29,10 +29,10 @@ export const useDocumentPiP = () => {
   const { trackEvent } = useAnalytics()
 
   const isPipSupported = useSupported(() => typeof window !== 'undefined' && 'documentPictureInPicture' in window)
-  const pipWindow = ref<Window | null>(null)
+  const pipWindow = shallowRef<Window | null>(null)
   const hasPipWindow = computed(() => pipWindow.value !== null && !pipWindow.value.closed)
 
-  const relayPipWin = ref<Window | null>(null)
+  const relayPipWin = shallowRef<Window | null>(null)
 
   const isWakeLockMessage = (data: unknown) => {
     return data && typeof data === 'object' && 'type' in data &&
@@ -87,9 +87,10 @@ export const useDocumentPiP = () => {
   const closePipWindow = () => {
     if (pipWindow.value && !pipWindow.value.closed) {
       pipWindow.value.close()
-      pipWindow.value = null
       trackEvent('pip_window_closed', { method: 'programmatic' })
     }
+    // Cleared even when already closed, so a dead Window isn't retained.
+    pipWindow.value = null
     cleanupMessageRelay()
   }
 

@@ -25,19 +25,16 @@
           </button>
 
           <div class="flex-1 min-w-0 text-center">
-            <template v-if="wakeLock.timerActive">
-              <span class="font-mono text-sm font-bold text-primary">
-                {{ wakeLock.formatTime(wakeLock.remainingTime) }}
-              </span>
-            </template>
-            <template v-else>
-              <span
-                class="text-xs font-medium truncate block"
-                :class="wakeLock.isEffectivelyActive ? 'text-amber-700 dark:text-amber-300' : 'text-indigo-600 dark:text-indigo-300'"
-              >
-                {{ wakeLock.isEffectivelyActive ? $t('pip.statusActive') : $t('pip.statusInactive') }}
-              </span>
-            </template>
+            <span v-if="wakeLock.timerActive" class="font-mono text-sm font-bold text-primary">
+              {{ formatTime(wakeLock.remainingTime) }}
+            </span>
+            <span
+              v-else
+              class="text-xs font-medium truncate block"
+              :class="wakeLock.isEffectivelyActive ? 'text-amber-700 dark:text-amber-300' : 'text-indigo-600 dark:text-indigo-300'"
+            >
+              {{ wakeLock.isEffectivelyActive ? $t('pip.statusActive') : $t('pip.statusInactive') }}
+            </span>
           </div>
 
           <UButton
@@ -163,7 +160,6 @@
             v-if="showTimerSection || wakeLock.timerActive"
             :timer-active="wakeLock.timerActive"
             :remaining-time="wakeLock.remainingTime"
-            :format-time="wakeLock.formatTime"
             @start="handleTimerStart"
             @cancel="handleTimerCancel" />
         </div>

@@ -24,19 +24,16 @@ const isLoading = ref(true)
 const isSupported = ref(false)
 const isActive = ref(false)
 
-let nativeWakeLock: UseWakeLockReturn | null = null
-const nativeIsActive = ref(false)
+const nativeWakeLock = shallowRef<UseWakeLockReturn | null>(null)
+const nativeIsActive = computed(() => nativeWakeLock.value?.isActive.value ?? false)
 
 const isIframePip = ref(false)
 const isPipMode = ref(false)
-const pipWindowRef = ref<Window | null>(null)
+const pipWindowRef = shallowRef<Window | null>(null)
 
 const timerActive = ref(false)
 const timerDuration = ref(0)
 const remainingTime = ref(0)
-// Callback set inside useWakeLockState(); all callers produce equivalent closures over the same module-level state
-let _onTimerTick: (() => void) | null = null
-const { pause: pauseTimer, resume: resumeTimer } = useIntervalFn(() => _onTimerTick?.(), 1000, { immediate: false })
 
 const isAcquiring = ref(false)
 
@@ -54,352 +51,345 @@ const isEffectivelyActive = computed(() =>
 
 const surface = computed<WakeLockSurface>(() => isIframePip.value ? 'pip' : 'main')
 
-const _messageTarget = ref<Window>()
-const _beforeUnloadTarget = ref<Window>()
+const _messageTarget = shallowRef<Window>()
+const _beforeUnloadTarget = shallowRef<Window>()
 
-export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }) {
-  const { trackEvent } = useAnalytics()
-  let route: ReturnType<typeof useRoute> | null = null
+// Analytics needs the Nuxt context, so it can only be bound from inside useWakeLockState().
+let track: ((eventName: string, props?: Record<string, unknown>) => void) | null = null
+const trackEvent = (eventName: string, props?: Record<string, unknown>) => track?.(eventName, props)
 
-  function endSession(endedBy: SessionEndReason) {
-    if (sessionStartedAt.value === null) return
-    const durationSeconds = Math.round((Date.now() - sessionStartedAt.value) / 1000)
-    trackEvent('wake_lock_session_ended', {
-      duration_seconds: durationSeconds,
-      ended_by: endedBy,
-      had_timer: timerActive.value,
-      surface: surface.value,
-    })
-    sessionStartedAt.value = null
+function snapshotState(): WakeLockState {
+  return {
+    isActive: isActive.value,
+    timerActive: timerActive.value,
+    remainingTime: remainingTime.value
   }
+}
 
-  _onTimerTick = () => {
-    remainingTime.value--
-    if (remainingTime.value <= 0) {
-      trackEvent('timer_expired', { duration_minutes: timerDuration.value })
-      release('timer_expired')
-    } else if (isIframePip.value) {
-      syncWakeLockState()
-    }
+function endSession(endedBy: SessionEndReason) {
+  if (sessionStartedAt.value === null) return
+  const durationSeconds = Math.round((Date.now() - sessionStartedAt.value) / 1000)
+  trackEvent('wake_lock_session_ended', {
+    duration_seconds: durationSeconds,
+    ended_by: endedBy,
+    had_timer: timerActive.value,
+    surface: surface.value,
+  })
+  sessionStartedAt.value = null
+}
+
+function onTimerTick() {
+  remainingTime.value--
+  if (remainingTime.value <= 0) {
+    trackEvent('timer_expired', { duration_minutes: timerDuration.value })
+    release('timer_expired')
+  } else if (isIframePip.value) {
+    syncWakeLockState()
   }
+}
 
-  function clearTimerInterval() {
-    pauseTimer()
+const { pause: pauseTimer, resume: resumeTimer } = useIntervalFn(onTimerTick, 1000, { immediate: false })
+
+/** Restart the countdown so the next tick is a full second away — resume() clears any running interval. */
+function restartTimerInterval() {
+  resumeTimer()
+}
+
+function resetTimerState() {
+  pauseTimer()
+  timerActive.value = false
+  remainingTime.value = 0
+}
+
+async function releaseNativeWakeLock(context: string): Promise<Error | null> {
+  const native = nativeWakeLock.value
+  if (!native?.sentinel.value) return null
+  try {
+    await native.release()
+    return null
+  } catch (cause) {
+    const error = cause instanceof Error ? cause : new Error(String(cause))
+    console.error(context, error)
+    return error
   }
+}
 
-  function syncWakeLockState() {
-    const message: WakeLockMessage = {
-      type: 'wake-lock-sync',
-      state: {
-        isActive: isActive.value,
-        timerActive: timerActive.value,
-        remainingTime: remainingTime.value
-      }
-    }
+function syncWakeLockState() {
+  if (!isIframePip.value || window.parent === window) return
 
-    if (isIframePip.value && window.parent !== window) {
-      try {
-        window.parent.postMessage(message, window.location.origin)
-      } catch (e) {
-        console.warn('Could not send to window.parent:', e)
-      }
-    }
+  const message: WakeLockMessage = { type: 'wake-lock-sync', state: snapshotState() }
+  try {
+    window.parent.postMessage(message, window.location.origin)
+  } catch (e) {
+    console.warn('Could not send to window.parent:', e)
   }
+}
 
-  async function acquire() {
-    if (isAcquiring.value) {
-      return false
-    }
-    isAcquiring.value = true
-
-    try {
-      if (isParentWithActivePip.value) {
-        return false
-      }
-
-      if (!isSupported.value) {
-        return false
-      }
-
-      if (!nativeWakeLock) {
-        return false
-      }
-
-      try {
-        await nativeWakeLock.request('screen')
-      } catch (error) {
-        console.error('Failed to acquire wake lock:', error)
-        trackEvent('wake_lock_acquire_failed')
-        return false
-      }
-
-      isActive.value = true
-      sessionStartedAt.value ??= Date.now()
-
-      if (isIframePip.value) {
-        syncWakeLockState()
-      }
-      return true
-    } finally {
-      isAcquiring.value = false
-    }
+async function acquire() {
+  if (isAcquiring.value) {
+    return false
   }
+  isAcquiring.value = true
 
-  function createTimerInterval() {
-    pauseTimer()
-    resumeTimer()
-  }
-
-  async function release(endedBy: SessionEndReason = 'user_toggle') {
-    if (isAcquiring.value) {
-      return
-    }
-    isAcquiring.value = true
-
-    try {
-      if (isParentWithActivePip.value) {
-        return
-      }
-
-      if (nativeWakeLock?.sentinel.value) {
-        try {
-          await nativeWakeLock.release()
-        } catch (error) {
-          console.error('Failed to release wake lock:', error)
-        }
-      }
-      isActive.value = false
-      endSession(endedBy)
-
-      stopTimer()
-
-      if (isIframePip.value) {
-        syncWakeLockState()
-      }
-    } finally {
-      isAcquiring.value = false
-    }
-  }
-
-  async function forceReleaseParent() {
-    if (isIframePip.value) return
-
-    if (nativeWakeLock?.sentinel.value) {
-      try {
-        await nativeWakeLock.release()
-      } catch (error) {
-        console.error('Failed to release parent wake lock:', error)
-      }
-    }
-  }
-
-  async function toggle() {
-    if (isActive.value) {
-      await release('user_toggle')
-    } else {
-      await acquire()
-    }
-  }
-
-  async function startTimer(minutes: number) {
-    if (minutes <= 0) return false
-
+  try {
     if (isParentWithActivePip.value) {
       return false
     }
 
-    if (!isActive.value) {
-      const success = await acquire()
-      if (!success) return false
+    if (!isSupported.value) {
+      return false
     }
 
-    timerDuration.value = minutes
-    remainingTime.value = minutes * 60
-    timerActive.value = true
+    const native = nativeWakeLock.value
+    if (!native) {
+      return false
+    }
 
-    createTimerInterval()
+    try {
+      await native.request('screen')
+    } catch (error) {
+      console.error('Failed to acquire wake lock:', error)
+      trackEvent('wake_lock_acquire_failed')
+      return false
+    }
+
+    isActive.value = true
+    sessionStartedAt.value ??= Date.now()
 
     syncWakeLockState()
     return true
+  } finally {
+    isAcquiring.value = false
   }
+}
 
-  function stopTimer() {
+async function release(endedBy: SessionEndReason = 'user_toggle') {
+  if (isAcquiring.value) {
+    return
+  }
+  isAcquiring.value = true
+
+  try {
     if (isParentWithActivePip.value) {
       return
     }
 
-    clearTimerInterval()
-    timerActive.value = false
-    remainingTime.value = 0
+    await releaseNativeWakeLock('Failed to release wake lock:')
 
-    syncWakeLockState()
+    isActive.value = false
+    endSession(endedBy)
+
+    // stopTimer() ends with syncWakeLockState(), which broadcasts the state set above.
+    stopTimer()
+  } finally {
+    isAcquiring.value = false
+  }
+}
+
+async function forceReleaseParent() {
+  if (isIframePip.value) return
+
+  await releaseNativeWakeLock('Failed to release parent wake lock:')
+}
+
+async function toggle() {
+  if (isActive.value) {
+    await release('user_toggle')
+  } else {
+    await acquire()
+  }
+}
+
+async function startTimer(minutes: number) {
+  if (minutes <= 0) return false
+
+  if (isParentWithActivePip.value) {
+    return false
   }
 
-  function transferStateToPip(targetWindow: Window) {
-    const message: WakeLockMessage = {
-      type: 'wake-lock-sync',
-      state: {
-        isActive: isActive.value,
-        timerActive: timerActive.value,
-        remainingTime: remainingTime.value
-      }
+  if (!isActive.value) {
+    const success = await acquire()
+    if (!success) return false
+  }
+
+  timerDuration.value = minutes
+  remainingTime.value = minutes * 60
+  timerActive.value = true
+
+  restartTimerInterval()
+
+  syncWakeLockState()
+  return true
+}
+
+function stopTimer() {
+  if (isParentWithActivePip.value) {
+    return
+  }
+
+  resetTimerState()
+  syncWakeLockState()
+}
+
+function transferStateToPip(targetWindow: Window) {
+  const message: WakeLockMessage = { type: 'wake-lock-sync', state: snapshotState() }
+  targetWindow.postMessage(message, window.location.origin)
+
+  endSession('pip_transfer')
+
+  resetTimerState()
+  timerDuration.value = 0
+}
+
+async function handleWakeLockSync(state: WakeLockState) {
+  if (isIframePip.value) {
+    if (state.isActive && !isActive.value) {
+      const success = await acquire()
+      if (!success) return
+    } else if (!state.isActive && isActive.value) {
+      await release('parent_sync')
+      return
     }
-    targetWindow.postMessage(message, window.location.origin)
-
-    endSession('pip_transfer')
-
-    clearTimerInterval()
-    timerActive.value = false
-    timerDuration.value = 0
-    remainingTime.value = 0
-  }
-
-  function formatTime(seconds: number) {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
-
-    if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-    }
-    return `${minutes}:${secs.toString().padStart(2, '0')}`
-  }
-
-  async function handleWakeLockSync(state: WakeLockState) {
-    if (isIframePip.value) {
-      if (state.isActive && !isActive.value) {
-        const success = await acquire()
-        if (!success) return
-      } else if (!state.isActive && isActive.value) {
-        await release('parent_sync')
-        return
-      }
-      if (state.timerActive && state.remainingTime > 0 && !timerActive.value) {
-        remainingTime.value = state.remainingTime
-        timerDuration.value = Math.ceil(state.remainingTime / 60)
-        timerActive.value = true
-        createTimerInterval()
-      }
-    } else {
-      isActive.value = state.isActive
-      timerActive.value = state.timerActive
+    if (state.timerActive && state.remainingTime > 0 && !timerActive.value) {
       remainingTime.value = state.remainingTime
+      timerDuration.value = Math.ceil(state.remainingTime / 60)
+      timerActive.value = true
+      restartTimerInterval()
     }
+  } else {
+    isActive.value = state.isActive
+    timerActive.value = state.timerActive
+    remainingTime.value = state.remainingTime
   }
+}
 
-  async function handlePipClosed(finalState?: WakeLockState) {
-    if (!pipWindowRef.value) return
-    pipWindowRef.value = null
+async function handlePipClosed(finalState?: WakeLockState) {
+  if (!pipWindowRef.value) return
+  pipWindowRef.value = null
 
-    const wasActive = finalState?.isActive ?? isActive.value
-    const hadTimer = finalState?.timerActive ?? false
-    const timeRemaining = finalState?.remainingTime ?? 0
+  const wasActive = finalState?.isActive ?? isActive.value
+  const hadTimer = finalState?.timerActive ?? false
+  const timeRemaining = finalState?.remainingTime ?? 0
 
-    timerActive.value = hadTimer
-    remainingTime.value = timeRemaining
+  timerActive.value = hadTimer
+  remainingTime.value = timeRemaining
 
-    trackEvent('pip_closed', {
-      was_active: wasActive,
-      had_timer: hadTimer,
-      time_remaining_seconds: timeRemaining,
-    })
+  trackEvent('pip_closed', {
+    was_active: wasActive,
+    had_timer: hadTimer,
+    time_remaining_seconds: timeRemaining,
+  })
 
-    await nextTick()
+  await nextTick()
 
-    if (wasActive) {
-      const reacquireSuccess = await acquire()
-      trackEvent('wake_lock_reacquire', { result: reacquireSuccess ? 'success' : 'failed' })
+  if (wasActive) {
+    const reacquireSuccess = await acquire()
+    trackEvent('wake_lock_reacquire', { result: reacquireSuccess ? 'success' : 'failed' })
 
-      if (reacquireSuccess) {
-        if (hadTimer && timeRemaining > 0) {
-          createTimerInterval()
-        }
-      } else {
-        isActive.value = false
-        clearTimerInterval()
-        timerActive.value = false
-        remainingTime.value = 0
+    if (reacquireSuccess) {
+      if (hadTimer && timeRemaining > 0) {
+        restartTimerInterval()
       }
-    } else {
-      if (nativeWakeLock?.sentinel.value) {
-        try {
-          await nativeWakeLock.release()
-          isActive.value = false
-        } catch (error) {
-          console.error(error)
-          trackEvent('client_error', {
-            kind: 'wake_lock_state_cleanup',
-            message: error instanceof Error ? error.message : String(error),
-          })
-          isActive.value = false
-        }
-      }
-      clearTimerInterval()
-      timerActive.value = false
-      remainingTime.value = 0
+      return
     }
-  }
-
-  function handleMessage(event: MessageEvent<WakeLockMessage>) {
-    if (event.origin !== window.location.origin) {
+    isActive.value = false
+  } else if (nativeWakeLock.value?.sentinel.value) {
+    const error = await releaseNativeWakeLock('Failed to release wake lock on PiP close:')
+    if (error) {
       trackEvent('client_error', {
-        kind: 'cross_window_origin_mismatch',
-        origin: event.origin,
-        expected: window.location.origin,
+        kind: 'wake_lock_state_cleanup',
+        message: error.message,
       })
-      return
     }
-
-    const { type, state } = event.data
-
-    if (type === 'wake-lock-sync' && state) {
-      handleWakeLockSync(state)
-      return
-    }
-
-    if (type === 'pip-closed' && !isIframePip.value) {
-      handlePipClosed(state)
-    }
+    isActive.value = false
   }
 
-  function handleBeforeUnload() {
-    try {
-      if (window.parent && window.parent !== window) {
-        const message: WakeLockMessage = {
-          type: 'pip-closed',
-          state: {
-            isActive: isActive.value,
-            timerActive: timerActive.value,
-            remainingTime: remainingTime.value
-          }
-        }
-        window.parent.postMessage(message, window.location.origin)
-      }
-    } catch (e) {
-      console.warn('Could not send pip-closed message to parent:', e)
-    }
+  resetTimerState()
+}
+
+function handleMessage(event: MessageEvent<WakeLockMessage>) {
+  if (event.origin !== window.location.origin) {
+    trackEvent('client_error', {
+      kind: 'cross_window_origin_mismatch',
+      origin: event.origin,
+      expected: window.location.origin,
+    })
+    return
   }
+
+  const { type, state } = event.data
+
+  if (type === 'wake-lock-sync' && state) {
+    void handleWakeLockSync(state)
+    return
+  }
+
+  if (type === 'pip-closed' && !isIframePip.value) {
+    void handlePipClosed(state)
+  }
+}
+
+function handleBeforeUnload() {
+  try {
+    if (window.parent && window.parent !== window) {
+      const message: WakeLockMessage = { type: 'pip-closed', state: snapshotState() }
+      window.parent.postMessage(message, window.location.origin)
+    }
+  } catch (e) {
+    console.warn('Could not send pip-closed message to parent:', e)
+  }
+}
+
+function cleanup() {
+  // Emit session-end synchronously so callers don't need to await; the
+  // subsequent release() sees sessionStartedAt=null and is a no-op for tracking.
+  endSession('cleanup')
+  // release() is async and bails early while acquiring or when a PiP window owns the lock,
+  // so stop the interval here rather than relying on its stopTimer().
+  resetTimerState()
+  void release('cleanup')
+  nativeWakeLock.value = null
+  track = null
+  _messageTarget.value = undefined
+  _beforeUnloadTarget.value = undefined
+}
+
+const wakeLockState = reactive({
+  isLoading,
+  isSupported,
+  isActive,
+  timerActive,
+  timerDuration,
+  remainingTime,
+  isIframePip,
+  isPipMode,
+  pipWindowRef,
+  hasActivePipWindow,
+  isParentWithActivePip,
+  isEffectivelyActive,
+  surface,
+  acquire,
+  release,
+  toggle,
+  startTimer,
+  stopTimer,
+  snapshotState,
+  forceReleaseParent,
+  transferStateToPip,
+  handlePipClosed,
+  cleanup
+})
+
+export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }) {
+  track = useAnalytics().trackEvent
 
   function setupNativeWakeLock(wakeLock: UseWakeLockReturn) {
-    nativeWakeLock = wakeLock
+    nativeWakeLock.value = wakeLock
     isSupported.value = wakeLock.isSupported.value
-    watch(wakeLock.isActive, (val) => {
-      nativeIsActive.value = val
-    }, { immediate: true })
-  }
-
-  function cleanup() {
-    // Emit session-end synchronously so callers don't need to await; the
-    // subsequent release() sees sessionStartedAt=null and is a no-op for tracking.
-    endSession('cleanup')
-    void release('cleanup')
-    nativeWakeLock = null
-    _messageTarget.value = undefined
-    _beforeUnloadTarget.value = undefined
   }
 
   if (getCurrentInstance()) {
-    route = useRoute()
+    const route = useRoute()
 
     useEventListener(_messageTarget, 'message', handleMessage)
     useEventListener(_beforeUnloadTarget, 'beforeunload', handleBeforeUnload)
@@ -410,7 +400,7 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
     // ?fallback=1 forces the unsupported-browser UI (QA). Watched, not read once, because on
     // the static prod build the query is stripped during hydration and only reconciled with
     // the real URL afterwards. Only forces false when present, never overrides real detection.
-    watch(() => route?.query.fallback, (fallback) => {
+    watch(() => route.query.fallback, (fallback) => {
       if (fallback === '1') isSupported.value = false
     }, { immediate: true })
 
@@ -419,7 +409,7 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
     // dropped while a prerendered page hydrates — so a query flag would render the wrong
     // (non-PiP) layout on the prod build. This also bakes the PiP layout straight into the
     // prerendered HTML (no flash).
-    isPipMode.value = route?.meta.pip === true
+    isPipMode.value = route.meta.pip === true
   } else if (options?.nativeWakeLock) {
     setupNativeWakeLock(options.nativeWakeLock)
     isLoading.value = false
@@ -442,30 +432,5 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
     cleanup()
   })
 
-  return reactive({
-    isLoading,
-    isSupported,
-    isActive,
-    timerActive,
-    timerDuration,
-    remainingTime,
-    isIframePip,
-    isPipMode,
-    pipWindowRef,
-    hasActivePipWindow,
-    isParentWithActivePip,
-    isEffectivelyActive,
-    surface,
-    acquire,
-    release,
-    toggle,
-    startTimer,
-    stopTimer,
-    formatTime,
-    syncWakeLockState,
-    forceReleaseParent,
-    transferStateToPip,
-    handlePipClosed,
-    cleanup
-  })
+  return wakeLockState
 }

@@ -43,28 +43,6 @@ describe('wakeLock state', () => {
     state.cleanup()
   })
 
-  describe('formatTime', () => {
-    it('formats zero', () => {
-      expect(state.formatTime(0)).toBe('0:00')
-    })
-
-    it('formats seconds only', () => {
-      expect(state.formatTime(45)).toBe('0:45')
-    })
-
-    it('formats minutes and seconds', () => {
-      expect(state.formatTime(125)).toBe('2:05')
-    })
-
-    it('formats hours, minutes, and seconds', () => {
-      expect(state.formatTime(3661)).toBe('1:01:01')
-    })
-
-    it('formats exact hour', () => {
-      expect(state.formatTime(3600)).toBe('1:00:00')
-    })
-  })
-
   describe('setup with nativeWakeLock', () => {
     it('sets isSupported from nativeWakeLock', () => {
       state.cleanup()
