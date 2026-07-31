@@ -1,4 +1,4 @@
-import { useEventListener, useSupported } from '@vueuse/core'
+import { useSupported } from '@vueuse/core'
 
 /**
  * Type definition for experimental Document Picture-in-Picture API
@@ -29,26 +29,11 @@ export const useDocumentPiP = () => {
   const { trackEvent } = useAnalytics()
 
   const isPipSupported = useSupported(() => typeof window !== 'undefined' && 'documentPictureInPicture' in window)
-  const pipWindow = shallowRef<Window | null>(null)
-  const hasPipWindow = computed(() => pipWindow.value !== null && !pipWindow.value.closed)
 
-  const relayPipWin = shallowRef<Window | null>(null)
-
-  useEventListener(relayPipWin, 'message', (event: MessageEvent) => {
-    if (relayPipWin.value && event.source === relayPipWin.value.frames[0] &&
-      event.origin === window.location.origin && isWakeLockMessage(event.data)) {
-      window.postMessage(event.data, event.origin)
-    }
-  })
-
-  const cleanupMessageRelay = () => {
-    relayPipWin.value = null
-  }
-
-  const setupMessageRelay = (pipWin: Window) => {
-    cleanupMessageRelay()
-    relayPipWin.value = pipWin
-  }
+  // The browser already tracks the single PiP window per document, so read it rather than
+  // shadowing it in a ref — a local copy drifts the moment a window opens or closes by any
+  // route this composable didn't drive.
+  const currentPipWindow = () => window.documentPictureInPicture?.window ?? null
 
   /**
    * Open a Document Picture-in-Picture window. Tracking is the caller's
@@ -64,15 +49,13 @@ export const useDocumentPiP = () => {
       const docPip = window.documentPictureInPicture
       if (!docPip) return { window: null, status: 'unsupported' }
 
-      if (docPip.window) {
-        pipWindow.value = docPip.window
-        docPip.window.focus()
-        return { window: docPip.window, status: 'focused_existing' }
+      const existing = docPip.window
+      if (existing) {
+        existing.focus()
+        return { window: existing, status: 'focused_existing' }
       }
 
-      const newPipWindow = await docPip.requestWindow({ width, height })
-      pipWindow.value = newPipWindow
-      return { window: newPipWindow, status: 'opened' }
+      return { window: await docPip.requestWindow({ width, height }), status: 'opened' }
     } catch (error) {
       console.error('Failed to open Document PiP window:', error)
       return { window: null, status: 'failed' }
@@ -80,22 +63,12 @@ export const useDocumentPiP = () => {
   }
 
   const closePipWindow = () => {
-    if (pipWindow.value && !pipWindow.value.closed) {
-      pipWindow.value.close()
+    const pipWin = currentPipWindow()
+    if (pipWin && !pipWin.closed) {
+      pipWin.close()
       trackEvent('pip_window_closed', { method: 'programmatic' })
     }
-    // Cleared even when already closed, so a dead Window isn't retained.
-    pipWindow.value = null
-    cleanupMessageRelay()
   }
-
-  useEventListener(
-    () => isPipSupported.value ? window.documentPictureInPicture : undefined,
-    'enter',
-    (event: Event & { window: Window }) => {
-      pipWindow.value = event.window
-    }
-  )
 
   onUnmounted(() => {
     closePipWindow()
@@ -103,10 +76,7 @@ export const useDocumentPiP = () => {
 
   return {
     isPipSupported: readonly(isPipSupported),
-    pipWindow: readonly(pipWindow),
-    hasPipWindow: readonly(hasPipWindow),
     openPipWindow,
-    closePipWindow,
-    setupMessageRelay
+    closePipWindow
   }
 }

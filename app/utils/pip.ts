@@ -16,21 +16,27 @@ export interface WakeLockState {
   remainingTime: number
 }
 
-// The wake lock messages the relay forwards and handleMessage dispatches. Kept as a runtime
-// list so the guard below and the WakeLockMessage type cannot drift apart. 'color-mode-sync'
-// is deliberately absent: it goes straight from the main window to the iframe and carries a
-// different payload, so it must stay off the relay path.
-export const WAKE_LOCK_MESSAGE_TYPES = ['wake-lock-sync', 'pip-closed', 'pip-ready'] as const
+// The two messages that set up the MessagePort. These are the only ones that cross the shared
+// window bus, where anything on the page can post, so they need a runtime guard. Kept as a
+// list so the guard and the type cannot drift apart.
+export const PIP_HANDSHAKE_TYPES = ['pip-ready', 'pip-connect'] as const
 
-export interface WakeLockMessage {
-  type: typeof WAKE_LOCK_MESSAGE_TYPES[number]
-  state?: WakeLockState
+export interface PipHandshakeMessage {
+  type: typeof PIP_HANDSHAKE_TYPES[number]
 }
 
-export function isWakeLockMessage(data: unknown): data is WakeLockMessage {
+export function isPipHandshakeMessage(data: unknown): data is PipHandshakeMessage {
   return !!data && typeof data === 'object' && 'type' in data
-    && (WAKE_LOCK_MESSAGE_TYPES as readonly unknown[]).includes(data.type)
+    && (PIP_HANDSHAKE_TYPES as readonly unknown[]).includes(data.type)
 }
+
+/**
+ * Everything after the handshake travels the port, which is point-to-point — no other script
+ * can post to it, so these need no guard, no origin check and no source check.
+ */
+export type PipMessage =
+  | { type: 'wake-lock-sync', state: WakeLockState }
+  | { type: 'color-mode-sync', mode: string }
 
 const PIP_SIZE_KEY = 'nosleep-pip-size'
 const PIP_SIZE_MINIMIZED = 'minimized'

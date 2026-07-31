@@ -1,16 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { isWakeLockMessage, WAKE_LOCK_MESSAGE_TYPES } from '~/utils/pip'
+import { isPipHandshakeMessage, PIP_HANDSHAKE_TYPES } from '~/utils/pip'
 
-describe('isWakeLockMessage', () => {
-  it('accepts every type in the shared vocabulary', () => {
-    for (const type of WAKE_LOCK_MESSAGE_TYPES) {
-      expect(isWakeLockMessage({ type })).toBe(true)
+describe('isPipHandshakeMessage', () => {
+  it('accepts every type in the handshake vocabulary', () => {
+    for (const type of PIP_HANDSHAKE_TYPES) {
+      expect(isPipHandshakeMessage({ type })).toBe(true)
     }
-  })
-
-  it('carries the state payload through', () => {
-    const message = { type: 'wake-lock-sync', state: { isActive: true, timerActive: false, remainingTime: 0 } }
-    expect(isWakeLockMessage(message)).toBe(true)
   })
 
   // The window listener sees every postMessage in the tab. Anything not ours has to fall
@@ -23,6 +18,13 @@ describe('isWakeLockMessage', () => {
     ['undefined', undefined],
     ['an unknown type', { type: 'pip-something-else' }],
   ])('rejects %s', (_label, data) => {
-    expect(isWakeLockMessage(data)).toBe(false)
+    expect(isPipHandshakeMessage(data)).toBe(false)
   })
+
+  // These now travel the MessagePort, which is point-to-point and needs no guard. Letting them
+  // back onto the window bus would reintroduce the ambient-noise problem the guard exists for.
+  it.each([['wake-lock-sync'], ['color-mode-sync'], ['pip-closed']])(
+    'keeps %s off the window bus', (type) => {
+      expect(isPipHandshakeMessage({ type })).toBe(false)
+    })
 })

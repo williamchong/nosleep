@@ -1,6 +1,6 @@
 import { useWakeLock, useEventListener, useIntervalFn, useTimeoutFn, tryOnMounted, tryOnUnmounted } from '@vueuse/core'
 import type { UseWakeLockReturn } from '@vueuse/core'
-import type { WakeLockMessage, WakeLockState } from '~/utils/pip'
+import type { PipHandshakeMessage, PipMessage, WakeLockState } from '~/utils/pip'
 
 type WakeLockSurface = 'main' | 'pip'
 type SessionEndReason =
@@ -44,8 +44,25 @@ const isEffectivelyActive = computed(() =>
 
 const surface = computed<WakeLockSurface>(() => isIframePip.value ? 'pip' : 'main')
 
-const _messageTarget = shallowRef<Window>()
-const _beforeUnloadTarget = shallowRef<Window>()
+/**
+ * The live connection between the main window and the PiP iframe. Everything except the
+ * two-message handshake that establishes it travels this port.
+ */
+const pipPort = shallowRef<MessagePort | null>(null)
+
+// Theme arriving from the parent. Applying it needs useColorMode(), which is the page's to
+// call, so the port handler parks it here and pip.vue watches — one dispatch point, and the
+// transport stays inside this module.
+const pipColorMode = ref<string | null>(null)
+
+const _selfWindow = shallowRef<Window>()
+
+/**
+ * Where the handshake is heard. The iframe posts 'pip-ready' to window.parent — which is the
+ * PiP window, not the main window — so the parent listens there; the main window replies with
+ * the port straight into the iframe, so the child listens on itself.
+ */
+const handshakeTarget = computed(() => isIframePip.value ? _selfWindow.value : pipWindowRef.value)
 
 // Analytics needs the Nuxt context, so it can only be bound from inside useWakeLockState().
 let track: ((eventName: string, props?: Record<string, unknown>) => void) | null = null
@@ -111,15 +128,13 @@ async function releaseNativeWakeLock(context: string): Promise<Error | null> {
   }
 }
 
-function syncWakeLockState() {
-  if (!isIframePip.value || window.parent === window) return
+function postToPip(message: PipMessage) {
+  pipPort.value?.postMessage(message)
+}
 
-  const message: WakeLockMessage = { type: 'wake-lock-sync', state: snapshotState() }
-  try {
-    window.parent.postMessage(message, window.location.origin)
-  } catch (e) {
-    console.warn('Could not send to window.parent:', e)
-  }
+function syncWakeLockState() {
+  if (!isIframePip.value) return
+  postToPip({ type: 'wake-lock-sync', state: snapshotState() })
 }
 
 async function acquire() {
@@ -237,10 +252,9 @@ const { start: startHandoffTimeout, stop: stopHandoffTimeout } = useTimeoutFn(()
  * Hand the current state to the PiP iframe. Nothing is torn down here — the parent keeps its
  * wake lock and timer until the iframe confirms it adopted the state (completePipHandoff).
  */
-function transferStateToPip(targetWindow: Window) {
+function transferStateToPip() {
   pendingHandoff = snapshotState()
-  const message: WakeLockMessage = { type: 'wake-lock-sync', state: pendingHandoff }
-  targetWindow.postMessage(message, window.location.origin)
+  postToPip({ type: 'wake-lock-sync', state: pendingHandoff })
   startHandoffTimeout()
 }
 
@@ -272,12 +286,30 @@ function completePipHandoff(expected: WakeLockState, childState: WakeLockState) 
   adoptState(childState)
 }
 
-/** The iframe has mounted and is listening — safe to hand over now. */
-function handlePipReady() {
-  if (isIframePip.value) return
+function closePipPort() {
+  pipPort.value?.close()
+  pipPort.value = null
+}
+
+function adoptPipPort(port: MessagePort) {
+  closePipPort()
+  pipPort.value = port
+  // Required because the listener is attached with addEventListener rather than onmessage.
+  // Anything already queued on the other end is delivered as a task, so the listener that
+  // useEventListener attaches on the next microtask is in place first.
+  port.start()
+}
+
+/** The iframe has mounted and is listening — open the channel and hand the state over. */
+function connectToPip() {
   const frame = pipWindowRef.value?.frames[0]
   if (!frame) return
-  transferStateToPip(frame)
+
+  const channel = new MessageChannel()
+  adoptPipPort(channel.port1)
+  const connect: PipHandshakeMessage = { type: 'pip-connect' }
+  frame.postMessage(connect, window.location.origin, [channel.port2])
+  transferStateToPip()
 }
 
 async function handleWakeLockSync(state: WakeLockState) {
@@ -310,6 +342,7 @@ async function handlePipClosed(finalState?: WakeLockState) {
   // and would otherwise be read as an ack and release the lock we are about to reacquire.
   pendingHandoff = null
   stopHandoffTimeout()
+  closePipPort()
 
   const wasActive = finalState?.isActive ?? isActive.value
   const hadTimer = finalState?.timerActive ?? false
@@ -351,11 +384,17 @@ async function handlePipClosed(finalState?: WakeLockState) {
   resetTimerState()
 }
 
-function handleMessage(event: MessageEvent) {
-  // Shape first: this listener is bound to window, so it sees every postMessage in the tab —
-  // analytics, extensions, embedded frames. An origin mismatch is only worth reporting once
-  // the message is one of ours.
-  if (!isWakeLockMessage(event.data)) return
+/**
+ * The window bus carries only the handshake. It is a shared channel — analytics, extensions
+ * and embedded frames all post here — so the message has to be recognised before an origin
+ * mismatch is worth reporting, or ambient traffic drowns the signal.
+ *
+ * No event.source check: each surface listens on a window only its counterpart posts to (see
+ * handshakeTarget), and the worst a same-origin impostor achieves is an extra channel that
+ * carries nothing, since the state still has to survive completePipHandoff.
+ */
+function handleHandshake(event: MessageEvent) {
+  if (!isPipHandshakeMessage(event.data)) return
 
   if (event.origin !== window.location.origin) {
     trackEvent('client_error', {
@@ -366,31 +405,25 @@ function handleMessage(event: MessageEvent) {
     return
   }
 
-  const { type, state } = event.data
-
-  if (type === 'pip-ready') {
-    handlePipReady()
+  if (event.data.type === 'pip-ready' && !isIframePip.value) {
+    connectToPip()
     return
   }
 
-  if (type === 'wake-lock-sync' && state) {
-    void handleWakeLockSync(state)
-    return
-  }
-
-  if (type === 'pip-closed' && !isIframePip.value) {
-    void handlePipClosed(state)
+  const port = event.ports[0]
+  if (event.data.type === 'pip-connect' && isIframePip.value && port) {
+    adoptPipPort(port)
   }
 }
 
-function handleBeforeUnload() {
-  try {
-    if (window.parent && window.parent !== window) {
-      const message: WakeLockMessage = { type: 'pip-closed', state: snapshotState() }
-      window.parent.postMessage(message, window.location.origin)
-    }
-  } catch (e) {
-    console.warn('Could not send pip-closed message to parent:', e)
+/** Steady-state traffic. The port is point-to-point, so there is nothing to validate. */
+function handlePortMessage(event: MessageEvent<PipMessage>) {
+  if (event.data.type === 'wake-lock-sync') {
+    void handleWakeLockSync(event.data.state)
+    return
+  }
+  if (event.data.type === 'color-mode-sync') {
+    pipColorMode.value = event.data.mode
   }
 }
 
@@ -407,10 +440,10 @@ function cleanup() {
   // is discarded below without ever being released.
   pipWindowRef.value = null
   void release('cleanup')
+  closePipPort()
   nativeWakeLock.value = null
   track = null
-  _messageTarget.value = undefined
-  _beforeUnloadTarget.value = undefined
+  _selfWindow.value = undefined
 }
 
 const wakeLockState = reactive({
@@ -420,7 +453,6 @@ const wakeLockState = reactive({
   timerActive,
   timerDuration,
   remainingTime,
-  isIframePip,
   isPipMode,
   pipWindowRef,
   hasActivePipWindow,
@@ -434,11 +466,13 @@ const wakeLockState = reactive({
   stopTimer,
   snapshotState,
   handlePipClosed,
+  postToPip,
+  pipColorMode,
   cleanup
 })
 
-// Both sides of the PiP handoff. Production drives these through the message listener; they
-// are exported so tests can exercise the exchange without two real windows.
+// Both sides of the PiP handoff. Production drives these through the port listener; they are
+// exported so tests can exercise the exchange without two real windows.
 export { transferStateToPip, handleWakeLockSync }
 
 export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }) {
@@ -452,8 +486,8 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
   if (getCurrentInstance()) {
     const route = useRoute()
 
-    useEventListener(_messageTarget, 'message', handleMessage)
-    useEventListener(_beforeUnloadTarget, 'beforeunload', handleBeforeUnload)
+    useEventListener(handshakeTarget, 'message', handleHandshake)
+    useEventListener(pipPort, 'message', handlePortMessage)
 
     // Set up nativeWakeLock synchronously so child components can acquire on mount
     setupNativeWakeLock(useWakeLock())
@@ -481,12 +515,11 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
   tryOnMounted(() => {
     isIframePip.value = isPipMode.value && window.parent !== window
 
-    _messageTarget.value = window
+    _selfWindow.value = window
     if (isIframePip.value) {
-      _beforeUnloadTarget.value = window
-      // Tell the parent we are listening. Safe to send before the listener above is attached:
-      // useEventListener flushes 'post' (a microtask), while any reply arrives as a task.
-      const ready: WakeLockMessage = { type: 'pip-ready' }
+      // Ask for the port. Safe to send before the listener above is attached: useEventListener
+      // flushes 'post' (a microtask), while any reply arrives as a task.
+      const ready: PipHandshakeMessage = { type: 'pip-ready' }
       window.parent.postMessage(ready, window.location.origin)
     }
 

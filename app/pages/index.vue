@@ -166,16 +166,8 @@ const handleExternalLinkClick = () => {
   trackEvent('external_link_click', { destination: 'blog' })
 }
 
-watch(() => colorMode.value, (newMode) => {
-  if (!wakeLock.hasActivePipWindow || !wakeLock.pipWindowRef) return
-  try {
-    const pipFrame = wakeLock.pipWindowRef.frames[0]
-    if (pipFrame) {
-      pipFrame.postMessage({ type: 'color-mode-sync', mode: newMode }, window.location.origin)
-    }
-  } catch (e) {
-    console.warn('Could not sync color mode to PiP:', e)
-  }
+watch(() => colorMode.value, (mode) => {
+  wakeLock.postToPip({ type: 'color-mode-sync', mode })
 })
 
 useEventListener(window, 'appinstalled', () => {
@@ -224,7 +216,6 @@ const openDocumentPiP = async () => {
     const iframe = pipWin.document.createElement('iframe')
     setupPipIframe(pipWin, iframe)
     wakeLock.pipWindowRef = pipWin
-    documentPip.setupMessageRelay(pipWin)
     return true
   } catch (error) {
     pipIframe.value = null

@@ -227,20 +227,15 @@ describe('wakeLock state', () => {
 
     it('does not end the session until the PiP window confirms the handoff', async () => {
       await state.acquire()
-      const targetWindow = { postMessage: vi.fn() } as unknown as Window
-      transferStateToPip(targetWindow)
+      transferStateToPip()
 
-      expect(targetWindow.postMessage).toHaveBeenCalledWith(
-        { type: 'wake-lock-sync', state: { isActive: true, timerActive: false, remainingTime: 0 } },
-        window.location.origin
-      )
       expect(sessionEndCalls()).toHaveLength(0)
       expect(mockRelease).not.toHaveBeenCalled()
     })
 
     it('emits session_ended with pip_transfer once the PiP window confirms', async () => {
       await state.acquire()
-      transferStateToPip({ postMessage: vi.fn() } as unknown as Window)
+      transferStateToPip()
       await ackHandoff({ isActive: true, timerActive: false, remainingTime: 0 })
 
       const calls = sessionEndCalls()
@@ -250,7 +245,7 @@ describe('wakeLock state', () => {
 
     it('keeps the parent wake lock when the PiP window fails to adopt it', async () => {
       await state.acquire()
-      transferStateToPip({ postMessage: vi.fn() } as unknown as Window)
+      transferStateToPip()
       await ackHandoff({ isActive: false, timerActive: false, remainingTime: 0 })
 
       expect(sessionEndCalls()).toHaveLength(0)
@@ -262,7 +257,7 @@ describe('wakeLock state', () => {
     it('does not treat a late sync as an ack once the PiP window has closed', async () => {
       await state.acquire()
       state.pipWindowRef = { closed: false } as Window
-      transferStateToPip({ postMessage: vi.fn() } as unknown as Window)
+      transferStateToPip()
 
       await state.handlePipClosed({ isActive: true, timerActive: false, remainingTime: 0 })
       mockRelease.mockClear()
