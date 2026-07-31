@@ -147,8 +147,8 @@ async function startBrowser() {
   // breaks the dynamic import of entry.js and the app never hydrates.
   //
   // Route by host glob, never '**/*': a catch-all makes every Vite dev module
-  // request round-trip through CDP, which slows the PiP iframe's hydration past
-  // the 500ms window index.vue waits before posting the initial state.
+  // request round-trip through CDP, slowing dev to a crawl and pushing the PiP
+  // iframe's hydration past the waitForSelector timeouts here.
   for (const host of ['t.williamchong.cloud', 'www.googletagmanager.com', 'www.google-analytics.com']) {
     await context.route(`https://${host}/**`, r => r.abort())
   }
@@ -184,7 +184,16 @@ const PIP_SIZE = (() => {
     if (!m) throw new Error(`${name} not found in app/utils/pip.ts — did it get renamed?`)
     return Number(m[1])
   }
-  return { width: read('PIP_RESTORED_WIDTH'), height: read('PIP_RESTORED_HEIGHT') }
+  const readStr = name => {
+    const m = src.match(new RegExp(`${name}\\s*=\\s*'([^']+)'`))
+    if (!m) throw new Error(`${name} not found in app/utils/pip.ts — did it get renamed?`)
+    return m[1]
+  }
+  return {
+    restored: { width: read('PIP_RESTORED_WIDTH'), height: read('PIP_RESTORED_HEIGHT') },
+    minimized: { width: read('PIP_MINIMIZED_WIDTH'), height: read('PIP_MINIMIZED_HEIGHT') },
+    storageKey: readStr('PIP_SIZE_KEY'),
+  }
 })()
 
 const HERO = {
@@ -196,10 +205,16 @@ const HERO_TEXTS = Object.values(HERO)
 
 const SEL = {
   hero: HERO_TEXTS.map(t => `button:has-text("${t}")`).join(', '),
-  orb: '[role="button"][aria-label*="Device is"]', // the sun/moon; present on main page AND in the PiP iframe
+  // The sun/moon; present on the main page AND in the PiP iframe. Deliberately not scoped to
+  // [role="button"]: that only matches StatusAnimation's div. The compact PiP layout swaps in a
+  // real <button> carrying the same label, and this selector has to find both.
+  orb: '[aria-label*="Device is"]',
   setTimer: 'button:has-text("Set Timer")',
   openPip: 'button:has-text("Open Floating Window")',
   timerDisplay: '.font-mono',
+  darkToggle: 'button[aria-label*="Toggle dark mode"]',
+  pipMinimize: 'button[aria-label="Minimize window"]',
+  pipRestore: 'button[aria-label="Restore window"]',
 }
 
 /**
@@ -223,7 +238,7 @@ async function openMain(path = '/') {
 
 /** DOM snapshot of the wake-lock UI — works on the main page or a PiP frame. */
 async function snapshot(target) {
-  return target.evaluate(({ orbSel, timerSel, heroTexts }) => {
+  return target.evaluate(({ orbSel, timerSel, heroTexts, restoreSel }) => {
     const txt = s => document.querySelector(s)?.textContent?.trim() ?? null
     const orb = document.querySelector(orbSel)
     const hero = [...document.querySelectorAll('button')]
@@ -236,17 +251,19 @@ async function snapshot(target) {
       timer: txt(timerSel),
       // the "browser too old" UAlert, not the FAQ prose that also says "Wake Lock"
       unsupported: !!document.querySelector('[role="alert"], .text-error')?.textContent?.includes('Wake Lock'),
+      dark: document.documentElement.classList.contains('dark'),
+      // the restore button only exists in the compact PiP layout (window height <= 100)
+      compact: !!document.querySelector(restoreSel),
       wakeLockApi: 'wakeLock' in navigator,
       pipApi: 'documentPictureInPicture' in window,
     }
-  }, { orbSel: SEL.orb, timerSel: SEL.timerDisplay, heroTexts: HERO_TEXTS })
+  }, { orbSel: SEL.orb, timerSel: SEL.timerDisplay, heroTexts: HERO_TEXTS, restoreSel: SEL.pipRestore })
 }
 
 /**
- * Force Vite to compile the /pip route's client chunks before we need them.
- * index.vue posts the initial state 500ms after the iframe's `load` event; on a
- * cold dev server the iframe hasn't hydrated a listener by then and the sync is
- * lost, so the PiP window comes up sleeping regardless of the parent's state.
+ * Force Vite to compile the /pip route's client chunks before we need them. The handoff no
+ * longer races hydration — the iframe asks for the state with `pip-ready` — but a cold route
+ * still costs seconds of transform time on the first open, so warming keeps runs quick.
  */
 let pipWarmed = false
 
@@ -290,7 +307,7 @@ async function openPip(page) {
   if (VERBOSE) log(`  pip iframe hydrated ${Date.now() - t0}ms after it was found`)
   // Headless hands the PiP page the parent's viewport and innerWidth reports
   // that, not the size requestWindow() asked for — so resize explicitly.
-  await pipPage.setViewportSize(PIP_SIZE)
+  await pipPage.setViewportSize(PIP_SIZE.restored)
   await pipPage.waitForTimeout(800)
   return { pipPage, pipFrame }
 }
@@ -311,22 +328,19 @@ async function until(target, pred, timeoutMs = 8000) {
 }
 
 /**
- * Open the PiP window and confirm it inherited `expected`. index.vue posts the
- * initial state 500ms after the iframe's `load` event; if the iframe hydrates
- * slower than that the message lands on a page with no listener and is silently
- * dropped, leaving the PiP window asleep while the parent shows awake. There is
- * no re-sync trigger, so the only recovery is to reopen — the second attempt is
- * warm and lands. Returns `retried` so callers can report the race honestly.
+ * Open the PiP window and confirm it inherited `expected`. The iframe requests the state with
+ * `pip-ready` once it is listening, so a slow hydration delays the handoff rather than losing
+ * it — but the reopen-and-retry is kept as a regression net: if this ever warns again, the
+ * handshake has broken. Returns `retried` so callers can report that honestly.
  */
 async function openPipSynced(page, expected) {
   let handles = await openPip(page)
-  // The message is posted at load+500ms and openPip already awaited hydration
-  // plus a settle, so it has landed or been dropped — waiting 8s here just
-  // stalls the retry. The post-reopen check keeps the generous default.
+  // openPip already awaited hydration plus a settle, and the handoff is driven by the iframe
+  // itself, so a few seconds is generous. The post-reopen check keeps the longer default.
   let r = await until(handles.pipFrame, x => x.active === expected, 2500)
   if (r.ok) return { ...handles, retried: false, synced: true, state: r.state }
 
-  console.error("WARN: initial PiP state sync was dropped (index.vue's iframe load handler) — reopening")
+  console.error('WARN: PiP state handoff did not land — the pip-ready handshake may be broken; reopening')
   await handles.pipPage.close()
   await until(page, x => x.hero !== HERO.pip)
   handles = await openPip(page)
@@ -422,7 +436,49 @@ async function cmdSmoke() {
   check('parent mirrors PiP state', r.ok, r.state)
   await shot(page, 'smoke-5-synced')
 
-  log('7. closing the PiP window returns control to the parent')
+  log('7. changing the theme on the parent syncs into the PiP window')
+  const themeBefore = (await snapshot(page)).dark
+  // The toggle cycles light -> dark -> system, and 'system' can resolve to whatever we already
+  // have, so one click may be invisible. Two are always enough to visit both light and dark.
+  // Poll between clicks rather than sleeping, or a slow apply overshoots the flip.
+  for (let i = 0; i < 3; i++) {
+    await page.click(SEL.darkToggle)
+    r = await until(page, x => x.dark !== themeBefore, 2000)
+    if (r.ok) break
+  }
+  const themeAfter = (await snapshot(page)).dark
+  check('parent theme changed', themeAfter !== themeBefore, { themeBefore, themeAfter })
+  r = await until(pipFrame, x => x.dark === themeAfter)
+  check('PiP window follows the parent theme', r.ok, { want: themeAfter, got: r.state.dark })
+  await shot(pipPage, 'smoke-6-theme')
+
+  log('8. minimize and restore the floating window')
+  const sizePref = () => pipFrame.evaluate(key => localStorage.getItem(key), PIP_SIZE.storageKey)
+  await pipFrame.click(SEL.pipMinimize)
+  let pref = await sizePref()
+  check('minimize persists the size preference', pref === 'minimized', pref)
+  // Headless ignores resizeTo() on a PiP page, so apply the size the app asked for and let the
+  // iframe's useWindowSize see it — that is what actually switches the layout.
+  await pipPage.setViewportSize(PIP_SIZE.minimized)
+  r = await until(pipFrame, x => x.compact)
+  check('compact layout renders', r.ok, r.state)
+  // Demand the label, not just active === false: a missing orb also reads as false, so without
+  // this the assertion would pass on a compact layout that rendered no wake lock control at all.
+  check(
+    'compact layout still reflects the synced wake lock state',
+    r.ok && r.state.orbLabel !== null && r.state.active === !before,
+    r.state,
+  )
+  await shot(pipPage, 'smoke-7-compact')
+
+  await pipFrame.click(SEL.pipRestore)
+  pref = await sizePref()
+  check('restore persists the size preference', pref === 'restored', pref)
+  await pipPage.setViewportSize(PIP_SIZE.restored)
+  r = await until(pipFrame, x => !x.compact)
+  check('standard layout returns', r.ok, r.state)
+
+  log('9. closing the PiP window returns control to the parent')
   await pipPage.close()
   r = await until(page, x => x.hero !== HERO.pip)
   check('parent takes back the hero button', r.ok, r.state.hero)
