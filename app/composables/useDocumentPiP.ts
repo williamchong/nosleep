@@ -34,11 +34,6 @@ export const useDocumentPiP = () => {
 
   const relayPipWin = shallowRef<Window | null>(null)
 
-  const isWakeLockMessage = (data: unknown) => {
-    return data && typeof data === 'object' && 'type' in data &&
-      (data.type === 'wake-lock-sync' || data.type === 'pip-closed' || data.type === 'pip-ready')
-  }
-
   useEventListener(relayPipWin, 'message', (event: MessageEvent) => {
     if (relayPipWin.value && event.source === relayPipWin.value.frames[0] &&
       event.origin === window.location.origin && isWakeLockMessage(event.data)) {

@@ -1,19 +1,6 @@
 import { useWakeLock, useEventListener, useIntervalFn, useTimeoutFn, tryOnMounted, tryOnUnmounted } from '@vueuse/core'
 import type { UseWakeLockReturn } from '@vueuse/core'
-
-interface WakeLockState {
-  isActive: boolean
-  timerActive: boolean
-  remainingTime: number
-}
-
-interface WakeLockMessage {
-  type: 'wake-lock-sync' | 'pip-closed' | 'pip-ready'
-  state?: WakeLockState
-}
-
-/** How long the parent waits for the PiP iframe to confirm it adopted the handed-off state. */
-const PIP_HANDOFF_TIMEOUT_MS = 3000
+import type { WakeLockMessage, WakeLockState } from '~/utils/pip'
 
 type WakeLockSurface = 'main' | 'pip'
 type SessionEndReason =
@@ -364,7 +351,12 @@ async function handlePipClosed(finalState?: WakeLockState) {
   resetTimerState()
 }
 
-function handleMessage(event: MessageEvent<WakeLockMessage>) {
+function handleMessage(event: MessageEvent) {
+  // Shape first: this listener is bound to window, so it sees every postMessage in the tab —
+  // analytics, extensions, embedded frames. An origin mismatch is only worth reporting once
+  // the message is one of ours.
+  if (!isWakeLockMessage(event.data)) return
+
   if (event.origin !== window.location.origin) {
     trackEvent('client_error', {
       kind: 'cross_window_origin_mismatch',
