@@ -10,6 +10,13 @@ export const PIP_PATH = '/pip'
 /** How long the parent waits for the PiP iframe to confirm it adopted the handed-off state. */
 export const PIP_HANDOFF_TIMEOUT_MS = 3000
 
+/**
+ * How long the parent waits for a freshly opened PiP iframe to announce itself at all. Far
+ * more generous than the handoff timeout because this one covers hydration (~800ms measured
+ * on a cold dev server) — closing a window that was about to work is worse than waiting.
+ */
+export const PIP_CONNECT_TIMEOUT_MS = 10000
+
 export interface WakeLockState {
   isActive: boolean
   timerActive: boolean

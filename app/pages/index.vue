@@ -174,10 +174,12 @@ useEventListener(window, 'appinstalled', () => {
   trackEvent('pwa_app_installed')
 })
 
+// Unreliable on its own — an iframe fires 'load' with an error document for HTTP failures — so
+// the connect timeout is the real detector. Kept because when it does fire it beats the 10s
+// wait, and it routes to the same teardown rather than stranding an empty floating window.
 useEventListener(pipIframe, 'error', () => {
   console.error('Failed to load PiP iframe')
-  trackEvent('client_error', { kind: 'pip_iframe_load_failed' })
-  wakeLock.pipWindowRef = null
+  wakeLock.failPipConnection('iframe_error')
 })
 
 useEventListener(() => wakeLock.pipWindowRef, 'pagehide', () => {
@@ -198,7 +200,10 @@ const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
 
   pipWin.document.documentElement.style.cssText = 'width:100%;height:100%;margin:0;padding:0'
   pipWin.document.body.style.cssText = 'width:100%;height:100%;margin:0;padding:0;overflow:hidden'
-  pipWin.document.body.appendChild(iframe)
+  // replaceChildren, not appendChild: openPipWindow can hand back a window that is already
+  // open (status 'focused_existing'), and stacking a second iframe into it would run two
+  // copies of the app against one wake lock.
+  pipWin.document.body.replaceChildren(iframe)
 }
 
 const openDocumentPiP = async () => {
@@ -215,7 +220,7 @@ const openDocumentPiP = async () => {
 
     const iframe = pipWin.document.createElement('iframe')
     setupPipIframe(pipWin, iframe)
-    wakeLock.pipWindowRef = pipWin
+    wakeLock.adoptPipWindow(pipWin)
     return true
   } catch (error) {
     pipIframe.value = null

@@ -3,6 +3,7 @@ import { computed, shallowRef } from 'vue'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useWakeLockState, transferStateToPip, handleWakeLockSync } from '~/composables/useWakeLockState'
 import type { UseWakeLockReturn } from '@vueuse/core'
+import { PIP_CONNECT_TIMEOUT_MS } from '~/utils/pip'
 
 const { mockTrackEvent } = vi.hoisted(() => ({ mockTrackEvent: vi.fn() }))
 mockNuxtImport('useAnalytics', () => () => ({ trackEvent: mockTrackEvent }))
@@ -26,6 +27,8 @@ function createMockNativeWakeLock(supported = true): UseWakeLockReturn {
     }),
   }
 }
+
+const fakePipWindow = () => ({ closed: false, close: vi.fn(), frames: [] } as unknown as Window)
 
 describe('wakeLock state', () => {
   let state: ReturnType<typeof useWakeLockState>
@@ -182,7 +185,7 @@ describe('wakeLock state', () => {
       await state.startTimer(1)
       // release() bails on isParentWithActivePip, so expiry has to stop the interval itself
       // or it re-fires every second forever.
-      state.pipWindowRef = { closed: false } as Window
+      state.pipWindowRef = fakePipWindow()
       vi.advanceTimersByTime(120_000)
 
       expect(state.remainingTime).toBe(0)
@@ -256,7 +259,7 @@ describe('wakeLock state', () => {
 
     it('does not treat a late sync as an ack once the PiP window has closed', async () => {
       await state.acquire()
-      state.pipWindowRef = { closed: false } as Window
+      state.pipWindowRef = fakePipWindow()
       transferStateToPip()
 
       await state.handlePipClosed({ isActive: true, timerActive: false, remainingTime: 0 })
@@ -281,6 +284,60 @@ describe('wakeLock state', () => {
       const calls = sessionEndCalls()
       expect(calls).toHaveLength(1)
       expect(calls[0][1]).toMatchObject({ ended_by: 'cleanup' })
+    })
+  })
+
+  describe('PiP windows that never connect', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+      state.cleanup()
+      const nativeWakeLock = createMockNativeWakeLock(true)
+      state = useWakeLockState({ nativeWakeLock })
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    const connectFailures = () => mockTrackEvent.mock.calls
+      .filter(([name, props]) => name === 'client_error' && props?.kind === 'pip_connect_failed')
+
+    it('closes a PiP window that never announces itself', async () => {
+      const pipWin = fakePipWindow()
+      state.adoptPipWindow(pipWin)
+      expect(state.pipWindowRef).toBe(pipWin)
+
+      await vi.advanceTimersByTimeAsync(PIP_CONNECT_TIMEOUT_MS + 100)
+
+      expect(pipWin.close).toHaveBeenCalled()
+      expect(connectFailures()).toHaveLength(1)
+      expect(connectFailures()[0][1]).toMatchObject({ reason: 'connect_timeout' })
+      expect(connectFailures()[0][1].waited_ms).toBeGreaterThanOrEqual(PIP_CONNECT_TIMEOUT_MS)
+      expect(state.pipWindowRef).toBeNull()
+    })
+
+    it('stays quiet when the window is closed before the timeout', async () => {
+      const pipWin = fakePipWindow()
+      state.adoptPipWindow(pipWin)
+      await state.handlePipClosed({ isActive: false, timerActive: false, remainingTime: 0 })
+
+      await vi.advanceTimersByTimeAsync(PIP_CONNECT_TIMEOUT_MS + 100)
+
+      expect(connectFailures()).toHaveLength(0)
+      expect(pipWin.close).not.toHaveBeenCalled()
+    })
+
+    it('reports the real elapsed time when the iframe errors early', () => {
+      const pipWin = fakePipWindow()
+      state.adoptPipWindow(pipWin)
+      vi.advanceTimersByTime(250)
+      state.failPipConnection('iframe_error')
+
+      expect(pipWin.close).toHaveBeenCalled()
+      expect(connectFailures()).toHaveLength(1)
+      expect(connectFailures()[0][1]).toMatchObject({ reason: 'iframe_error' })
+      // Not the constant: a fast failure has to be distinguishable from a 10s timeout.
+      expect(connectFailures()[0][1].waited_ms).toBe(250)
     })
   })
 })

@@ -3,6 +3,7 @@ import type { UseWakeLockReturn } from '@vueuse/core'
 import type { PipHandshakeMessage, PipMessage, WakeLockState } from '~/utils/pip'
 
 type WakeLockSurface = 'main' | 'pip'
+type PipConnectFailureReason = 'connect_timeout' | 'iframe_error'
 type SessionEndReason =
   | 'user_toggle'
   | 'timer_expired'
@@ -31,6 +32,9 @@ const sessionStartedAt = ref<number | null>(null)
 
 /** Snapshot handed to the PiP iframe, held until it confirms it adopted the state. */
 let pendingHandoff: WakeLockState | null = null
+
+/** When the current PiP window was opened, so a connection failure can report how long it took. */
+let connectStartedAt: number | null = null
 
 const hasActivePipWindow = computed(() => pipWindowRef.value !== null && !pipWindowRef.value.closed)
 
@@ -248,6 +252,46 @@ const { start: startHandoffTimeout, stop: stopHandoffTimeout } = useTimeoutFn(()
   trackEvent('client_error', { kind: 'pip_handoff_timeout' })
 }, PIP_HANDOFF_TIMEOUT_MS, { immediate: false })
 
+const { start: startConnectTimeout, stop: stopConnectTimeout } = useTimeoutFn(() => {
+  failPipConnection('connect_timeout')
+}, PIP_CONNECT_TIMEOUT_MS, { immediate: false })
+
+/**
+ * The iframe never announced itself, so there is nothing in the floating window to hand over
+ * to. An iframe fires 'load' rather than 'error' for HTTP failures, so a missing 'pip-ready'
+ * is the only reliable signal that it did not come up.
+ *
+ * Closing the window is both the recovery and the cleanup: the pagehide listener in index.vue
+ * routes it through handlePipClosed, which is the same path a user-initiated close takes.
+ */
+function failPipConnection(reason: PipConnectFailureReason) {
+  const pipWin = pipWindowRef.value
+  if (!pipWin) return
+  stopConnectTimeout()
+
+  trackEvent('client_error', {
+    kind: 'pip_connect_failed',
+    reason,
+    // Measured, not the constant: an iframe error can land long before the timeout, and the
+    // gap between the two is what says whether the timeout is too tight or the load is broken.
+    waited_ms: connectStartedAt === null ? null : Date.now() - connectStartedAt,
+    online: navigator.onLine,
+    visibility: document.visibilityState,
+  })
+
+  pipWin.close()
+  // A window closed before it ever painted may not fire pagehide, so tear down directly. The
+  // guard inside handlePipClosed makes the pagehide path a no-op if it does arrive.
+  void handlePipClosed(snapshotState())
+}
+
+/** Adopt a freshly opened PiP window and start waiting for it to announce itself. */
+function adoptPipWindow(pipWin: Window) {
+  pipWindowRef.value = pipWin
+  connectStartedAt = Date.now()
+  startConnectTimeout()
+}
+
 /**
  * Hand the current state to the PiP iframe. Nothing is torn down here — the parent keeps its
  * wake lock and timer until the iframe confirms it adopted the state (completePipHandoff).
@@ -304,6 +348,7 @@ function adoptPipPort(port: MessagePort) {
 function connectToPip() {
   const frame = pipWindowRef.value?.frames[0]
   if (!frame) return
+  stopConnectTimeout()
 
   const channel = new MessageChannel()
   adoptPipPort(channel.port1)
@@ -342,6 +387,8 @@ async function handlePipClosed(finalState?: WakeLockState) {
   // and would otherwise be read as an ack and release the lock we are about to reacquire.
   pendingHandoff = null
   stopHandoffTimeout()
+  stopConnectTimeout()
+  connectStartedAt = null
   closePipPort()
 
   const wasActive = finalState?.isActive ?? isActive.value
@@ -436,6 +483,8 @@ function cleanup() {
   resetTimerState()
   pendingHandoff = null
   stopHandoffTimeout()
+  stopConnectTimeout()
+  connectStartedAt = null
   // Drop the PiP reference first, or release() bails on isParentWithActivePip and the sentinel
   // is discarded below without ever being released.
   pipWindowRef.value = null
@@ -465,6 +514,8 @@ const wakeLockState = reactive({
   startTimer,
   stopTimer,
   snapshotState,
+  adoptPipWindow,
+  failPipConnection,
   handlePipClosed,
   postToPip,
   pipColorMode,
