@@ -357,6 +357,12 @@ function connectToPip() {
   transferStateToPip()
 }
 
+/**
+ * An inbound state message. The parent's half converges — it mirrors whatever the iframe
+ * reports — but the iframe's half is an initializer, not a sync: the parent sends exactly one
+ * of these, at handoff, so there is deliberately no branch for a message that would stop a
+ * running timer. Send state to the iframe more than once and that branch has to be written.
+ */
 async function handleWakeLockSync(state: WakeLockState) {
   if (isIframePip.value) {
     if (state.isActive && !isActive.value) {
@@ -526,6 +532,13 @@ const wakeLockState = reactive({
 // exported so tests can exercise the exchange without two real windows.
 export { transferStateToPip, handleWakeLockSync }
 
+/**
+ * Call this once per window. All the state above is module-level, so a second caller in the
+ * same window registers a second handshake listener and every 'pip-ready' is handled twice.
+ * That currently self-heals — both sides converge on the last MessageChannel and isAcquiring
+ * absorbs the duplicate transfer — but nothing enforces it. Components should take the return
+ * value as a prop, the way WakeLockControl does, rather than calling this again.
+ */
 export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }) {
   track = useAnalytics().trackEvent
 
