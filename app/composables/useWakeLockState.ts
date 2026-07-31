@@ -1,4 +1,4 @@
-import { useWakeLock, useEventListener, useIntervalFn, tryOnMounted, tryOnUnmounted } from '@vueuse/core'
+import { useWakeLock, useEventListener, useIntervalFn, useTimeoutFn, tryOnMounted, tryOnUnmounted } from '@vueuse/core'
 import type { UseWakeLockReturn } from '@vueuse/core'
 
 interface WakeLockState {
@@ -8,9 +8,12 @@ interface WakeLockState {
 }
 
 interface WakeLockMessage {
-  type: 'wake-lock-sync' | 'pip-closed'
+  type: 'wake-lock-sync' | 'pip-closed' | 'pip-ready'
   state?: WakeLockState
 }
+
+/** How long the parent waits for the PiP iframe to confirm it adopted the handed-off state. */
+const PIP_HANDOFF_TIMEOUT_MS = 3000
 
 type WakeLockSurface = 'main' | 'pip'
 type SessionEndReason =
@@ -38,6 +41,9 @@ const remainingTime = ref(0)
 const isAcquiring = ref(false)
 
 const sessionStartedAt = ref<number | null>(null)
+
+/** Snapshot handed to the PiP iframe, held until it confirms it adopted the state. */
+let pendingHandoff: WakeLockState | null = null
 
 const hasActivePipWindow = computed(() => pipWindowRef.value !== null && !pipWindowRef.value.closed)
 
@@ -80,12 +86,16 @@ function endSession(endedBy: SessionEndReason) {
 
 function onTimerTick() {
   remainingTime.value--
-  if (remainingTime.value <= 0) {
-    trackEvent('timer_expired', { duration_minutes: timerDuration.value })
-    release('timer_expired')
-  } else if (isIframePip.value) {
+  if (remainingTime.value > 0) {
     syncWakeLockState()
+    return
   }
+  // Stop ticking here rather than leaving it to release(), which bails early while acquiring
+  // and while a PiP window owns the lock — a live interval would re-fire expiry every second.
+  // Only the interval is paused; timerActive still reads true for endSession's had_timer.
+  pauseTimer()
+  trackEvent('timer_expired', { duration_minutes: timerDuration.value })
+  void release('timer_expired')
 }
 
 const { pause: pauseTimer, resume: resumeTimer } = useIntervalFn(onTimerTick, 1000, { immediate: false })
@@ -231,14 +241,56 @@ function stopTimer() {
   syncWakeLockState()
 }
 
+const { start: startHandoffTimeout, stop: stopHandoffTimeout } = useTimeoutFn(() => {
+  pendingHandoff = null
+  trackEvent('client_error', { kind: 'pip_handoff_timeout' })
+}, PIP_HANDOFF_TIMEOUT_MS, { immediate: false })
+
+/**
+ * Hand the current state to the PiP iframe. Nothing is torn down here — the parent keeps its
+ * wake lock and timer until the iframe confirms it adopted the state (completePipHandoff).
+ */
 function transferStateToPip(targetWindow: Window) {
-  const message: WakeLockMessage = { type: 'wake-lock-sync', state: snapshotState() }
+  pendingHandoff = snapshotState()
+  const message: WakeLockMessage = { type: 'wake-lock-sync', state: pendingHandoff }
   targetWindow.postMessage(message, window.location.origin)
+  startHandoffTimeout()
+}
+
+function adoptState(state: WakeLockState) {
+  isActive.value = state.isActive
+  timerActive.value = state.timerActive
+  remainingTime.value = state.remainingTime
+}
+
+/**
+ * The iframe's first sync back after a transfer. Only once it reports back the same active
+ * state does the parent give up its wake lock; a mismatch leaves the parent fully intact, so
+ * the user recovers by closing the PiP window rather than ending up with no lock anywhere.
+ */
+function completePipHandoff(expected: WakeLockState, childState: WakeLockState) {
+  pendingHandoff = null
+  stopHandoffTimeout()
+
+  if (childState.isActive !== expected.isActive) {
+    trackEvent('client_error', { kind: 'pip_handoff_rejected' })
+    return
+  }
 
   endSession('pip_transfer')
-
-  resetTimerState()
+  // Only the interval stops — the mirrored countdown below is the iframe's to drive now.
+  pauseTimer()
   timerDuration.value = 0
+  void forceReleaseParent()
+  adoptState(childState)
+}
+
+/** The iframe has mounted and is listening — safe to hand over now. */
+function handlePipReady() {
+  if (isIframePip.value) return
+  const frame = pipWindowRef.value?.frames[0]
+  if (!frame) return
+  transferStateToPip(frame)
 }
 
 async function handleWakeLockSync(state: WakeLockState) {
@@ -256,16 +308,21 @@ async function handleWakeLockSync(state: WakeLockState) {
       timerActive.value = true
       restartTimerInterval()
     }
+  } else if (pendingHandoff) {
+    completePipHandoff(pendingHandoff, state)
   } else {
-    isActive.value = state.isActive
-    timerActive.value = state.timerActive
-    remainingTime.value = state.remainingTime
+    adoptState(state)
   }
 }
 
 async function handlePipClosed(finalState?: WakeLockState) {
   if (!pipWindowRef.value) return
   pipWindowRef.value = null
+
+  // Disarm any in-flight handoff: a sync posted just before the window closed can still land,
+  // and would otherwise be read as an ack and release the lock we are about to reacquire.
+  pendingHandoff = null
+  stopHandoffTimeout()
 
   const wasActive = finalState?.isActive ?? isActive.value
   const hadTimer = finalState?.timerActive ?? false
@@ -319,6 +376,11 @@ function handleMessage(event: MessageEvent<WakeLockMessage>) {
 
   const { type, state } = event.data
 
+  if (type === 'pip-ready') {
+    handlePipReady()
+    return
+  }
+
   if (type === 'wake-lock-sync' && state) {
     void handleWakeLockSync(state)
     return
@@ -347,6 +409,11 @@ function cleanup() {
   // release() is async and bails early while acquiring or when a PiP window owns the lock,
   // so stop the interval here rather than relying on its stopTimer().
   resetTimerState()
+  pendingHandoff = null
+  stopHandoffTimeout()
+  // Drop the PiP reference first, or release() bails on isParentWithActivePip and the sentinel
+  // is discarded below without ever being released.
+  pipWindowRef.value = null
   void release('cleanup')
   nativeWakeLock.value = null
   track = null
@@ -374,11 +441,13 @@ const wakeLockState = reactive({
   startTimer,
   stopTimer,
   snapshotState,
-  forceReleaseParent,
-  transferStateToPip,
   handlePipClosed,
   cleanup
 })
+
+// Both sides of the PiP handoff. Production drives these through the message listener; they
+// are exported so tests can exercise the exchange without two real windows.
+export { transferStateToPip, handleWakeLockSync }
 
 export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }) {
   track = useAnalytics().trackEvent
@@ -423,6 +492,10 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
     _messageTarget.value = window
     if (isIframePip.value) {
       _beforeUnloadTarget.value = window
+      // Tell the parent we are listening. Safe to send before the listener above is attached:
+      // useEventListener flushes 'post' (a microtask), while any reply arrives as a task.
+      const ready: WakeLockMessage = { type: 'pip-ready' }
+      window.parent.postMessage(ready, window.location.origin)
     }
 
     isLoading.value = false

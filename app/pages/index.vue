@@ -134,7 +134,7 @@
 </template>
 
 <script setup lang="ts">
-import { useEventListener, promiseTimeout } from '@vueuse/core'
+import { useEventListener } from '@vueuse/core'
 
 const { t } = useI18n()
 const wakeLock = useWakeLockState()
@@ -188,18 +188,6 @@ useEventListener(pipIframe, 'error', () => {
   wakeLock.pipWindowRef = null
 })
 
-useEventListener(pipIframe, 'load', async () => {
-  await promiseTimeout(500)
-
-  if (pipIframe.value?.contentWindow) {
-    wakeLock.transferStateToPip(pipIframe.value.contentWindow)
-    await wakeLock.forceReleaseParent()
-  } else {
-    console.error('Unable to access iframe.contentWindow')
-    trackEvent('client_error', { kind: 'pip_iframe_content_window_unavailable' })
-  }
-})
-
 useEventListener(() => wakeLock.pipWindowRef, 'pagehide', () => {
   pipIframe.value = null
   wakeLock.handlePipClosed(wakeLock.snapshotState())
@@ -212,6 +200,8 @@ const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
 
   const baseUrl = window.location.origin
   // PiP mode is identified by the /pip path itself; only the initial theme is passed as a query.
+  // Once hydrated the iframe announces itself with 'pip-ready' and useWakeLockState hands the
+  // wake lock state over in response.
   iframe.src = `${baseUrl}${PIP_PATH}?colorMode=${colorMode.value}`
 
   pipWin.document.documentElement.style.cssText = 'width:100%;height:100%;margin:0;padding:0'

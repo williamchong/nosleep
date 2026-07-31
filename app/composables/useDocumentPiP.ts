@@ -36,7 +36,7 @@ export const useDocumentPiP = () => {
 
   const isWakeLockMessage = (data: unknown) => {
     return data && typeof data === 'object' && 'type' in data &&
-      (data.type === 'wake-lock-sync' || data.type === 'pip-closed')
+      (data.type === 'wake-lock-sync' || data.type === 'pip-closed' || data.type === 'pip-ready')
   }
 
   useEventListener(relayPipWin, 'message', (event: MessageEvent) => {
