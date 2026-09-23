@@ -78,7 +78,7 @@ PiP iframe; `pipclose` switches back.
 `state` returns the snapshot the assertions are built on:
 
 ```json
-{ "heading": "NoSleep", "hero": "Device Awake",
+{ "heading": "NoSleep", "hero": "Open Floating Window",
   "orbLabel": "Device is awake - Click sun to allow sleep", "active": true,
   "timer": "3:59:59", "unsupported": false, "dark": false, "compact": false,
   "wakeLockApi": true, "pipApi": true }
@@ -161,9 +161,12 @@ stdout is a TTY — but prefer `npx vitest run` so it can't hang in a terminal.
 - **Every string is translated, including `aria-label`.** Chrome inherits the OS
   locale (zh-HK on this machine), so a fresh context renders the app in Chinese
   and every English selector misses. The driver pins `locale: 'en-US'`.
-- **The app auto-acquires the wake lock on mount**, so a freshly loaded page reads
-  "Device Awake", not "Click to Keep Awake". Cancelling a timer does *not* release
-  the lock.
+- **The app auto-acquires the wake lock on mount**, so a freshly loaded page is
+  already awake. Cancelling a timer does *not* release the lock.
+- **In Chrome the hero button opens the floating window, not the toggle.** Where
+  Document PiP is supported the hero reads "Open Floating Window" and the sun/moon
+  (`orb`) is the on/off switch; only browsers without PiP get the "Device Awake" /
+  "Click to Keep Awake" toggle hero.
 - **Nuxt DevTools and the Vue tracer paint over dev-mode screenshots.** The driver
   hides `#nuxt-devtools-container`, `#vue-tracer-overlay` and
   `nuxt-devtools-inspect-panel` via an init script.

@@ -196,10 +196,13 @@ const PIP_SIZE = (() => {
   }
 })()
 
+// Chrome supports Document PiP, so the hero opens the floating window and the sun/moon is the
+// toggle. awake/asleep are the toggle labels browsers without PiP (and ?fallback=1) still get.
 const HERO = {
+  open: 'Open Floating Window',
+  pip: 'Focus to Floating Window',
   awake: 'Device Awake',
   asleep: 'Click to Keep Awake',
-  pip: 'Switch to Popup Window',
 }
 const HERO_TEXTS = Object.values(HERO)
 
@@ -388,17 +391,19 @@ async function cmdSmoke() {
   check('Wake Lock API present', s.wakeLockApi, s.wakeLockApi)
   check('Document PiP API present', s.pipApi, s.pipApi)
   check('heading renders', s.heading === 'NoSleep', s.heading)
-  check('auto-acquired on mount', s.hero === HERO.awake, s.hero)
+  check('auto-acquired on mount', s.active, s.orbLabel)
+  check('hero opens the floating window', s.hero === HERO.open, s.hero)
   await shot(page, 'smoke-1-loaded')
 
-  log('2. toggle wake lock off, then on')
-  await page.click(SEL.hero)
-  let r = await until(page, x => x.hero === HERO.asleep && !x.active)
+  log('2. toggle wake lock off, then on via the sun/moon')
+  await page.click(SEL.orb)
+  let r = await until(page, x => !x.active)
   check('released', r.ok, r.state)
+  check('hero stays on the floating window', r.state.hero === HERO.open, r.state.hero)
   await shot(page, 'smoke-2-released')
 
-  await page.click(SEL.hero)
-  r = await until(page, x => x.hero === HERO.awake && x.active)
+  await page.click(SEL.orb)
+  r = await until(page, x => x.active)
   check('re-acquired', r.ok, r.state)
 
   log('3. start a 15 minute timer and watch it tick')
@@ -480,7 +485,7 @@ async function cmdSmoke() {
 
   log('9. closing the PiP window returns control to the parent')
   await pipPage.close()
-  r = await until(page, x => x.hero !== HERO.pip)
+  r = await until(page, x => x.hero === HERO.open)
   check('parent takes back the hero button', r.ok, r.state.hero)
 
   log(process.exitCode ? '\nSMOKE FAILED' : '\nSMOKE PASSED')
