@@ -33,13 +33,14 @@ export const useWakeLockUI = (wakeLockState: ReturnType<typeof useWakeLockState>
     return t('button.clickToKeepAwake')
   })
 
-  const handleToggle = async () => {
+  // Which control the user clicked, so the hero button and the sun/moon can be told apart.
+  const handleToggle = async (source: 'button' | 'orb') => {
     // If parent has active PiP window, focus to it instead
     if (hasActivePipWindow.value && !isPipMode && wakeLockState.pipWindowRef) {
       try {
         if (!wakeLockState.pipWindowRef.closed) {
           wakeLockState.pipWindowRef.focus()
-          trackEvent('pip_focus', { source: 'main_button' })
+          trackEvent('pip_focus', { source: `main_${source}` })
           return
         }
       } catch (e) {
@@ -51,7 +52,7 @@ export const useWakeLockUI = (wakeLockState: ReturnType<typeof useWakeLockState>
     try {
       await wakeLockState.toggle()
       const action = wakeLockState.isActive ? 'activate' : 'deactivate'
-      trackEvent('wake_lock_toggled', { surface: wakeLockState.surface, action })
+      trackEvent('wake_lock_toggled', { surface: wakeLockState.surface, action, source })
     } catch (error) {
       console.error('Failed to toggle wake lock:', error)
       trackEvent('client_error', {

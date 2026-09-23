@@ -1,4 +1,4 @@
-import { useWakeLock, useEventListener, useIntervalFn, useTimeoutFn, tryOnMounted, tryOnUnmounted } from '@vueuse/core'
+import { useWakeLock, useDocumentVisibility, useEventListener, useIntervalFn, useTimeoutFn, tryOnMounted, tryOnUnmounted } from '@vueuse/core'
 import type { UseWakeLockReturn } from '@vueuse/core'
 import type { PipHandshakeMessage, PipMessage, WakeLockState } from '~/utils/pip'
 
@@ -29,6 +29,11 @@ const remainingTime = ref(0)
 const isAcquiring = ref(false)
 
 const sessionStartedAt = ref<number | null>(null)
+
+/** When the main tab was hidden while holding the lock; the browser suspends it until return. */
+let hiddenAt: number | null = null
+/** sessionStartedAt of the session already reported as suspended, so each is reported once. */
+let suspensionReportedFor: number | null = null
 
 /** Snapshot handed to the PiP iframe, held until it confirms it adopted the state. */
 let pendingHandoff: WakeLockState | null = null
@@ -90,6 +95,29 @@ function endSession(endedBy: SessionEndReason) {
     surface: surface.value,
   })
   sessionStartedAt.value = null
+}
+
+// The browser drops a screen wake lock while its tab is hidden, and useWakeLock requests it
+// again on return — the gap the floating window exists to avoid. Report the first gap of each
+// main-tab session on return rather than on hide, since hiding also fires when the tab closes.
+function handleVisibilityChange(visibility: DocumentVisibilityState) {
+  if (isIframePip.value || isParentWithActivePip.value) {
+    hiddenAt = null
+    return
+  }
+  if (visibility === 'hidden') {
+    hiddenAt = isActive.value ? Date.now() : null
+    return
+  }
+  const startedAt = sessionStartedAt.value
+  if (hiddenAt !== null && isActive.value && startedAt !== null && suspensionReportedFor !== startedAt) {
+    suspensionReportedFor = startedAt
+    trackEvent('wake_lock_suspended', {
+      hidden_seconds: Math.round((Date.now() - hiddenAt) / 1000),
+      had_timer: timerActive.value,
+    })
+  }
+  hiddenAt = null
 }
 
 function onTimerTick() {
@@ -491,6 +519,8 @@ function cleanup() {
   stopHandoffTimeout()
   stopConnectTimeout()
   connectStartedAt = null
+  hiddenAt = null
+  suspensionReportedFor = null
   // Drop the PiP reference first, or release() bails on isParentWithActivePip and the sentinel
   // is discarded below without ever being released.
   pipWindowRef.value = null
@@ -555,6 +585,8 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
 
     // Set up nativeWakeLock synchronously so child components can acquire on mount
     setupNativeWakeLock(useWakeLock())
+
+    watch(useDocumentVisibility(), handleVisibilityChange)
 
     // ?fallback=1 forces the unsupported-browser UI (QA). Watched, not read once, because on
     // the static prod build the query is stripped during hydration and only reconciled with

@@ -21,6 +21,9 @@ export interface PipOpenResult {
   status: PipOpenStatus
 }
 
+/** Plain check, for callers that need the answer before useSupported's mount has run. */
+export const hasDocumentPip = () => typeof window !== 'undefined' && 'documentPictureInPicture' in window
+
 /**
  * Composable for managing Document Picture-in-Picture API
  * Provides always-on-top floating window functionality
@@ -28,7 +31,7 @@ export interface PipOpenResult {
 export const useDocumentPiP = () => {
   const { trackEvent } = useAnalytics()
 
-  const isPipSupported = useSupported(() => typeof window !== 'undefined' && 'documentPictureInPicture' in window)
+  const isPipSupported = useSupported(hasDocumentPip)
 
   // The browser already tracks the single PiP window per document, so read it rather than
   // shadowing it in a ref — a local copy drifts the moment a window opens or closes by any

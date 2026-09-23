@@ -19,7 +19,7 @@
               ? 'compact-btn-sun focus:ring-amber-300'
               : 'compact-btn-moon focus:ring-indigo-300'"
             :aria-label="wakeLock.isEffectivelyActive ? $t('status.ariaLabelAwake') : $t('status.ariaLabelSleep')"
-            @click="handleWakeLockToggle"
+            @click="handleWakeLockToggle('orb')"
           >
             <span :class="compactEmojiClass" :style="compactEmojiStyle">{{ compactEmoji }}</span>
           </button>
@@ -125,7 +125,7 @@
 
       <template v-else>
         <ClientOnly>
-          <StatusAnimation :is-active="wakeLock.isEffectivelyActive" :is-pip-mode="wakeLock.isPipMode" @toggle="handleWakeLockToggle" />
+          <StatusAnimation :is-active="wakeLock.isEffectivelyActive" :is-pip-mode="wakeLock.isPipMode" @toggle="handleWakeLockToggle('orb')" />
         </ClientOnly>
 
         <template v-if="!wakeLock.isPipMode">
@@ -135,7 +135,7 @@
             :color="buttonColor"
             :label="buttonText"
             :ui="heroButtonUi"
-            @click="handleWakeLockToggle"
+            @click="handleWakeLockToggle('button')"
           />
 
           <div class="text-toned text-sm">
@@ -272,7 +272,7 @@ onMounted(async () => {
   if (!props.autoAcquire) return
 
   if (!wakeLock.isSupported) {
-    trackEvent('app_init', { surface: wakeLock.surface, supported: false })
+    trackEvent('app_init', { surface: wakeLock.surface, supported: false, is_pip_supported: hasDocumentPip() })
     return
   }
 
@@ -286,6 +286,7 @@ onMounted(async () => {
   trackEvent('app_init', {
     surface: wakeLock.surface,
     supported: true,
+    is_pip_supported: hasDocumentPip(),
     auto_acquire_result: autoAcquireSuccess ? 'success' : 'failed',
   })
 })
