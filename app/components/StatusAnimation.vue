@@ -1,7 +1,7 @@
 <template>
   <div
-    class="relative mx-auto cursor-pointer transition-[transform,filter] duration-500"
-    :class="[containerClasses, sizeClasses]"
+    class="relative mx-auto cursor-pointer transition-[transform,filter,width,height] duration-500"
+    :class="[containerClasses, SIZES[size].orb]"
     tabindex="0"
     role="button"
     :aria-label="ariaLabel"
@@ -20,7 +20,7 @@
       <div
         :class="[
           { 'animate-pulse': isActive },
-          isPipMode ? 'text-5xl' : 'text-6xl sm:text-7xl lg:text-9xl'
+          SIZES[size].emoji
         ]"
       >
         {{ isActive ? '☀️' : '🌙' }}
@@ -32,15 +32,19 @@
 <script setup lang="ts">
 import { usePreferredReducedMotion, useTimeoutFn } from '@vueuse/core'
 import lottie, { type AnimationItem } from 'lottie-web/build/player/lottie_light'
+import type { PropType } from 'vue'
+
+type OrbSize = 'default' | 'pip' | 'pipShrunk'
 
 const props = defineProps({
   isActive: {
     type: Boolean,
     required: true
   },
-  isPipMode: {
-    type: Boolean,
-    default: false
+  // pipShrunk makes room for the expanded timer options in the small floating window
+  size: {
+    type: String as PropType<OrbSize>,
+    default: 'default'
   }
 })
 
@@ -80,12 +84,11 @@ const ariaLabel = computed(() => {
   return t('status.ariaLabelSleep')
 })
 
-const sizeClasses = computed(() => {
-  if (props.isPipMode) {
-    return 'w-32 h-32'
-  }
-  return 'w-40 h-40 sm:w-48 sm:h-48 lg:w-64 lg:h-64'
-})
+const SIZES: Record<OrbSize, { orb: string, emoji: string }> = {
+  default: { orb: 'w-40 h-40 sm:w-48 sm:h-48 lg:w-64 lg:h-64', emoji: 'text-6xl sm:text-7xl lg:text-9xl' },
+  pip: { orb: 'w-32 h-32', emoji: 'text-5xl' },
+  pipShrunk: { orb: 'w-20 h-20', emoji: 'text-3xl' }
+}
 
 const currentAnimationPath = computed(() => {
   return props.isActive ? '/animations/sun.json' : '/animations/moon.json'

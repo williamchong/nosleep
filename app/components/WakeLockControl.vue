@@ -85,7 +85,7 @@
       class="w-full text-center"
       :class="wakeLock.isPipMode ? 'max-w-sm space-y-3' : 'max-w-2xl space-y-4 sm:space-y-6 lg:space-y-8'"
     >
-      <div>
+      <div v-if="!isPipTimerExpanded">
         <h1
           class="font-bold text-highlighted"
           :class="wakeLock.isPipMode ? 'text-xl mb-1' : 'text-2xl sm:text-3xl lg:text-4xl mb-1 sm:mb-2'"
@@ -125,7 +125,7 @@
 
       <template v-else>
         <ClientOnly>
-          <StatusAnimation :is-active="wakeLock.isEffectivelyActive" :is-pip-mode="wakeLock.isPipMode" @toggle="handleWakeLockToggle('orb')" />
+          <StatusAnimation :is-active="wakeLock.isEffectivelyActive" :size="orbSize" @toggle="handleWakeLockToggle('orb')" />
         </ClientOnly>
 
         <!-- Where Document PiP works the floating window is the hero action and the sun/moon is
@@ -286,6 +286,17 @@ const {
 } = useWakeLockUI(wakeLock, {
   isPipMode: wakeLock.isPipMode,
   hasActivePipWindow: computed(() => wakeLock.hasActivePipWindow)
+})
+
+// The PiP window is too short for title + full orb + timer options, which pushed the start
+// button below the fold. Drop the title and shrink the orb while the options are open.
+const isPipTimerExpanded = computed(() =>
+  wakeLock.isPipMode && showTimerSection.value && !wakeLock.timerActive
+)
+
+const orbSize = computed(() => {
+  if (!wakeLock.isPipMode) return 'default'
+  return isPipTimerExpanded.value ? 'pipShrunk' : 'pip'
 })
 
 const toggleTimerSection = () => {

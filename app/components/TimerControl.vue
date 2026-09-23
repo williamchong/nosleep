@@ -44,6 +44,8 @@
 
       <!-- Start Button -->
       <UButton
+        ref="startButton"
+        class="scroll-mb-2"
         :disabled="selectedMinutes < MIN_MINUTES"
         block
         color="primary"
@@ -85,4 +87,12 @@ const presets = computed<{ value: TimerPreset, label: string }[]>(() => [
 const selectedMinutes = computed(() =>
   selectedPreset.value === 'custom' ? customMinutes.value : Number(selectedPreset.value)
 )
+
+// The custom slider pushes the start button below the fold in the small PiP window
+const startButton = useTemplateRef<{ $el: HTMLElement }>('startButton')
+watch(selectedPreset, async (preset) => {
+  if (preset !== 'custom') return
+  await nextTick()
+  startButton.value?.$el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+})
 </script>
