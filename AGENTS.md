@@ -12,7 +12,7 @@ NoSleep is a Nuxt 4 web application that prevents computers and mobile devices f
 
 The app uses a **single composable with module-level state** (`app/composables/useWakeLockState.ts`) as the source of truth for all wake lock state, timer state, and PiP window management. Module-level `ref()`s provide singleton behavior — all components share the same state within a window. Each window (main vs PiP iframe) gets its own module scope, so state is automatically isolated per-window.
 
-**Key Principle**: All components should use `useWakeLockState()`. This composable handles lifecycle hooks (`onMounted`/`onUnmounted`) automatically when called within a component setup context.
+**Key Principle**: Call `useWakeLockState()` once per window — from the page (`index.vue`, `pip.vue`) — and pass the result down as a prop, as `WakeLockControl` does. The state is module-level, so a second call in the same window registers a second PiP handshake listener. It handles its own lifecycle hooks (`onMounted`/`onUnmounted`) when called within a component setup context.
 
 ### Wake Lock State Flow
 
@@ -35,9 +35,7 @@ The app uses the **Document Picture-in-Picture API** (`useDocumentPiP.ts`) for a
 - Parent UI becomes read-only (controlled by `isParentWithActivePip` computed)
 - Closing PiP window triggers reacquisition of wake lock in parent
 
-**Invariants the protocol relies on** (see the comments on `handleWakeLockSync` and `useWakeLockState`):
-- The main window sends state to the iframe exactly once, at handoff — the iframe's side is an initializer with no branch for stopping a running timer
-- Call `useWakeLockState()` once per window and pass the result down as a prop (as `WakeLockControl` does); a second call registers a second handshake listener
+**Invariant**: the main window sends state to the iframe exactly once, at handoff — the iframe's side of `handleWakeLockSync` is an initializer with no branch for stopping a running timer. Sending state more than once means writing that branch.
 
 **PiP page (`app/pages/pip.vue`)**: it declares `definePageMeta({ pip: true })`, and `useWakeLockState` reads `route.meta.pip` to enable PiP mode — route meta survives static prerender/hydration, whereas a URL query is dropped while a prerendered page hydrates. The initial theme is passed via `?colorMode=`.
 
