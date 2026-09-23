@@ -14,7 +14,6 @@ const siteUrl = useRuntimeConfig().public.siteUrl as string
 useSeoMeta({
   title: t('site.title'),
   description: t('site.description'),
-  keywords: t('site.keywords'),
   author: t('site.author'),
   ogTitle: t('meta.ogTitle'),
   ogDescription: t('meta.ogDescription'),
@@ -35,6 +34,7 @@ useHead({
   link: [...(i18nHead.value.link || [])],
   meta: [
     ...(i18nHead.value.meta || []),
+    { name: 'keywords', content: t('site.keywords') },
     { name: 'theme-color', content: '#ffffff', media: '(prefers-color-scheme: light)' },
     { name: 'theme-color', content: '#111827', media: '(prefers-color-scheme: dark)' },
   ],

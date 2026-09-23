@@ -67,7 +67,6 @@ export default defineNuxtConfig({
     ],
     strategy: 'prefix_and_default',
     defaultLocale: 'en',
-    lazy: true,
   },
 
   compatibilityDate: '2024-11-01',
