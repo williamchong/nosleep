@@ -24,17 +24,20 @@ The app uses a **single composable with module-level state** (`app/composables/u
 
 The app uses the **Document Picture-in-Picture API** (`useDocumentPiP.ts`) for always-on-top floating windows. There is no fallback — if the API is unsupported, the PiP button is hidden.
 
-**Cross-Window Communication**:
-- Parent window ↔ PiP window communicate via `postMessage` API
-- PiP window runs as iframe with special handling (`isIframePip` flag)
-- Message relay system in `useDocumentPiP.ts` forwards messages between main window ↔ PiP window ↔ iframe
-- `syncWakeLockState()` broadcasts state changes to connected windows
+**Cross-Window Communication** (all in `useWakeLockState.ts`; `useDocumentPiP.ts` only opens/closes the window):
+- The PiP window hosts the app in an iframe (`isIframePip` flag). The window bus carries only the handshake: the iframe posts `pip-ready` to its parent (the PiP window), and the main window replies into the iframe with `pip-connect`, transferring `port2` of a new `MessageChannel`
+- All steady-state traffic (`wake-lock-sync`, `color-mode-sync`) goes over that port. After the handoff only the iframe sends state (`syncWakeLockState()` is a no-op in the main window)
+- No `pip-ready` within `PIP_CONNECT_TIMEOUT_MS` → the main window closes the PiP window (`failPipConnection`)
 
 **State Synchronization Rules**:
-- When PiP window is active, parent's wake lock is released
+- Handoff: the main window sends its state once, but keeps its wake lock until the iframe syncs back the same `isActive` (`completePipHandoff`); a mismatch or timeout leaves the main window's lock intact
 - PiP iframe manages its own wake lock
 - Parent UI becomes read-only (controlled by `isParentWithActivePip` computed)
 - Closing PiP window triggers reacquisition of wake lock in parent
+
+**Invariants the protocol relies on** (see the comments on `handleWakeLockSync` and `useWakeLockState`):
+- The main window sends state to the iframe exactly once, at handoff — the iframe's side is an initializer with no branch for stopping a running timer
+- Call `useWakeLockState()` once per window and pass the result down as a prop (as `WakeLockControl` does); a second call registers a second handshake listener
 
 **PiP page (`app/pages/pip.vue`)**: it declares `definePageMeta({ pip: true })`, and `useWakeLockState` reads `route.meta.pip` to enable PiP mode — route meta survives static prerender/hydration, whereas a URL query is dropped while a prerendered page hydrates. The initial theme is passed via `?colorMode=`.
 
