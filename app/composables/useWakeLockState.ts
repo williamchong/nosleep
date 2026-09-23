@@ -115,6 +115,8 @@ function handleVisibilityChange(visibility: DocumentVisibilityState) {
     trackEvent('wake_lock_suspended', {
       hidden_seconds: Math.round((Date.now() - hiddenAt) / 1000),
       had_timer: timerActive.value,
+      // Mobile hides the page on every screen lock and has no floating window to offer instead.
+      is_pip_supported: hasDocumentPip(),
     })
   }
   hiddenAt = null
@@ -586,8 +588,6 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
     // Set up nativeWakeLock synchronously so child components can acquire on mount
     setupNativeWakeLock(useWakeLock())
 
-    watch(useDocumentVisibility(), handleVisibilityChange)
-
     // ?fallback=1 forces the unsupported-browser UI (QA). Watched, not read once, because on
     // the static prod build the query is stripped during hydration and only reconciled with
     // the real URL afterwards. Only forces false when present, never overrides real detection.
@@ -601,6 +601,10 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
     // (non-PiP) layout on the prod build. This also bakes the PiP layout straight into the
     // prerendered HTML (no flash).
     isPipMode.value = route.meta.pip === true
+
+    if (!isPipMode.value) {
+      watch(useDocumentVisibility(), handleVisibilityChange)
+    }
   } else if (options?.nativeWakeLock) {
     setupNativeWakeLock(options.nativeWakeLock)
     isLoading.value = false
