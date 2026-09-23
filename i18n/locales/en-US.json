@@ -34,7 +34,9 @@
     "deviceAwake": "Your device will stay awake. Click to allow sleep.",
     "deviceSleeping": "Your device can sleep normally. Click to keep awake.",
     "ariaLabelAwake": "Device is awake - Click sun to allow sleep",
-    "ariaLabelSleep": "Device is sleeping - Click moon to keep awake"
+    "ariaLabelSleep": "Device is sleeping - Click moon to keep awake",
+    "orbAwake": "Awake while this tab is visible. Click the sun to allow sleep.",
+    "orbSleeping": "Sleep allowed. Click the moon to keep awake."
   },
   "loading": {
     "message": "Checking browser support..."
@@ -66,7 +68,7 @@
     "openPopup": "Open Dedicated Window"
   },
   "floatingWindow": {
-    "openButton": "Open Floating Window (Recommended)",
+    "openButton": "Open Floating Window",
     "focusButton": "Focus to Floating Window",
     "alternative": "(Alternatively: Keep this tab always active)"
   },
@@ -80,7 +82,7 @@
   "sections": {
     "problems": {
       "title": "Solve These Common Problems",
-      "subtitle": "Click the button above to keep your screen on and prevent these issues:",
+      "subtitle": "Keep this page open to keep your screen on and prevent these issues:",
       "items": [
         {
           "emoji": "🔄",
@@ -135,11 +137,11 @@
     "howToUse": {
       "title": "How to Use NoSleep - Simple 3-Step Guide",
       "steps": [
-        "Click the red 'Click to Keep Awake' button to start",
+        "Open this page — your screen stays awake right away (click the sun or moon to switch)",
         "Optional: Set a custom timer (1-480 minutes) to auto-release wake lock",
-        "Keep this tab active or use the popup window for reliability"
+        "Open the floating window so it keeps working while you use other tabs, or keep this tab active"
       ],
-      "note": "Your screen will stay awake until you click the button again or the timer expires."
+      "note": "Your screen will stay awake until you click the sun again, the timer expires, or you close the page."
     },
     "faq": {
       "title": "Frequently Asked Questions",

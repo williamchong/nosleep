@@ -128,7 +128,29 @@
           <StatusAnimation :is-active="wakeLock.isEffectivelyActive" :is-pip-mode="wakeLock.isPipMode" @toggle="handleWakeLockToggle('orb')" />
         </ClientOnly>
 
-        <template v-if="!wakeLock.isPipMode">
+        <!-- Where Document PiP works the floating window is the hero action and the sun/moon is
+             the on/off switch; elsewhere the hero button stays the toggle. -->
+        <template v-if="heroOpensPip">
+          <div class="text-toned text-sm">
+            {{ wakeLock.hasActivePipWindow ? statusText : orbHintText }}
+          </div>
+
+          <UButton
+            block
+            size="xl"
+            color="primary"
+            icon="i-lucide-picture-in-picture-2"
+            :label="wakeLock.hasActivePipWindow ? $t('floatingWindow.focusButton') : $t('floatingWindow.openButton')"
+            :ui="heroButtonUi"
+            @click="$emit('open-window')"
+          />
+
+          <p v-if="!wakeLock.hasActivePipWindow" class="text-xs text-muted italic">
+            {{ $t('floatingWindow.alternative') }}
+          </p>
+        </template>
+
+        <template v-else-if="!wakeLock.isPipMode">
           <UButton
             block
             size="xl"
@@ -164,8 +186,6 @@
             @cancel="handleTimerCancel" />
         </div>
       </template>
-
-      <slot name="extra-content" />
     </div>
     </div>
     </template>
@@ -178,14 +198,20 @@ import { useWindowSize, useTimeoutFn, useMounted } from '@vueuse/core'
 interface Props {
   wakeLock: ReturnType<typeof useWakeLockState>
   autoAcquire?: boolean
+  pipSupported?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  autoAcquire: false
+  autoAcquire: false,
+  pipSupported: false
 })
+
+defineEmits<{ 'open-window': [] }>()
 
 const wakeLock = props.wakeLock
 const showTimerSection = ref(false)
+
+const heroOpensPip = computed(() => props.pipSupported && !wakeLock.isPipMode)
 
 // :ui.base merges over UButton's size variant via tailwind-merge, letting these oversized utilities win.
 const heroButtonUi = {
@@ -251,6 +277,7 @@ const togglePipSize = () => {
 
 const {
   statusText,
+  orbHintText,
   buttonColor,
   buttonText,
   handleToggle: handleWakeLockToggle,

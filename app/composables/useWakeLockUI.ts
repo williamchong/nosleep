@@ -14,6 +14,11 @@ export const useWakeLockUI = (wakeLockState: ReturnType<typeof useWakeLockState>
     wakeLockState.isActive ? t('status.deviceAwake') : t('status.deviceSleeping')
   )
 
+  // Status line when the hero opens the floating window, so it points at the sun/moon instead.
+  const orbHintText = computed(() =>
+    wakeLockState.isActive ? t('status.orbAwake') : t('status.orbSleeping')
+  )
+
   // Hero toggle color by state: primary = focus-to-popup action, success = awake, error = ready to activate.
   const buttonColor = computed<'primary' | 'success' | 'error'>(() => {
     if (hasActivePipWindow.value && !isPipMode) return 'primary'
@@ -86,6 +91,7 @@ export const useWakeLockUI = (wakeLockState: ReturnType<typeof useWakeLockState>
 
   return {
     statusText,
+    orbHintText,
     buttonColor,
     buttonText,
     handleToggle,

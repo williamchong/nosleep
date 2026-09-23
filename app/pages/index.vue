@@ -4,19 +4,12 @@
       <DarkModeToggle />
     </div>
 
-    <WakeLockControl :wake-lock="wakeLock" auto-acquire>
-      <template #extra-content>
-        <ClientOnly>
-          <FloatingWindowCTA
-            :has-active-pip-window="wakeLock.hasActivePipWindow"
-            :is-pip-mode="wakeLock.isPipMode"
-            :is-supported="wakeLock.isSupported"
-            :is-pip-supported="documentPip.isPipSupported.value"
-            @open-window="openFloatingWindow"
-          />
-        </ClientOnly>
-      </template>
-    </WakeLockControl>
+    <WakeLockControl
+      :wake-lock="wakeLock"
+      :pip-supported="documentPip.isPipSupported.value"
+      auto-acquire
+      @open-window="openFloatingWindow"
+    />
 
     <div class="max-w-4xl mx-auto mt-8 px-4 space-y-12">
       <section class="bg-blue-50 dark:bg-blue-950/30 rounded-xl p-8 space-y-6">
@@ -214,7 +207,7 @@ const openDocumentPiP = async () => {
       preferMinimized ? PIP_MINIMIZED_HEIGHT : PIP_RESTORED_HEIGHT
     )
 
-    trackEvent('pip_window_open', { result: status, source: 'cta' })
+    trackEvent('pip_window_open', { result: status, source: 'hero' })
 
     if (!pipWin) return false
 
@@ -225,7 +218,7 @@ const openDocumentPiP = async () => {
   } catch (error) {
     pipIframe.value = null
     console.error('Failed to open Document PiP:', error)
-    trackEvent('pip_window_open', { result: 'exception', source: 'cta' })
+    trackEvent('pip_window_open', { result: 'exception', source: 'hero' })
     return false
   }
 }
@@ -241,7 +234,7 @@ const openFloatingWindow = async () => {
   if (wakeLock.hasActivePipWindow) {
     try {
       wakeLock.pipWindowRef!.focus()
-      trackEvent('pip_focus', { source: 'cta_button' })
+      trackEvent('pip_focus', { source: 'hero' })
       return
     } catch (e) {
       console.warn('Could not focus PiP window:', e)

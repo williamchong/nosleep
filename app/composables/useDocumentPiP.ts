@@ -40,7 +40,7 @@ export const useDocumentPiP = () => {
 
   /**
    * Open a Document Picture-in-Picture window. Tracking is the caller's
-   * responsibility — the caller knows the `source` (cta, etc.).
+   * responsibility — the caller knows the `source` (hero, etc.).
    */
   const openPipWindow = async (width: number, height: number): Promise<PipOpenResult> => {
     if (!isPipSupported.value) {
