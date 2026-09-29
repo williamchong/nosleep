@@ -21,7 +21,7 @@
           v-for="preset in presets"
           :key="preset.value"
           size="sm"
-          class="rounded-full"
+          class="rounded-full transition-colors duration-150"
           :color="selectedPreset === preset.value ? 'primary' : 'neutral'"
           :variant="selectedPreset === preset.value ? 'solid' : 'soft'"
           :label="preset.label"

@@ -14,7 +14,7 @@
       <div class="relative flex items-center justify-center h-[100vh] px-3">
         <div class="flex items-center gap-2.5 w-full">
           <button
-            class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-base transition-[background,box-shadow] duration-500 focus:outline-hidden focus:ring-2 focus:ring-offset-1"
+            class="relative flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-base transition-[background,box-shadow] duration-500 focus:outline-hidden focus:ring-2 focus:ring-offset-1"
             :class="wakeLock.isEffectivelyActive
               ? 'compact-btn-sun focus:ring-amber-300'
               : 'compact-btn-moon focus:ring-indigo-300'"
@@ -187,18 +187,25 @@
             variant="ghost"
             size="xs"
             icon="i-lucide-clock"
-            :trailing-icon="showTimerSection ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+            trailing-icon="i-lucide-chevron-down"
             :label="showTimerSection ? $t('timer.labelExpanded') : $t('timer.label')"
             class="mb-2 sm:mb-3"
+            :ui="{ trailingIcon: ['transition-transform duration-200', showTimerSection && 'rotate-180'] }"
             @click="toggleTimerSection"
           />
 
-          <TimerControl
-            v-if="showTimerSection || wakeLock.timerActive"
-            :timer-active="wakeLock.timerActive"
-            :remaining-time="wakeLock.remainingTime"
-            @start="handleTimerStart"
-            @cancel="handleTimerCancel" />
+          <!-- grid-template-rows 0fr → 1fr animates the height without measuring it -->
+          <Transition name="expand">
+            <div v-if="showTimerSection || wakeLock.timerActive" class="grid">
+              <div class="min-h-0 overflow-hidden">
+                <TimerControl
+                  :timer-active="wakeLock.timerActive"
+                  :remaining-time="wakeLock.remainingTime"
+                  @start="handleTimerStart"
+                  @cancel="handleTimerCancel" />
+              </div>
+            </div>
+          </Transition>
         </div>
       </template>
     </div>
@@ -348,6 +355,22 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.expand-enter-active,
+.expand-leave-active {
+  transition: grid-template-rows 0.2s ease, opacity 0.2s ease;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+
+.expand-enter-to,
+.expand-leave-from {
+  grid-template-rows: 1fr;
+}
+
 @keyframes compact-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
