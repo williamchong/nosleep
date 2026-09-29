@@ -49,6 +49,7 @@ const OUT = resolve(ROOT, opt('out', '.screenshots'))
 const LOCALE = opt('locale', 'en-US')
 const HEADED = flag('headed')
 const DARK = flag('dark')
+const REDUCED_MOTION = flag('reduced-motion')
 const WARM_PIP = !flag('no-warm')
 const VERBOSE = !!process.env.DRIVER_VERBOSE
 
@@ -139,6 +140,7 @@ async function startBrowser() {
   context = await browser.newContext({
     locale: LOCALE, // aria-labels and button text are i18n'd; pin the locale or selectors break
     colorScheme: DARK ? 'dark' : 'light',
+    reducedMotion: REDUCED_MOTION ? 'reduce' : 'no-preference',
     viewport: { width: 1280, height: 900 },
   })
   // Analytics fire on every load and would otherwise hit the network in CI.

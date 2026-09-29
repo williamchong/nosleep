@@ -55,6 +55,7 @@ node .claude/skills/run-nosleep/driver.mjs repl
 
 Flags: `--url <url>` (use an already-running server instead of spawning one),
 `--port <n>` (default 3399), `--headed` (real Chrome window), `--dark`,
+`--reduced-motion` (emulates `prefers-reduced-motion: reduce`),
 `--locale <tag>` (default `en-US`), `--out <dir>` (default `.screenshots`),
 `--name <n>` (for `shot`), `--no-warm` (skip the `/pip` route pre-warm, so the
 iframe hydrates cold — the slowest case for the handoff handshake).
