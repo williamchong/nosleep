@@ -22,6 +22,13 @@
             @click="handleWakeLockToggle('orb')"
           >
             <span :class="compactEmojiClass" :style="compactEmojiStyle">{{ compactEmoji }}</span>
+            <TimerRing
+              class="-inset-1"
+              :active="wakeLock.timerActive"
+              :remaining-time="wakeLock.remainingTime"
+              :total-seconds="timerTotalSeconds"
+              :stroke-width="6"
+            />
           </button>
 
           <div class="flex-1 min-w-0 text-center">
@@ -125,7 +132,15 @@
 
       <template v-else>
         <ClientOnly>
-          <StatusAnimation :is-active="wakeLock.isEffectivelyActive" :size="orbSize" @toggle="handleWakeLockToggle('orb')" />
+          <div class="relative w-fit mx-auto">
+            <StatusAnimation :is-active="wakeLock.isEffectivelyActive" :size="orbSize" @toggle="handleWakeLockToggle('orb')" />
+            <TimerRing
+              :class="wakeLock.isPipMode ? '-inset-2' : '-inset-3 sm:-inset-4'"
+              :active="wakeLock.timerActive"
+              :remaining-time="wakeLock.remainingTime"
+              :total-seconds="timerTotalSeconds"
+            />
+          </div>
         </ClientOnly>
 
         <!-- Where Document PiP works the floating window is the hero action and the sun/moon is
@@ -212,6 +227,8 @@ const wakeLock = props.wakeLock
 const showTimerSection = ref(false)
 
 const heroOpensPip = computed(() => props.pipSupported && !wakeLock.isPipMode)
+
+const timerTotalSeconds = computed(() => wakeLock.timerDuration * 60)
 
 // :ui.base merges over UButton's size variant via tailwind-merge, letting these oversized utilities win.
 const heroButtonUi = {

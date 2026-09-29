@@ -204,7 +204,7 @@ describe('wakeLock state', () => {
       mockTrackEvent.mock.calls.filter(([name]) => name === 'wake_lock_session_ended')
 
     // Stands in for the PiP iframe syncing its state back, the message that settles a handoff.
-    const ackHandoff = (childState: { isActive: boolean, timerActive: boolean, remainingTime: number }) =>
+    const ackHandoff = (childState: { isActive: boolean, timerActive: boolean, remainingTime: number, timerDuration: number }) =>
       handleWakeLockSync(childState)
 
     it('emits session_ended with user_toggle on toggle off', async () => {
@@ -239,7 +239,7 @@ describe('wakeLock state', () => {
     it('emits session_ended with pip_transfer once the PiP window confirms', async () => {
       await state.acquire()
       transferStateToPip()
-      await ackHandoff({ isActive: true, timerActive: false, remainingTime: 0 })
+      await ackHandoff({ isActive: true, timerActive: false, remainingTime: 0, timerDuration: 0 })
 
       const calls = sessionEndCalls()
       expect(calls).toHaveLength(1)
@@ -249,7 +249,7 @@ describe('wakeLock state', () => {
     it('keeps the parent wake lock when the PiP window fails to adopt it', async () => {
       await state.acquire()
       transferStateToPip()
-      await ackHandoff({ isActive: false, timerActive: false, remainingTime: 0 })
+      await ackHandoff({ isActive: false, timerActive: false, remainingTime: 0, timerDuration: 0 })
 
       expect(sessionEndCalls()).toHaveLength(0)
       expect(mockRelease).not.toHaveBeenCalled()
@@ -262,15 +262,24 @@ describe('wakeLock state', () => {
       state.pipWindowRef = fakePipWindow()
       transferStateToPip()
 
-      await state.handlePipClosed({ isActive: true, timerActive: false, remainingTime: 0 })
+      await state.handlePipClosed({ isActive: true, timerActive: false, remainingTime: 0, timerDuration: 0 })
       mockRelease.mockClear()
 
       // A tick posted just before the close can still be delivered afterwards; treating it as
       // an ack would release the lock handlePipClosed just reacquired.
-      await ackHandoff({ isActive: true, timerActive: false, remainingTime: 0 })
+      await ackHandoff({ isActive: true, timerActive: false, remainingTime: 0, timerDuration: 0 })
 
       expect(mockRelease).not.toHaveBeenCalled()
       expect(sessionEndCalls().filter(([, props]) => props.ended_by === 'pip_transfer')).toHaveLength(0)
+    })
+
+    it('adopts the duration of a timer that was started inside the PiP window', async () => {
+      state.pipWindowRef = fakePipWindow()
+      await state.handlePipClosed({ isActive: true, timerActive: true, remainingTime: 1500, timerDuration: 60 })
+
+      expect(state.timerActive).toBe(true)
+      expect(state.remainingTime).toBe(1500)
+      expect(state.timerDuration).toBe(60)
     })
 
     it('does not emit session_ended on release when no session was started', async () => {
@@ -319,7 +328,7 @@ describe('wakeLock state', () => {
     it('stays quiet when the window is closed before the timeout', async () => {
       const pipWin = fakePipWindow()
       state.adoptPipWindow(pipWin)
-      await state.handlePipClosed({ isActive: false, timerActive: false, remainingTime: 0 })
+      await state.handlePipClosed({ isActive: false, timerActive: false, remainingTime: 0, timerDuration: 0 })
 
       await vi.advanceTimersByTimeAsync(PIP_CONNECT_TIMEOUT_MS + 100)
 

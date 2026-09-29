@@ -21,6 +21,8 @@ export interface WakeLockState {
   isActive: boolean
   timerActive: boolean
   remainingTime: number
+  /** Minutes the timer was started with — the ring countdown needs the whole, not just what is left */
+  timerDuration: number
 }
 
 // The two messages that set up the MessagePort. These are the only ones that cross the shared

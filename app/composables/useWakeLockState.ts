@@ -81,7 +81,8 @@ function snapshotState(): WakeLockState {
   return {
     isActive: isActive.value,
     timerActive: timerActive.value,
-    remainingTime: remainingTime.value
+    remainingTime: remainingTime.value,
+    timerDuration: timerDuration.value
   }
 }
 
@@ -336,6 +337,7 @@ function adoptState(state: WakeLockState) {
   isActive.value = state.isActive
   timerActive.value = state.timerActive
   remainingTime.value = state.remainingTime
+  timerDuration.value = state.timerDuration
 }
 
 /**
@@ -404,7 +406,7 @@ async function handleWakeLockSync(state: WakeLockState) {
     }
     if (state.timerActive && state.remainingTime > 0 && !timerActive.value) {
       remainingTime.value = state.remainingTime
-      timerDuration.value = Math.ceil(state.remainingTime / 60)
+      timerDuration.value = state.timerDuration
       timerActive.value = true
       restartTimerInterval()
     }
@@ -433,6 +435,8 @@ async function handlePipClosed(finalState?: WakeLockState) {
 
   timerActive.value = hadTimer
   remainingTime.value = timeRemaining
+  // A timer started inside the PiP window has no duration on this side yet
+  timerDuration.value = finalState?.timerDuration ?? 0
 
   trackEvent('pip_closed', {
     was_active: wasActive,
