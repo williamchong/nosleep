@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative mx-auto cursor-pointer transition-[transform,filter,width,height] duration-500"
+    class="relative mx-auto cursor-pointer motion-safe:transition-[transform,filter,width,height] motion-reduce:transition-[filter] duration-500"
     :class="[containerClasses, SIZES[size].orb]"
     tabindex="0"
     role="button"
@@ -17,12 +17,7 @@
     />
     <!-- Static fallback for reduced motion -->
     <div v-else class="w-full h-full flex items-center justify-center">
-      <div
-        :class="[
-          { 'animate-pulse': isActive },
-          SIZES[size].emoji
-        ]"
-      >
+      <div :class="SIZES[size].emoji">
         {{ isActive ? '☀️' : '🌙' }}
       </div>
     </div>
@@ -63,7 +58,7 @@ const opacity = ref(1)
 const { t } = useI18n()
 
 const containerClasses = computed(() => {
-  const base = 'hover:scale-105'
+  const base = 'motion-safe:hover:scale-105'
   // Make sun shine much brighter in dark mode with stronger glow and brightness boost
   if (props.isActive) {
     return `${base} filter drop-shadow-2xl dark:drop-shadow-[0_0_50px_rgba(251,191,36,0.9)]`

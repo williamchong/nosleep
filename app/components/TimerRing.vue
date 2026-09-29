@@ -67,4 +67,11 @@ const glides = computed(() => props.totalSeconds <= 300)
 .ring-fade-leave-to {
   opacity: 0;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .ring-fade-enter-active,
+  .ring-fade-leave-active {
+    transition: none;
+  }
+}
 </style>

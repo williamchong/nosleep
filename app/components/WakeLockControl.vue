@@ -190,7 +190,7 @@
             trailing-icon="i-lucide-chevron-down"
             :label="showTimerSection ? $t('timer.labelExpanded') : $t('timer.label')"
             class="mb-2 sm:mb-3"
-            :ui="{ trailingIcon: ['transition-transform duration-200', showTimerSection && 'rotate-180'] }"
+            :ui="{ trailingIcon: ['motion-safe:transition-transform duration-200', showTimerSection && 'rotate-180'] }"
             @click="toggleTimerSection"
           />
 
@@ -388,6 +388,18 @@ onMounted(async () => {
 
 .compact-wobble {
   animation: compact-wobble 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compact-spin-active,
+  .compact-wobble {
+    animation: none;
+  }
+
+  .expand-enter-active,
+  .expand-leave-active {
+    transition: none;
+  }
 }
 
 .compact-btn-sun {
