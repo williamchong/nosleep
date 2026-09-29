@@ -527,6 +527,12 @@ async function cmdRepl() {
           break
         }
         case 'pipclose': await pipPage?.close(); pipPage = null; pipFrame = null; break
+        // headless ignores the app's resizeTo(), so the compact layout has to be forced from here
+        case 'pipsize': {
+          if (!pipPage) throw new Error('no PiP window open')
+          await pipPage.setViewportSize(PIP_SIZE[arg] ?? PIP_SIZE.restored)
+          break
+        }
         case 'wait': await page.waitForTimeout(Number(arg || 1000)); break
         case 'quit': rl.close(); return
         default: log(`unknown command: ${cmd}`)

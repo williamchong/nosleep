@@ -72,6 +72,7 @@ printf 'state\nclick button:has-text("Set Timer")\nclick button:has-text("4 Hour
 
 Commands: `goto <path>`, `click <selector>`, `orb` (the sun/moon toggle),
 `text <selector>`, `eval <js>`, `state`, `ss <name>`, `pip`, `pipclose`,
+`pipsize minimized|restored` (forces the compact layout, since headless ignores `resizeTo()`),
 `wait <ms>`, `quit`. After `pip`, `click`/`orb`/`state`/`eval` retarget to the
 PiP iframe; `pipclose` switches back.
 
