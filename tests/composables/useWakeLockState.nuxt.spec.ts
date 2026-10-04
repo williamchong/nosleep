@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { computed, shallowRef } from 'vue'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { useWakeLockState, transferStateToPip, handleWakeLockSync } from '~/composables/useWakeLockState'
+import { useWakeLockState, transferStateToPip, handleWakeLockSync, handlePagehide } from '~/composables/useWakeLockState'
 import type { UseWakeLockReturn } from '@vueuse/core'
 import { PIP_CONNECT_TIMEOUT_MS } from '~/utils/pip'
 
@@ -293,6 +293,47 @@ describe('wakeLock state', () => {
       const calls = sessionEndCalls()
       expect(calls).toHaveLength(1)
       expect(calls[0][1]).toMatchObject({ ended_by: 'cleanup' })
+    })
+  })
+
+  describe('pip_closed reporting', () => {
+    // Elapsed times stay under PIP_CONNECT_TIMEOUT_MS: these windows never connect, so the
+    // timeout would close them.
+    beforeEach(() => {
+      vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    const pipClosedCalls = () => mockTrackEvent.mock.calls.filter(([name]) => name === 'pip_closed')
+
+    it('reports how long the window was open when it closes', async () => {
+      state.adoptPipWindow(fakePipWindow())
+      vi.advanceTimersByTime(5_000)
+      await state.handlePipClosed({ isActive: true, timerActive: false, remainingTime: 0, timerDuration: 0 })
+
+      expect(pipClosedCalls()).toHaveLength(1)
+      expect(pipClosedCalls()[0][1]).toMatchObject({ method: 'window_closed', open_seconds: 5, was_active: true })
+      expect(pipClosedCalls()[0][2]).toBeUndefined()
+    })
+
+    it('reports once by beacon when the main tab closes with the window still open', async () => {
+      state.adoptPipWindow(fakePipWindow())
+      vi.advanceTimersByTime(3_000)
+      handlePagehide()
+      // The window dies with the tab, and its pagehide may still reach handlePipClosed.
+      await state.handlePipClosed({ isActive: true, timerActive: false, remainingTime: 0, timerDuration: 0 })
+
+      expect(pipClosedCalls()).toHaveLength(1)
+      expect(pipClosedCalls()[0][1]).toMatchObject({ method: 'tab_closed', open_seconds: 3 })
+      expect(pipClosedCalls()[0][2]).toEqual({ beacon: true })
+    })
+
+    it('stays quiet on pagehide without a floating window', () => {
+      handlePagehide()
+      expect(pipClosedCalls()).toHaveLength(0)
     })
   })
 

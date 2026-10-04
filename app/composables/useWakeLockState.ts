@@ -4,6 +4,7 @@ import type { PipHandshakeMessage, PipMessage, WakeLockState } from '~/utils/pip
 
 type WakeLockSurface = 'main' | 'pip'
 type PipConnectFailureReason = 'connect_timeout' | 'iframe_error'
+type PipCloseMethod = 'window_closed' | 'tab_closed'
 type SessionEndReason =
   | 'user_toggle'
   | 'timer_expired'
@@ -38,8 +39,11 @@ let suspensionReportedFor: number | null = null
 /** Snapshot handed to the PiP iframe, held until it confirms it adopted the state. */
 let pendingHandoff: WakeLockState | null = null
 
-/** When the current PiP window was opened, so a connection failure can report how long it took. */
-let connectStartedAt: number | null = null
+/**
+ * When the current PiP window was opened, for a connection failure's waited_ms and pip_closed's
+ * open_seconds. Reporting pip_closed nulls it, which is what keeps that to one report per window.
+ */
+let pipOpenedAt: number | null = null
 
 const hasActivePipWindow = computed(() => pipWindowRef.value !== null && !pipWindowRef.value.closed)
 
@@ -74,8 +78,9 @@ const _selfWindow = shallowRef<Window>()
 const handshakeTarget = computed(() => isIframePip.value ? _selfWindow.value : pipWindowRef.value)
 
 // Analytics needs the Nuxt context, so it can only be bound from inside useWakeLockState().
-let track: ((eventName: string, props?: Record<string, unknown>) => void) | null = null
-const trackEvent = (eventName: string, props?: Record<string, unknown>) => track?.(eventName, props)
+type TrackEvent = ReturnType<typeof useAnalytics>['trackEvent']
+let track: TrackEvent | null = null
+const trackEvent: TrackEvent = (...args) => track?.(...args)
 
 function snapshotState(): WakeLockState {
   return {
@@ -305,7 +310,7 @@ function failPipConnection(reason: PipConnectFailureReason) {
     reason,
     // Measured, not the constant: an iframe error can land long before the timeout, and the
     // gap between the two is what says whether the timeout is too tight or the load is broken.
-    waited_ms: connectStartedAt === null ? null : Date.now() - connectStartedAt,
+    waited_ms: pipOpenedAt === null ? null : Date.now() - pipOpenedAt,
     online: navigator.onLine,
     visibility: document.visibilityState,
   })
@@ -319,7 +324,7 @@ function failPipConnection(reason: PipConnectFailureReason) {
 /** Adopt a freshly opened PiP window and start waiting for it to announce itself. */
 function adoptPipWindow(pipWin: Window) {
   pipWindowRef.value = pipWin
-  connectStartedAt = Date.now()
+  pipOpenedAt = Date.now()
   startConnectTimeout()
 }
 
@@ -417,6 +422,35 @@ async function handleWakeLockSync(state: WakeLockState) {
   }
 }
 
+/**
+ * The PiP iframe dies with its window before its own wake_lock_session_ended goes out, so the
+ * main window reports how long the floating window was open — once per window, whichever of
+ * the window closing or the main tab closing (which takes the window with it) comes first.
+ */
+function reportPipClosed(
+  method: PipCloseMethod,
+  state: Pick<WakeLockState, 'isActive' | 'timerActive' | 'remainingTime'>,
+) {
+  if (pipOpenedAt === null) return
+  trackEvent('pip_closed', {
+    method,
+    open_seconds: Math.round((Date.now() - pipOpenedAt) / 1000),
+    was_active: state.isActive,
+    had_timer: state.timerActive,
+    time_remaining_seconds: state.remainingTime,
+  }, method === 'tab_closed' ? { beacon: true } : undefined)
+  pipOpenedAt = null
+}
+
+/**
+ * Main window only. After the handoff this window's state mirrors the iframe's, so its snapshot
+ * stands in for the iframe's final state. A bfcache pagehide counts too: the browser closes a
+ * Document PiP window when its opener navigates away.
+ */
+function handlePagehide() {
+  if (hasActivePipWindow.value) reportPipClosed('tab_closed', snapshotState())
+}
+
 async function handlePipClosed(finalState?: WakeLockState) {
   if (!pipWindowRef.value) return
   pipWindowRef.value = null
@@ -426,7 +460,6 @@ async function handlePipClosed(finalState?: WakeLockState) {
   pendingHandoff = null
   stopHandoffTimeout()
   stopConnectTimeout()
-  connectStartedAt = null
   closePipPort()
 
   const wasActive = finalState?.isActive ?? isActive.value
@@ -438,11 +471,7 @@ async function handlePipClosed(finalState?: WakeLockState) {
   // A timer started inside the PiP window has no duration on this side yet
   timerDuration.value = finalState?.timerDuration ?? 0
 
-  trackEvent('pip_closed', {
-    was_active: wasActive,
-    had_timer: hadTimer,
-    time_remaining_seconds: timeRemaining,
-  })
+  reportPipClosed('window_closed', { isActive: wasActive, timerActive: hadTimer, remainingTime: timeRemaining })
 
   await nextTick()
 
@@ -524,7 +553,7 @@ function cleanup() {
   pendingHandoff = null
   stopHandoffTimeout()
   stopConnectTimeout()
-  connectStartedAt = null
+  pipOpenedAt = null
   hiddenAt = null
   suspensionReportedFor = null
   // Drop the PiP reference first, or release() bails on isParentWithActivePip and the sentinel
@@ -566,7 +595,7 @@ const wakeLockState = reactive({
 
 // Both sides of the PiP handoff. Production drives these through the port listener; they are
 // exported so tests can exercise the exchange without two real windows.
-export { transferStateToPip, handleWakeLockSync }
+export { transferStateToPip, handleWakeLockSync, handlePagehide }
 
 /**
  * Call this once per window. All the state above is module-level, so a second caller in the
@@ -608,6 +637,7 @@ export function useWakeLockState(options?: { nativeWakeLock: UseWakeLockReturn }
 
     if (!isPipMode.value) {
       watch(useDocumentVisibility(), handleVisibilityChange)
+      useEventListener('pagehide', handlePagehide)
     }
   } else if (options?.nativeWakeLock) {
     setupNativeWakeLock(options.nativeWakeLock)
