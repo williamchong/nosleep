@@ -1,0 +1,272 @@
+{
+  "site": {
+    "title": "NoSleep - Mantén la Pantalla Encendida, Evita la Suspensión y el Apagado de Pantalla | Herramienta Web Gratis",
+    "description": "Mantén la pantalla encendida y evita que tu computadora entre en suspensión. Herramienta web gratuita para evitar que la pantalla se apague durante descargas, presentaciones y tareas largas. Sin descargas - funciona al instante en tu navegador, con temporizadores personalizados y ventana flotante.",
+    "keywords": "mantener pantalla encendida, evitar suspensión de pantalla, evitar que la pantalla se apague, mantener monitor encendido, evitar suspensión de laptop, mantener computadora despierta, desactivar apagado de pantalla, evitar que la computadora se duerma, pantalla siempre encendida, sin descargas, alternativa a caffeine, alternativa a amphetamine, mantener macbook despierta, evitar suspensión de windows, chromebook mantener pantalla encendida, evitar suspensión durante descarga, mantener pantalla encendida en presentación, screen wake lock, la pantalla no se apaga, la laptop se suspende",
+    "author": "William Chong",
+    "name": "NoSleep"
+  },
+  "meta": {
+    "ogTitle": "NoSleep - Mantén la Pantalla Encendida y Evita la Suspensión | Herramienta Web Gratis",
+    "ogDescription": "Herramienta web gratuita para mantener la pantalla encendida y evitar que se apague. Evita que tu laptop o Mac se suspenda durante descargas, presentaciones y tareas largas. Sin instalación - funciona al instante en el navegador.",
+    "applicationDescription": "Una herramienta web gratuita que evita que tu computadora o celular entre en suspensión usando la Screen Wake Lock API. Incluye temporizadores personalizables (1-720 minutos), ventana flotante siempre visible, sincronización entre ventanas y animaciones atractivas."
+  },
+  "header": {
+    "title": "NoSleep",
+    "subtitle": "Un clic mantiene tu pantalla encendida — sin descargas"
+  },
+  "button": {
+    "deviceAwake": "Dispositivo Despierto",
+    "deviceSleeping": "Dispositivo en Reposo",
+    "clickToKeepAwake": "Clic para Mantener Despierto",
+    "focusToPopup": "Ir a la Ventana Emergente",
+    "start": "Iniciar",
+    "cancel": "Cancelar",
+    "cancelTimer": "Cancelar Temporizador"
+  },
+  "darkMode": {
+    "toggle": "Cambiar modo oscuro",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema"
+  },
+  "status": {
+    "deviceAwake": "Tu dispositivo seguirá despierto. Haz clic para permitir la suspensión.",
+    "deviceSleeping": "Tu dispositivo puede suspenderse normalmente. Haz clic para mantenerlo despierto.",
+    "ariaLabelAwake": "Dispositivo despierto - Haz clic en el sol para permitir la suspensión",
+    "ariaLabelSleep": "Dispositivo en reposo - Haz clic en la luna para mantenerlo despierto",
+    "orbAwake": "Despierto mientras esta pestaña esté visible. Haz clic en el sol para permitir la suspensión.",
+    "orbSleeping": "Suspensión permitida. Haz clic en la luna para mantenerlo despierto."
+  },
+  "loading": {
+    "message": "Comprobando la compatibilidad del navegador..."
+  },
+  "unsupported": {
+    "title": "Navegador No Compatible",
+    "message": "Tu navegador no es compatible con la Screen Wake Lock API, necesaria para que NoSleep funcione.",
+    "suggestion": "Prueba con Chrome 84+, Edge 84+, Safari 16.4+ o una versión reciente de Firefox."
+  },
+  "timer": {
+    "label": "Configurar Temporizador",
+    "labelExpanded": "Ocultar Opciones del Temporizador",
+    "timerFormat": "Temporizador: {time}",
+    "minutes": "min",
+    "remaining": "restante",
+    "explanation": "El dispositivo podrá suspenderse automáticamente cuando termine el temporizador",
+    "untilStopped": "Hasta Detenerlo",
+    "hour": "Hora",
+    "hours": "Horas",
+    "custom": "Personalizado",
+    "customDuration": "Duración Personalizada",
+    "startInfinite": "Iniciar (Sin Temporizador)",
+    "startWithDuration": "Iniciar Temporizador ({duration})",
+    "until": "Hasta…",
+    "untilTime": "Mantener despierto hasta",
+    "durationMinutes": "{minutes} min",
+    "durationHours": "{hours} h",
+    "durationHoursMinutes": "{hours} h {minutes} min"
+  },
+  "instructions": {
+    "title": "Para Mejores Resultados",
+    "keepTabFrontmost": "Mantén esta pestaña visible y activa en tu navegador",
+    "avoidBackgrounding": "O usa una ventana emergente dedicada que se mantiene encima",
+    "openPopup": "Abrir Ventana Dedicada"
+  },
+  "floatingWindow": {
+    "openButton": "Abrir Ventana Flotante",
+    "focusButton": "Ir a la Ventana Flotante",
+    "alternative": "(Alternativa: mantén esta pestaña siempre activa)"
+  },
+  "suspensionNotice": {
+    "title": "Tu pantalla pudo apagarse mientras esta pestaña estaba en segundo plano",
+    "description": "Los navegadores pausan el wake lock en las pestañas ocultas. Abre la ventana flotante de arriba para mantener la pantalla encendida mientras usas otras pestañas y apps.",
+    "dismiss": "No volver a mostrar"
+  },
+  "pip": {
+    "title": "NoSleep - Ventana Flotante",
+    "minimize": "Minimizar ventana",
+    "restore": "Restaurar ventana",
+    "statusActive": "NoSleep",
+    "statusInactive": "En reposo"
+  },
+  "sections": {
+    "problems": {
+      "title": "Resuelve Estos Problemas Comunes",
+      "subtitle": "Deja esta página abierta para mantener la pantalla encendida y evitar estos problemas:",
+      "items": [
+        {
+          "emoji": "🔄",
+          "title": "Las descargas se interrumpen",
+          "description": "Mantén tu computadora despierta durante descargas largas para que terminen sin fallos"
+        },
+        {
+          "emoji": "💻",
+          "title": "La laptop se suspende durante la presentación",
+          "description": "Evita que la pantalla se apague en reuniones y demostraciones importantes"
+        },
+        {
+          "emoji": "🎬",
+          "title": "El renderizado de video se detiene a la mitad",
+          "description": "Mantén el monitor encendido en renderizados largos y procesamiento de archivos"
+        },
+        {
+          "emoji": "📊",
+          "title": "El panel se apaga durante el monitoreo",
+          "description": "Evita que la pantalla se apague mientras sigues datos o herramientas en tiempo real"
+        },
+        {
+          "emoji": "📖",
+          "title": "La lectura se interrumpe porque la pantalla se oscurece",
+          "description": "Mantén la pantalla encendida al leer artículos o documentos largos"
+        },
+        {
+          "emoji": "🎮",
+          "title": "El juego se desconecta cuando la computadora se suspende",
+          "description": "Evita la suspensión en sesiones de juego inactivas o actividades AFK"
+        }
+      ]
+    },
+    "alternatives": {
+      "title": "¿Por Qué Elegir NoSleep en Lugar de Apps de Escritorio?",
+      "subtitle": "A diferencia de las apps tradicionales para evitar la suspensión, NoSleep funciona completamente en tu navegador:",
+      "features": [
+        "Sin instalación - funciona al instante en Chrome, Edge, Safari o Firefox",
+        "Multiplataforma - funciona en Mac, Windows, Chromebook, Linux, iPhone y Android",
+        "Totalmente gratis, sin anuncios, registros ni costos ocultos",
+        "Temporizador personalizable (1-720 minutos) para liberar la suspensión automáticamente",
+        "Ventana flotante siempre visible para un acceso cómodo mientras trabajas",
+        "Seguro y privado - usa solo APIs estándar del navegador y no recopila datos personales"
+      ],
+      "vsCaffeine": "vs Caffeine (Mac)",
+      "vsAmphetamine": "vs Amphetamine (Mac)",
+      "vsInsomniaX": "vs InsomniaX (Windows)",
+      "vsPowerPlant": "vs PowerPlant (Windows)",
+      "comparisonNote": "Esas apps requieren descarga e instalación. NoSleep funciona directamente en tu navegador con la misma función.",
+      "compareTo": "Compara con:"
+    },
+    "howToUse": {
+      "title": "Cómo Usar NoSleep - Guía Sencilla en 3 Pasos",
+      "steps": [
+        "Abre esta página — tu pantalla se mantiene encendida al instante (haz clic en el sol o la luna para cambiar)",
+        "Opcional: configura un temporizador personalizado (1-720 minutos) para liberar el wake lock automáticamente",
+        "Abre la ventana flotante para que siga funcionando mientras usas otras pestañas, o mantén esta pestaña activa"
+      ],
+      "note": "Tu pantalla seguirá encendida hasta que vuelvas a hacer clic en el sol, termine el temporizador o cierres la página."
+    },
+    "faq": {
+      "title": "Preguntas Frecuentes",
+      "useCases": {
+        "question": "Mejores Usos del Screen Wake Lock",
+        "answers": [
+          "Descargas y subidas: temporizadores de 30-60 min para evitar interrupciones",
+          "Sesiones de trabajo: temporizadores de enfoque de 15-30 min para programar y ser productivo",
+          "Presentaciones: mantén la pantalla activa en reuniones y demostraciones",
+          "Procesos largos: temporizadores de 2-4 horas para renderizado de video y compilaciones",
+          "Streaming: transmisiones y grabaciones sin interrupciones por suspensión",
+          "Estudio: temporizadores de enfoque sin la distracción de la pantalla apagándose",
+          "Programación prolongada: desarrollo asistido por IA con herramientas como Claude Code",
+          "Monitoreo: mantén visibles los paneles y herramientas en tiempo real"
+        ]
+      },
+      "howItWorks": {
+        "question": "¿Cómo funciona NoSleep?",
+        "answer": "NoSleep usa la Screen Wake Lock API integrada en tu navegador - una tecnología estándar y segura que evita que la pantalla se apague. Solo haz clic en el botón para activarlo y, si quieres, configura un temporizador (1-720 minutos) para liberarlo automáticamente al terminar. Los iconos animados de sol y luna muestran el estado actual. Para mejores resultados, usa la ventana flotante, que se mantiene siempre encima y sigue visible aunque cambies de pestaña."
+      },
+      "safety": {
+        "question": "¿Es seguro usarlo?",
+        "answer": "¡Sí, totalmente seguro! Esta herramienta solo usa APIs web estándar y no accede a tus archivos, cámara, micrófono ni datos personales. Solo evita que tu dispositivo se suspenda - igual que mover el mouse de vez en cuando. No se recopilan ni se envían datos."
+      },
+      "browserSupport": {
+        "question": "¿Qué navegadores funcionan?",
+        "nativeApiTitle": "Navegadores Compatibles:",
+        "nativeApiBrowsers": [
+          "Chrome 84+ (Computadora y Celular)",
+          "Microsoft Edge 84+",
+          "Safari 16.4+ (Mac y iPhone)",
+          "Firefox (con configuración adicional)"
+        ],
+        "fallbackTitle": "",
+        "fallbackBrowsers": [],
+        "note": "Si tu navegador no es compatible con la Wake Lock API, verás un mensaje de error. Actualiza a un navegador compatible."
+      },
+      "timerFeature": {
+        "question": "¿Cómo configuro un temporizador de suspensión?",
+        "answer": "Haz clic en \"Configurar Temporizador\" y elige 1, 4 u 8 horas, arrastra el control Personalizado (1 minuto a 12 horas) o elige \"Hasta…\" para detenerlo a una hora del día, como las 18:00. Tu dispositivo vuelve a la suspensión normal cuando termina el temporizador - ideal para la jornada laboral, descargas o sesiones de estudio. Cancélalo cuando quieras para detenerlo antes."
+      },
+      "properUsage": {
+        "question": "¿Cuál es la mejor forma de usar NoSleep?",
+        "answer": "Para la mejor experiencia, haz clic en \"Abrir Ventana Flotante\" para crear una ventana emergente siempre encima que se mantiene visible mientras trabajas. La ventana flotante se sincroniza automáticamente con la página principal y no se oculta al cambiar de pestaña. También puedes mantener la pestaña principal activa y visible, pero la ventana flotante es la opción más confiable y cómoda."
+      }
+    },
+    "about": {
+      "title": "Acerca de",
+      "description": "Creado por William Chong como una herramienta web sencilla y útil. Descubre más proyectos y artículos en mi blog.",
+      "visitBlog": "Visitar Mi Blog"
+    }
+  },
+  "structuredData": {
+    "howTo": {
+      "main": {
+        "name": "Cómo Evitar que tu Pantalla se Suspenda",
+        "description": "Guía paso a paso para evitar que tu computadora o celular entre en suspensión usando la herramienta web NoSleep.",
+        "step1Name": "Abre el sitio de NoSleep",
+        "step1Text": "Abre este sitio en tu navegador (Chrome, Edge, Safari o Firefox)",
+        "step2Name": "Haz clic para mantener la pantalla encendida",
+        "step2Text": "Haz clic en el botón \"Clic para Mantener Despierto\" para activar el wake lock de la pantalla",
+        "step3Name": "Configura un temporizador opcional",
+        "step3Text": "Si quieres, configura un temporizador (1-720 minutos) para liberar la suspensión automáticamente al terminar",
+        "step4Name": "Usa la ventana flotante (opcional)",
+        "step4Text": "Haz clic en \"Abrir Ventana Flotante\" para tener una ventana emergente siempre encima, visible mientras trabajas",
+        "toolName": "Navegador moderno compatible con la Screen Wake Lock API"
+      },
+      "download": {
+        "name": "Cómo Evitar que la Computadora se Suspenda Durante las Descargas",
+        "description": "Mantén tu computadora despierta y evita descargas interrumpidas con NoSleep.",
+        "step1Name": "Inicia la descarga",
+        "step1Text": "Comienza la descarga del archivo en tu navegador o gestor de descargas",
+        "step2Name": "Configura un temporizador para la duración de la descarga",
+        "step2Text": "Abre NoSleep y configura un temporizador según el tiempo de descarga (p. ej., 30-60 minutos)",
+        "step3Name": "Activa el wake lock",
+        "step3Text": "Haz clic para activarlo - tu computadora seguirá despierta hasta que termine la descarga"
+      },
+      "presentation": {
+        "name": "Cómo Mantener la Pantalla Encendida Durante una Presentación",
+        "description": "Evita que la pantalla se apague en reuniones, presentaciones y demostraciones.",
+        "step1Name": "Abre NoSleep antes de la presentación",
+        "step1Text": "Abre este sitio en tu navegador antes de empezar tu presentación",
+        "step2Name": "Activa el wake lock",
+        "step2Text": "Haz clic en el botón para mantener la pantalla encendida durante toda la presentación",
+        "step3Name": "Usa la ventana flotante para mayor comodidad",
+        "step3Text": "Abre la ventana flotante para ver el estado fácilmente mientras presentas",
+        "step4Name": "Desactívalo después de la presentación",
+        "step4Text": "Haz clic de nuevo en el botón o deja que termine el temporizador para volver a la suspensión normal"
+      }
+    },
+    "faq": {
+      "useCases": {
+        "question": "¿Cuáles son los mejores usos del wake lock de NoSleep?",
+        "answer": "NoSleep evita la suspensión de la pantalla en descargas y subidas (temporizadores de 30-60 min), sesiones de trabajo con temporizadores de enfoque de 15-30 min, presentaciones en reuniones, procesos largos como renderizado de video (2-4 horas), streaming sin interrupciones, sesiones de estudio, programación prolongada con herramientas de IA y monitoreo de paneles."
+      },
+      "howItWorks": {
+        "question": "¿Cómo funciona NoSleep?",
+        "answer": "NoSleep usa la Screen Wake Lock API integrada en tu navegador - una tecnología estándar y segura que evita que la pantalla se apague. Solo haz clic en el botón para activarlo y, si quieres, configura un temporizador (1-720 minutos) para liberarlo automáticamente al terminar. Los iconos animados de sol y luna muestran el estado actual. Para mejores resultados, usa la ventana flotante, que se mantiene siempre encima y sigue visible aunque cambies de pestaña."
+      },
+      "safety": {
+        "question": "¿NoSleep es seguro?",
+        "answer": "¡Sí, totalmente seguro! Esta herramienta solo usa APIs web estándar y no accede a tus archivos, cámara, micrófono ni datos personales. Solo evita que tu dispositivo se suspenda - igual que mover el mouse de vez en cuando. No se recopilan ni se envían datos."
+      },
+      "browserSupport": {
+        "question": "¿Qué navegadores son compatibles con NoSleep?",
+        "answer": "NoSleep requiere navegadores compatibles con la Screen Wake Lock API: Chrome 84+, Microsoft Edge 84+, Safari 16.4+ y Firefox con configuración adicional. La app detecta la compatibilidad del navegador automáticamente. Usa la ventana emergente para la experiencia más confiable."
+      },
+      "timerFeature": {
+        "question": "¿Cómo funciona el temporizador?",
+        "answer": "Haz clic en \"Configurar Temporizador\" y elige 1, 4 u 8 horas, arrastra el control Personalizado (1 minuto a 12 horas) o elige \"Hasta…\" para detenerlo a una hora del día, como las 18:00. Tu dispositivo vuelve a la suspensión normal cuando termina el temporizador - ideal para la jornada laboral, descargas o sesiones de estudio. Cancélalo cuando quieras para detenerlo antes."
+      },
+      "properUsage": {
+        "question": "¿Cuál es la mejor forma de usar NoSleep?",
+        "answer": "Para la mejor experiencia, haz clic en \"Abrir Ventana Flotante\" para crear una ventana emergente siempre encima que se mantiene visible mientras trabajas. La ventana flotante se sincroniza automáticamente con la página principal y no se oculta al cambiar de pestaña. También puedes mantener la pestaña principal activa y visible, pero la ventana flotante es la opción más confiable y cómoda."
+      }
+    }
+  }
+}

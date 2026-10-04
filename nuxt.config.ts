@@ -56,6 +56,16 @@ export default defineNuxtConfig({
         language: 'ja-JP',
         file: 'ja-JP.json'
       },
+      {
+        code: 'pt',
+        language: 'pt-BR',
+        file: 'pt-BR.json'
+      },
+      {
+        code: 'es',
+        language: 'es',
+        file: 'es.json'
+      },
     ],
     strategy: 'prefix_and_default',
     defaultLocale: 'en',

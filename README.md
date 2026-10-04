@@ -121,7 +121,7 @@ npm run typecheck        # Run TypeScript type checking
 - **Composable-based State**: Reactive composables for cross-window synchronization
 - **Lottie Animations**: Beautiful, lightweight sun/moon animations
 - **Tailwind CSS**: Responsive design that works on any screen size
-- **i18n Support**: Multi-language support (English, Chinese, Japanese)
+- **i18n Support**: Multi-language support (English, Chinese, Japanese, Portuguese, Spanish)
 
 ### Browser APIs Used
 - [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API) - Prevents screen sleep

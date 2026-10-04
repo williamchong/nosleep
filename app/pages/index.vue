@@ -130,6 +130,7 @@
 import { useEventListener } from '@vueuse/core'
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const wakeLock = useWakeLockState()
 const documentPip = useDocumentPiP()
 const colorMode = useColorMode()
@@ -188,8 +189,8 @@ const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
   const baseUrl = window.location.origin
   // PiP mode is identified by the /pip path itself; only the initial theme is passed as a query.
   // Once hydrated the iframe announces itself with 'pip-ready' and useWakeLockState hands the
-  // wake lock state over in response.
-  iframe.src = `${baseUrl}${PIP_PATH}?colorMode=${colorMode.value}`
+  // wake lock state over in response. Localized, or every locale's floating window is English.
+  iframe.src = `${baseUrl}${localePath(PIP_PATH)}?colorMode=${colorMode.value}`
 
   pipWin.document.documentElement.style.cssText = 'width:100%;height:100%;margin:0;padding:0'
   pipWin.document.body.style.cssText = 'width:100%;height:100%;margin:0;padding:0;overflow:hidden'

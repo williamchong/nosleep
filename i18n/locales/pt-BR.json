@@ -1,0 +1,272 @@
+{
+  "site": {
+    "title": "NoSleep - Mantenha a Tela Ligada, Evite a Suspensão e o Desligamento da Tela | Ferramenta Web Grátis",
+    "description": "Mantenha a tela ligada e impeça que o computador entre em suspensão. Ferramenta web gratuita para evitar o desligamento da tela durante downloads, apresentações e tarefas longas. Sem downloads - funciona na hora no navegador, com timers personalizados e janela flutuante.",
+    "keywords": "manter tela ligada, evitar suspensão da tela, impedir que a tela desligue, manter monitor ligado, evitar suspensão do notebook, manter computador acordado, desativar desligamento da tela, impedir computador de dormir, tela sempre ligada, sem download, alternativa ao caffeine, alternativa ao amphetamine, manter macbook acordado, impedir suspensão do windows, chromebook manter tela ligada, evitar suspensão durante download, manter tela ligada em apresentação, screen wake lock, tela não desliga, notebook fica suspendendo",
+    "author": "William Chong",
+    "name": "NoSleep"
+  },
+  "meta": {
+    "ogTitle": "NoSleep - Mantenha a Tela Ligada e Evite a Suspensão do Computador | Ferramenta Web Grátis",
+    "ogDescription": "Ferramenta web gratuita para manter a tela ligada e evitar que ela desligue. Impeça a suspensão do notebook ou Mac durante downloads, apresentações e tarefas longas. Nada para instalar - funciona na hora no navegador.",
+    "applicationDescription": "Uma ferramenta web gratuita que impede o computador ou celular de entrar em suspensão usando a Screen Wake Lock API. Inclui timers personalizáveis (1-720 minutos), janela flutuante sempre visível, sincronização entre janelas e animações bonitas."
+  },
+  "header": {
+    "title": "NoSleep",
+    "subtitle": "Um clique mantém sua tela ligada — sem downloads"
+  },
+  "button": {
+    "deviceAwake": "Dispositivo Acordado",
+    "deviceSleeping": "Dispositivo em Repouso",
+    "clickToKeepAwake": "Clique para Manter Acordado",
+    "focusToPopup": "Ir para a Janela Pop-up",
+    "start": "Iniciar",
+    "cancel": "Cancelar",
+    "cancelTimer": "Cancelar Timer"
+  },
+  "darkMode": {
+    "toggle": "Alternar modo escuro",
+    "light": "Claro",
+    "dark": "Escuro",
+    "system": "Sistema"
+  },
+  "status": {
+    "deviceAwake": "Seu dispositivo vai continuar acordado. Clique para permitir a suspensão.",
+    "deviceSleeping": "Seu dispositivo pode entrar em suspensão normalmente. Clique para mantê-lo acordado.",
+    "ariaLabelAwake": "Dispositivo acordado - Clique no sol para permitir a suspensão",
+    "ariaLabelSleep": "Dispositivo em repouso - Clique na lua para manter acordado",
+    "orbAwake": "Acordado enquanto esta aba estiver visível. Clique no sol para permitir a suspensão.",
+    "orbSleeping": "Suspensão permitida. Clique na lua para manter acordado."
+  },
+  "loading": {
+    "message": "Verificando o suporte do navegador..."
+  },
+  "unsupported": {
+    "title": "Navegador Não Suportado",
+    "message": "Seu navegador não suporta a Screen Wake Lock API, necessária para o NoSleep funcionar.",
+    "suggestion": "Tente usar o Chrome 84+, Edge 84+, Safari 16.4+ ou uma versão recente do Firefox."
+  },
+  "timer": {
+    "label": "Definir Timer",
+    "labelExpanded": "Ocultar Opções do Timer",
+    "timerFormat": "Timer: {time}",
+    "minutes": "min",
+    "remaining": "restante",
+    "explanation": "O dispositivo poderá entrar em suspensão automaticamente quando o timer acabar",
+    "untilStopped": "Até Parar",
+    "hour": "Hora",
+    "hours": "Horas",
+    "custom": "Personalizado",
+    "customDuration": "Duração Personalizada",
+    "startInfinite": "Iniciar (Sem Timer)",
+    "startWithDuration": "Iniciar Timer ({duration})",
+    "until": "Até…",
+    "untilTime": "Manter acordado até",
+    "durationMinutes": "{minutes} min",
+    "durationHours": "{hours} h",
+    "durationHoursMinutes": "{hours} h {minutes} min"
+  },
+  "instructions": {
+    "title": "Para Melhores Resultados",
+    "keepTabFrontmost": "Mantenha esta aba visível e ativa no navegador",
+    "avoidBackgrounding": "Ou use uma janela pop-up dedicada que fica sempre por cima",
+    "openPopup": "Abrir Janela Dedicada"
+  },
+  "floatingWindow": {
+    "openButton": "Abrir Janela Flutuante",
+    "focusButton": "Ir para a Janela Flutuante",
+    "alternative": "(Alternativa: mantenha esta aba sempre ativa)"
+  },
+  "suspensionNotice": {
+    "title": "Sua tela pode ter entrado em suspensão enquanto esta aba estava em segundo plano",
+    "description": "Os navegadores pausam o wake lock em abas ocultas. Abra a janela flutuante acima para manter a tela ligada enquanto usa outras abas e apps.",
+    "dismiss": "Não mostrar novamente"
+  },
+  "pip": {
+    "title": "NoSleep - Janela Flutuante",
+    "minimize": "Minimizar janela",
+    "restore": "Restaurar janela",
+    "statusActive": "NoSleep",
+    "statusInactive": "Em repouso"
+  },
+  "sections": {
+    "problems": {
+      "title": "Resolva Estes Problemas Comuns",
+      "subtitle": "Deixe esta página aberta para manter a tela ligada e evitar estes problemas:",
+      "items": [
+        {
+          "emoji": "🔄",
+          "title": "Downloads sempre interrompidos",
+          "description": "Mantenha o computador acordado durante downloads longos para que terminem sem falhas"
+        },
+        {
+          "emoji": "💻",
+          "title": "Notebook suspende durante a apresentação",
+          "description": "Evite que a tela desligue em reuniões e demonstrações importantes"
+        },
+        {
+          "emoji": "🎬",
+          "title": "Renderização de vídeo para no meio",
+          "description": "Mantenha o monitor ligado em renderizações longas e processamento de arquivos"
+        },
+        {
+          "emoji": "📊",
+          "title": "Painel apaga durante o monitoramento",
+          "description": "Impeça a tela de desligar enquanto acompanha dados ou ferramentas em tempo real"
+        },
+        {
+          "emoji": "📖",
+          "title": "Leitura interrompida pela tela escurecendo",
+          "description": "Mantenha a tela ligada ao ler artigos ou documentos longos"
+        },
+        {
+          "emoji": "🎮",
+          "title": "Jogo desconecta quando o computador suspende",
+          "description": "Evite a suspensão em sessões de jogo paradas ou atividades AFK"
+        }
+      ]
+    },
+    "alternatives": {
+      "title": "Por Que Escolher o NoSleep em Vez de Apps de Desktop?",
+      "subtitle": "Ao contrário dos apps tradicionais para evitar a suspensão, o NoSleep funciona inteiramente no navegador:",
+      "features": [
+        "Nada para instalar - funciona na hora no Chrome, Edge, Safari ou Firefox",
+        "Multiplataforma - funciona no Mac, Windows, Chromebook, Linux, iPhone e Android",
+        "Totalmente grátis, sem anúncios, cadastros ou custos escondidos",
+        "Timer personalizável (1-720 minutos) para liberar a suspensão automaticamente",
+        "Janela flutuante sempre visível para acesso prático enquanto você trabalha",
+        "Seguro e privado - usa apenas APIs padrão do navegador e não coleta dados pessoais"
+      ],
+      "vsCaffeine": "vs Caffeine (Mac)",
+      "vsAmphetamine": "vs Amphetamine (Mac)",
+      "vsInsomniaX": "vs InsomniaX (Windows)",
+      "vsPowerPlant": "vs PowerPlant (Windows)",
+      "comparisonNote": "Esses apps precisam ser baixados e instalados. O NoSleep roda direto no navegador com a mesma função.",
+      "compareTo": "Compare com:"
+    },
+    "howToUse": {
+      "title": "Como Usar o NoSleep - Guia Simples em 3 Passos",
+      "steps": [
+        "Abra esta página — sua tela fica ligada na hora (clique no sol ou na lua para alternar)",
+        "Opcional: defina um timer personalizado (1-720 minutos) para liberar o wake lock automaticamente",
+        "Abra a janela flutuante para continuar funcionando enquanto usa outras abas, ou mantenha esta aba ativa"
+      ],
+      "note": "Sua tela vai continuar ligada até você clicar no sol de novo, o timer acabar ou você fechar a página."
+    },
+    "faq": {
+      "title": "Perguntas Frequentes",
+      "useCases": {
+        "question": "Melhores Usos para o Screen Wake Lock",
+        "answers": [
+          "Downloads e uploads: timers de 30-60 min para evitar interrupções",
+          "Sessões de trabalho: timers de foco de 15-30 min para programar e produzir",
+          "Apresentações: mantenha a tela ativa em reuniões e demonstrações",
+          "Processos longos: timers de 2-4 horas para renderização de vídeo e builds",
+          "Streaming: lives e gravações sem interrupção por suspensão",
+          "Estudos: timers de foco sem a distração da tela apagando",
+          "Programação longa: desenvolvimento assistido por IA com ferramentas como o Claude Code",
+          "Monitoramento: mantenha painéis e ferramentas em tempo real visíveis"
+        ]
+      },
+      "howItWorks": {
+        "question": "Como o NoSleep funciona?",
+        "answer": "O NoSleep usa a Screen Wake Lock API embutida no navegador - uma tecnologia padrão e segura que impede a tela de desligar. Basta clicar no botão para ativar e, se quiser, definir um timer (1-720 minutos) para liberar automaticamente ao final. Os ícones animados de sol e lua mostram o status atual. Para melhores resultados, use a janela flutuante, que fica sempre por cima e continua visível mesmo quando você troca de aba."
+      },
+      "safety": {
+        "question": "É seguro usar?",
+        "answer": "Sim, totalmente seguro! A ferramenta usa apenas APIs web padrão e não acessa seus arquivos, câmera, microfone ou dados pessoais. Ela só impede que o dispositivo entre em suspensão - como mexer o mouse de vez em quando. Nenhum dado é coletado ou enviado."
+      },
+      "browserSupport": {
+        "question": "Quais navegadores funcionam?",
+        "nativeApiTitle": "Navegadores Suportados:",
+        "nativeApiBrowsers": [
+          "Chrome 84+ (Computador e Celular)",
+          "Microsoft Edge 84+",
+          "Safari 16.4+ (Mac e iPhone)",
+          "Firefox (com configuração adicional)"
+        ],
+        "fallbackTitle": "",
+        "fallbackBrowsers": [],
+        "note": "Se o seu navegador não suportar a Wake Lock API, você verá uma mensagem de erro. Atualize para um navegador suportado."
+      },
+      "timerFeature": {
+        "question": "Como defino um timer de suspensão?",
+        "answer": "Clique em \"Definir Timer\" e escolha 1, 4 ou 8 horas, arraste o controle Personalizado (1 minuto a 12 horas) ou escolha \"Até…\" para parar em um horário, como 18h. O dispositivo volta à suspensão normal quando o timer acaba - ideal para o expediente, downloads ou estudos. Cancele quando quiser para parar antes."
+      },
+      "properUsage": {
+        "question": "Qual é a melhor forma de usar o NoSleep?",
+        "answer": "Para a melhor experiência, clique em \"Abrir Janela Flutuante\" para criar um pop-up sempre por cima que fica visível enquanto você trabalha. A janela flutuante sincroniza automaticamente com a página principal e não some quando você troca de aba. Você também pode manter a aba principal ativa e visível, mas a janela flutuante é a opção mais confiável e prática."
+      }
+    },
+    "about": {
+      "title": "Sobre",
+      "description": "Criado por William Chong como uma ferramenta web simples e útil. Veja mais projetos e artigos no meu blog.",
+      "visitBlog": "Visitar Meu Blog"
+    }
+  },
+  "structuredData": {
+    "howTo": {
+      "main": {
+        "name": "Como Impedir que a Tela Entre em Suspensão",
+        "description": "Guia passo a passo para impedir que o computador ou celular entre em suspensão usando a ferramenta web NoSleep.",
+        "step1Name": "Abra o site do NoSleep",
+        "step1Text": "Abra este site no navegador (Chrome, Edge, Safari ou Firefox)",
+        "step2Name": "Clique para manter a tela ligada",
+        "step2Text": "Clique no botão \"Clique para Manter Acordado\" para ativar o wake lock da tela",
+        "step3Name": "Defina um timer opcional",
+        "step3Text": "Se quiser, defina um timer (1-720 minutos) para liberar a suspensão automaticamente ao final",
+        "step4Name": "Use a janela flutuante (opcional)",
+        "step4Text": "Clique em \"Abrir Janela Flutuante\" para ter um pop-up sempre por cima, visível enquanto você trabalha",
+        "toolName": "Navegador moderno com suporte à Screen Wake Lock API"
+      },
+      "download": {
+        "name": "Como Impedir que o Computador Suspenda Durante Downloads",
+        "description": "Mantenha o computador acordado e evite downloads interrompidos com o NoSleep.",
+        "step1Name": "Inicie o download",
+        "step1Text": "Comece o download do arquivo no navegador ou no gerenciador de downloads",
+        "step2Name": "Defina um timer para a duração do download",
+        "step2Text": "Abra o NoSleep e defina um timer de acordo com o tempo do download (ex.: 30-60 minutos)",
+        "step3Name": "Ative o wake lock",
+        "step3Text": "Clique para ativar - o computador vai continuar acordado até o download terminar"
+      },
+      "presentation": {
+        "name": "Como Manter a Tela Ligada Durante uma Apresentação",
+        "description": "Evite que a tela desligue em reuniões, apresentações e demonstrações.",
+        "step1Name": "Abra o NoSleep antes da apresentação",
+        "step1Text": "Abra este site no navegador antes de começar a apresentação",
+        "step2Name": "Ative o wake lock",
+        "step2Text": "Clique no botão para manter a tela ligada durante toda a apresentação",
+        "step3Name": "Use a janela flutuante para mais praticidade",
+        "step3Text": "Abra a janela flutuante para acompanhar o status facilmente enquanto apresenta",
+        "step4Name": "Desative após a apresentação",
+        "step4Text": "Clique no botão de novo ou deixe o timer acabar para voltar à suspensão normal"
+      }
+    },
+    "faq": {
+      "useCases": {
+        "question": "Quais são os melhores usos do wake lock do NoSleep?",
+        "answer": "O NoSleep impede a suspensão da tela em downloads e uploads (timers de 30-60 min), sessões de trabalho com timers de foco de 15-30 min, apresentações em reuniões, processos longos como renderização de vídeo (2-4 horas), streaming sem interrupções, estudos, programação longa com ferramentas de IA e monitoramento de painéis."
+      },
+      "howItWorks": {
+        "question": "Como o NoSleep funciona?",
+        "answer": "O NoSleep usa a Screen Wake Lock API embutida no navegador - uma tecnologia padrão e segura que impede a tela de desligar. Basta clicar no botão para ativar e, se quiser, definir um timer (1-720 minutos) para liberar automaticamente ao final. Os ícones animados de sol e lua mostram o status atual. Para melhores resultados, use a janela flutuante, que fica sempre por cima e continua visível mesmo quando você troca de aba."
+      },
+      "safety": {
+        "question": "O NoSleep é seguro?",
+        "answer": "Sim, totalmente seguro! A ferramenta usa apenas APIs web padrão e não acessa seus arquivos, câmera, microfone ou dados pessoais. Ela só impede que o dispositivo entre em suspensão - como mexer o mouse de vez em quando. Nenhum dado é coletado ou enviado."
+      },
+      "browserSupport": {
+        "question": "Quais navegadores suportam o NoSleep?",
+        "answer": "O NoSleep precisa de navegadores com suporte à Screen Wake Lock API: Chrome 84+, Microsoft Edge 84+, Safari 16.4+ e Firefox com configuração adicional. O app detecta o suporte do navegador automaticamente. Use a janela pop-up para a experiência mais confiável."
+      },
+      "timerFeature": {
+        "question": "Como funciona o timer?",
+        "answer": "Clique em \"Definir Timer\" e escolha 1, 4 ou 8 horas, arraste o controle Personalizado (1 minuto a 12 horas) ou escolha \"Até…\" para parar em um horário, como 18h. O dispositivo volta à suspensão normal quando o timer acaba - ideal para o expediente, downloads ou estudos. Cancele quando quiser para parar antes."
+      },
+      "properUsage": {
+        "question": "Qual é a melhor forma de usar o NoSleep?",
+        "answer": "Para a melhor experiência, clique em \"Abrir Janela Flutuante\" para criar um pop-up sempre por cima que fica visível enquanto você trabalha. A janela flutuante sincroniza automaticamente com a página principal e não some quando você troca de aba. Você também pode manter a aba principal ativa e visível, mas a janela flutuante é a opção mais confiável e prática."
+      }
+    }
+  }
+}
