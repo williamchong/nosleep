@@ -36,7 +36,8 @@
     "ariaLabelAwake": "Dispositivo despierto - Haz clic en el sol para permitir la suspensión",
     "ariaLabelSleep": "Dispositivo en reposo - Haz clic en la luna para mantenerlo despierto",
     "orbAwake": "Despierto mientras esta pestaña esté visible. Haz clic en el sol para permitir la suspensión.",
-    "orbSleeping": "Suspensión permitida. Haz clic en la luna para mantenerlo despierto."
+    "orbSleeping": "Suspensión permitida. Haz clic en la luna para mantenerlo despierto.",
+    "needsClick": "Tu navegador necesita un clic antes de poder mantener la pantalla encendida."
   },
   "loading": {
     "message": "Comprobando la compatibilidad del navegador..."

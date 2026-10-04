@@ -36,7 +36,8 @@
     "ariaLabelAwake": "Device is awake - Click sun to allow sleep",
     "ariaLabelSleep": "Device is sleeping - Click moon to keep awake",
     "orbAwake": "Awake while this tab is visible. Click the sun to allow sleep.",
-    "orbSleeping": "Sleep allowed. Click the moon to keep awake."
+    "orbSleeping": "Sleep allowed. Click the moon to keep awake.",
+    "needsClick": "Your browser needs one click before it can keep the screen awake."
   },
   "loading": {
     "message": "Checking browser support..."

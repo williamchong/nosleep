@@ -36,7 +36,8 @@
     "ariaLabelAwake": "Dispositivo acordado - Clique no sol para permitir a suspensão",
     "ariaLabelSleep": "Dispositivo em repouso - Clique na lua para manter acordado",
     "orbAwake": "Acordado enquanto esta aba estiver visível. Clique no sol para permitir a suspensão.",
-    "orbSleeping": "Suspensão permitida. Clique na lua para manter acordado."
+    "orbSleeping": "Suspensão permitida. Clique na lua para manter acordado.",
+    "needsClick": "Seu navegador precisa de um clique antes de manter a tela ligada."
   },
   "loading": {
     "message": "Verificando o suporte do navegador..."

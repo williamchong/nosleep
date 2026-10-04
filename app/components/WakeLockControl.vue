@@ -143,6 +143,9 @@
               :total-seconds="timerTotalSeconds"
             />
           </div>
+          <p v-if="autoAcquireFailed && !wakeLock.isEffectivelyActive" class="text-sm text-warning">
+            {{ $t('status.needsClick') }}
+          </p>
         </ClientOnly>
 
         <!-- Where Document PiP works the floating window is the hero action and the sun/moon is
@@ -245,6 +248,8 @@ defineEmits<{ 'open-window': [source: PipOpenSource] }>()
 
 const wakeLock = props.wakeLock
 const showTimerSection = ref(false)
+// Safari refuses a wake lock until the page has had a click, so the automatic start fails there.
+const autoAcquireFailed = ref(false)
 
 const heroOpensPip = computed(() => props.pipSupported && !wakeLock.isPipMode)
 
@@ -369,6 +374,7 @@ onMounted(async () => {
 
   // A successful start is already counted by the $pageview, so only report failures.
   if (autoAcquireSuccess) return
+  autoAcquireFailed.value = true
   trackEvent('app_init', {
     surface: wakeLock.surface,
     supported: true,
