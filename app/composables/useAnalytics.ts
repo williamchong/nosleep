@@ -7,9 +7,11 @@ export const useAnalytics = () => {
   /**
    * `beacon` is for events sent while the page unloads, where PostHog's normal request is dropped.
    * GA4's gtag already sends by beacon when it can.
+   * `posthog: false` keeps low-value UI events in GA only, to stay inside PostHog's event quota.
    */
-  const trackEvent = (eventName: string, props?: Record<string, unknown>, options?: { beacon?: boolean }) => {
+  const trackEvent = (eventName: string, props?: Record<string, unknown>, options?: { beacon?: boolean, posthog?: boolean }) => {
     ga.gtag('event', eventName, props)
+    if (options?.posthog === false) return
     ph.posthog.capture(eventName, props, options?.beacon ? { transport: 'sendBeacon' } : undefined)
   }
 

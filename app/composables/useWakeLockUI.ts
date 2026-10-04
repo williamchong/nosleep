@@ -45,7 +45,7 @@ export const useWakeLockUI = (wakeLockState: ReturnType<typeof useWakeLockState>
       try {
         if (!wakeLockState.pipWindowRef.closed) {
           wakeLockState.pipWindowRef.focus()
-          trackEvent('pip_focus', { source: `main_${source}` })
+          trackEvent('pip_focus', { source: `main_${source}` }, { posthog: false })
           return
         }
       } catch (e) {

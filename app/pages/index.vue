@@ -234,7 +234,7 @@ const openFloatingWindow = async () => {
   if (wakeLock.hasActivePipWindow) {
     try {
       wakeLock.pipWindowRef!.focus()
-      trackEvent('pip_focus', { source: 'hero' })
+      trackEvent('pip_focus', { source: 'hero' }, { posthog: false })
       return
     } catch (e) {
       console.warn('Could not focus PiP window:', e)

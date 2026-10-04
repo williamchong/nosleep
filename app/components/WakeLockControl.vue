@@ -296,7 +296,7 @@ const togglePipSize = () => {
   pipWin.resizeTo(width, height)
   const newSize = restoring ? 'restored' : 'minimized'
   setPipSizePreference(newSize)
-  trackEvent('pip_size_changed', { size: newSize })
+  trackEvent('pip_size_changed', { size: newSize }, { posthog: false })
 }
 
 const {
@@ -327,7 +327,7 @@ const toggleTimerSection = () => {
   showTimerSection.value = !showTimerSection.value
   trackEvent('timer_section_toggled', {
     action: showTimerSection.value ? 'expand' : 'collapse',
-  })
+  }, { posthog: false })
 }
 
 onMounted(async () => {

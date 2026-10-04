@@ -42,6 +42,6 @@ const toggleDarkMode = () => {
 
   colorMode.preference = newMode
 
-  trackEvent('dark_mode_toggled', { mode: newMode })
+  trackEvent('dark_mode_toggled', { mode: newMode }, { posthog: false })
 }
 </script>
