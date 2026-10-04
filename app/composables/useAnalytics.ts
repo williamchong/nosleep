@@ -1,6 +1,8 @@
 export const useAnalytics = () => {
   const { proxy: ga } = useScriptGoogleAnalytics()
-  const { proxy: ph } = useScriptPostHog()
+  // app/plugins/posthog.client.ts owns PostHog's options and load timing; without 'manual' this
+  // call would fall back to the 'client' trigger and load PostHog during hydration.
+  const { proxy: ph } = useScriptPostHog({ scriptOptions: { trigger: 'manual' } })
 
   /**
    * `beacon` is for events sent while the page unloads, where PostHog's normal request is dropped.

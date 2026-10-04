@@ -35,14 +35,6 @@ export default defineNuxtConfig({
         proxy: false,
         trigger: 'onNuxtReady',
       },
-      posthog: {
-        apiKey: 'phc_sNVSnBwyYLmDRxqcESGVNSr8yGdUp2nBwJ6zP45L6Duz',
-        apiHost: 'https://t.williamchong.cloud',
-        bundle: false,
-        proxy: false,
-        region: 'us',
-        trigger: 'onNuxtReady',
-      },
     },
   },
 
