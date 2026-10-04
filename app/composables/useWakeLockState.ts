@@ -201,7 +201,10 @@ async function acquire() {
       await native.request('screen')
     } catch (error) {
       console.error('Failed to acquire wake lock:', error)
-      trackEvent('wake_lock_acquire_failed')
+      trackEvent('wake_lock_acquire_failed', {
+        surface: surface.value,
+        error_name: error instanceof Error ? error.name : 'unknown',
+      })
       return false
     }
 
@@ -313,12 +316,24 @@ function failPipConnection(reason: PipConnectFailureReason) {
     waited_ms: pipOpenedAt === null ? null : Date.now() - pipOpenedAt,
     online: navigator.onLine,
     visibility: document.visibilityState,
+    // Whether the iframe loaded but never hydrated, or never loaded at all — the difference
+    // between a retry that would help and one that would not.
+    iframe_ready_state: pipIframeReadyState(pipWin),
+    pip_visibility: pipWin.document?.visibilityState ?? null,
   })
 
   pipWin.close()
   // A window closed before it ever painted may not fire pagehide, so tear down directly. The
   // guard inside handlePipClosed makes the pagehide path a no-op if it does arrive.
   void handlePipClosed(snapshotState())
+}
+
+function pipIframeReadyState(pipWin: Window): string | null {
+  try {
+    return pipWin.document.querySelector('iframe')?.contentDocument?.readyState ?? null
+  } catch {
+    return null
+  }
 }
 
 /** Adopt a freshly opened PiP window and start waiting for it to announce itself. */
@@ -394,6 +409,15 @@ function connectToPip() {
   transferStateToPip()
 }
 
+/** Take on the parent's running timer, if there is one. The caller starts the countdown. */
+function adoptTimer(state: WakeLockState): boolean {
+  if (!state.timerActive || state.remainingTime <= 0 || timerActive.value) return false
+  remainingTime.value = state.remainingTime
+  timerDuration.value = state.timerDuration
+  timerActive.value = true
+  return true
+}
+
 /**
  * An inbound state message. The parent's half converges — it mirrors whatever the iframe
  * reports — but the iframe's half is an initializer, not a sync: the parent sends exactly one
@@ -402,19 +426,24 @@ function connectToPip() {
  */
 async function handleWakeLockSync(state: WakeLockState) {
   if (isIframePip.value) {
+    // The parent holds its lock until exactly one reply arrives (completePipHandoff), so every
+    // path below answers once. acquire() and release() reply themselves.
     if (state.isActive && !isActive.value) {
-      const success = await acquire()
-      if (!success) return
+      // Copied before acquire() so the reply it sends already carries the timer.
+      const hasTimer = adoptTimer(state)
+      if (await acquire()) {
+        if (hasTimer) restartTimerInterval()
+        return
+      }
+      resetTimerState()
     } else if (!state.isActive && isActive.value) {
       await release('parent_sync')
       return
-    }
-    if (state.timerActive && state.remainingTime > 0 && !timerActive.value) {
-      remainingTime.value = state.remainingTime
-      timerDuration.value = state.timerDuration
-      timerActive.value = true
+    } else if (isActive.value && adoptTimer(state)) {
       restartTimerInterval()
     }
+    // An inactive handoff, or an acquire that failed, has sent nothing yet.
+    syncWakeLockState()
   } else if (pendingHandoff) {
     completePipHandoff(pendingHandoff, state)
   } else {

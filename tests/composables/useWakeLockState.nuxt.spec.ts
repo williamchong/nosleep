@@ -115,6 +115,15 @@ describe('wakeLock state', () => {
       expect(result).toBe(false)
       expect(state.isActive).toBe(false)
     })
+
+    it('reports which surface failed to acquire and why', async () => {
+      mockRequest.mockRejectedValueOnce(new DOMException('Document is hidden', 'NotAllowedError'))
+      await state.acquire()
+      expect(mockTrackEvent).toHaveBeenCalledWith('wake_lock_acquire_failed', {
+        surface: 'main',
+        error_name: 'NotAllowedError',
+      })
+    })
   })
 
   describe('startTimer and stopTimer', () => {
