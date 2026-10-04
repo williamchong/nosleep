@@ -13,7 +13,13 @@ export const useAnalytics = () => {
     ph.posthog.capture(eventName, props, options?.beacon ? { transport: 'sendBeacon' } : undefined)
   }
 
+  /** Attaches properties to every later PostHog event from this browser. */
+  const registerProperties = (props: Record<string, unknown>) => {
+    ph.posthog.register(props)
+  }
+
   return {
-    trackEvent
+    trackEvent,
+    registerProperties,
   }
 }

@@ -242,7 +242,7 @@ const heroButtonUi = {
   base: 'justify-center font-semibold transition-all duration-200 py-4 px-6 sm:py-6 sm:px-8 lg:py-8 rounded-xl sm:rounded-2xl text-lg sm:text-xl lg:text-2xl'
 }
 
-const { trackEvent } = useAnalytics()
+const { trackEvent, registerProperties } = useAnalytics()
 
 // Only attach resize listener in PiP mode to avoid overhead on main page
 const windowHeight = wakeLock.isPipMode ? useWindowSize().height : ref(Infinity)
@@ -333,8 +333,11 @@ const toggleTimerSection = () => {
 onMounted(async () => {
   if (!props.autoAcquire) return
 
+  // Per device, so safe to persist even though the PiP iframe shares this storage.
+  registerProperties({ is_pip_supported: hasDocumentPip() })
+
   if (!wakeLock.isSupported) {
-    trackEvent('app_init', { surface: wakeLock.surface, supported: false, is_pip_supported: hasDocumentPip() })
+    trackEvent('app_init', { surface: wakeLock.surface, supported: false })
     return
   }
 
@@ -345,11 +348,12 @@ onMounted(async () => {
     console.error('Auto-acquire error:', error)
   }
 
+  // A successful start is already counted by the $pageview, so only report failures.
+  if (autoAcquireSuccess) return
   trackEvent('app_init', {
     surface: wakeLock.surface,
     supported: true,
-    is_pip_supported: hasDocumentPip(),
-    auto_acquire_result: autoAcquireSuccess ? 'success' : 'failed',
+    auto_acquire_result: 'failed',
   })
 })
 </script>
