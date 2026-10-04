@@ -9,7 +9,7 @@
   "meta": {
     "ogTitle": "NoSleep - Keep Screen On & Prevent Computer Sleep | Free Web Tool",
     "ogDescription": "Free web tool to keep your screen on and stop screen timeout. Prevent laptop/Mac sleep during downloads, presentations, and long tasks. No installation needed - works instantly in browser.",
-    "applicationDescription": "A free web-based tool that prevents your computer or mobile device from going to sleep using the Screen Wake Lock API. Features customizable timers (1-480 minutes), always-on-top floating window, cross-window synchronization, and beautiful animated visual feedback."
+    "applicationDescription": "A free web-based tool that prevents your computer or mobile device from going to sleep using the Screen Wake Lock API. Features customizable timers (1-720 minutes), always-on-top floating window, cross-window synchronization, and beautiful animated visual feedback."
   },
   "header": {
     "title": "NoSleep",
@@ -59,7 +59,12 @@
     "custom": "Custom",
     "customDuration": "Custom Duration",
     "startInfinite": "Start (No Timer)",
-    "startWithDuration": "Start Timer ({minutes} min)"
+    "startWithDuration": "Start Timer ({duration})",
+    "until": "Until…",
+    "untilTime": "Keep awake until",
+    "durationMinutes": "{minutes} min",
+    "durationHours": "{hours} h",
+    "durationHoursMinutes": "{hours} h {minutes} min"
   },
   "instructions": {
     "title": "For Best Results",
@@ -123,7 +128,7 @@
         "No installation required - works instantly in Chrome, Edge, Safari, or Firefox",
         "Cross-platform compatibility - works on Mac, Windows, Chromebook, Linux, iPhone, and Android",
         "Completely free with no ads, sign-ups, or hidden costs",
-        "Customizable timer (1-480 minutes) for automatic sleep release",
+        "Customizable timer (1-720 minutes) for automatic sleep release",
         "Always-on-top floating window for convenient access while working",
         "Safe and private - uses only standard browser APIs, no personal data collected"
       ],
@@ -138,7 +143,7 @@
       "title": "How to Use NoSleep - Simple 3-Step Guide",
       "steps": [
         "Open this page — your screen stays awake right away (click the sun or moon to switch)",
-        "Optional: Set a custom timer (1-480 minutes) to auto-release wake lock",
+        "Optional: Set a custom timer (1-720 minutes) to auto-release wake lock",
         "Open the floating window so it keeps working while you use other tabs, or keep this tab active"
       ],
       "note": "Your screen will stay awake until you click the sun again, the timer expires, or you close the page."
@@ -160,7 +165,7 @@
       },
       "howItWorks": {
         "question": "How does NoSleep work?",
-        "answer": "NoSleep uses your browser's built-in Screen Wake Lock API - a safe, standard technology that prevents your screen from sleeping. Simply click the button to activate, and optionally set a timer (1-480 minutes) to automatically release when done. The animated sun/moon icons show the current status. For best results, use the floating window feature which creates an always-on-top popup that stays visible even when you switch tabs."
+        "answer": "NoSleep uses your browser's built-in Screen Wake Lock API - a safe, standard technology that prevents your screen from sleeping. Simply click the button to activate, and optionally set a timer (1-720 minutes) to automatically release when done. The animated sun/moon icons show the current status. For best results, use the floating window feature which creates an always-on-top popup that stays visible even when you switch tabs."
       },
       "safety": {
         "question": "Is it safe to use?",
@@ -181,7 +186,7 @@
       },
       "timerFeature": {
         "question": "How do I set a sleep timer?",
-        "answer": "Click \"Timer\" to set how long you want your screen to stay awake (1-480 minutes). Type a number or use the quick buttons (+1, +5, +10, +30 minutes). Your device will automatically go back to normal sleep mode when time runs out - perfect for downloads, work sessions, or study time. Cancel anytime if you need to stop early."
+        "answer": "Click \"Set Timer\" and choose 1, 4 or 8 hours, drag the Custom slider (1 minute to 12 hours), or pick \"Until…\" to stop at a time of day such as 6pm. Your device goes back to normal sleep when the timer runs out - perfect for workdays, downloads or study sessions. Cancel anytime to stop early."
       },
       "properUsage": {
         "question": "What's the best way to use NoSleep?",
@@ -204,7 +209,7 @@
         "step2Name": "Click to keep screen awake",
         "step2Text": "Click the \"Click to Keep Awake\" button to activate the screen wake lock",
         "step3Name": "Set optional timer",
-        "step3Text": "Optionally set a timer (1-480 minutes) for automatic sleep release when done",
+        "step3Text": "Optionally set a timer (1-720 minutes) for automatic sleep release when done",
         "step4Name": "Use floating window (optional)",
         "step4Text": "Click \"Open Floating Window\" for an always-on-top popup that stays visible while working",
         "toolName": "Modern web browser with Screen Wake Lock API support"
@@ -239,7 +244,7 @@
       },
       "howItWorks": {
         "question": "How does NoSleep work?",
-        "answer": "NoSleep uses your browser's built-in Screen Wake Lock API - a safe, standard technology that prevents your screen from sleeping. Simply click the button to activate, and optionally set a timer (1-480 minutes) to automatically release when done. The animated sun/moon icons show the current status. For best results, use the floating window feature which creates an always-on-top popup that stays visible even when you switch tabs."
+        "answer": "NoSleep uses your browser's built-in Screen Wake Lock API - a safe, standard technology that prevents your screen from sleeping. Simply click the button to activate, and optionally set a timer (1-720 minutes) to automatically release when done. The animated sun/moon icons show the current status. For best results, use the floating window feature which creates an always-on-top popup that stays visible even when you switch tabs."
       },
       "safety": {
         "question": "Is NoSleep safe to use?",
@@ -251,7 +256,7 @@
       },
       "timerFeature": {
         "question": "How does the timer feature work?",
-        "answer": "Click the Timer option to set a custom duration (1-480 minutes) for automatic sleep. Use the number input or quick increment buttons (+1, +5, +10, +30 minutes) to set your time. The device will automatically allow sleep when the timer expires, perfect for timed tasks like downloads, renders, or study sessions."
+        "answer": "Click \"Set Timer\" and choose 1, 4 or 8 hours, drag the Custom slider (1 minute to 12 hours), or pick \"Until…\" to stop at a time of day such as 6pm. Your device goes back to normal sleep when the timer runs out - perfect for workdays, downloads or study sessions. Cancel anytime to stop early."
       },
       "properUsage": {
         "question": "What's the best way to use NoSleep?",

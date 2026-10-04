@@ -32,7 +32,7 @@ node .claude/skills/run-nosleep/driver.mjs smoke
 
 That runs the full user flow with assertions and prints `SMOKE PASSED` /
 `SMOKE FAILED` (exit code 1 on failure). It covers: load + auto-acquire, toggle
-off/on, start a 15-minute timer and watch it tick, cancel, open the PiP window,
+off/on, start a 1-hour timer and watch it tick, cancel, open the PiP window,
 toggle *inside* the PiP iframe and assert the parent mirrors it, flip the theme on
 the parent and assert the PiP follows, minimize into the compact layout and restore
 (asserting the persisted size preference both ways), close PiP and assert the parent

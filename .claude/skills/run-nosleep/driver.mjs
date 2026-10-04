@@ -408,9 +408,9 @@ async function cmdSmoke() {
   r = await until(page, x => x.active)
   check('re-acquired', r.ok, r.state)
 
-  log('3. start a 15 minute timer and watch it tick')
+  log('3. start a 1 hour timer and watch it tick')
   await page.click(SEL.setTimer)
-  await page.click('button:has-text("15 min")')
+  await page.click('button:has-text("1 Hour")')
   await page.click('button:has-text("Start Timer")')
   await page.waitForSelector(SEL.timerDisplay, { timeout: 10000 })
   const first = (await snapshot(page)).timer

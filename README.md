@@ -1,11 +1,11 @@
 # NoSleep: Prevent Screen Sleep with Custom Timers
 
-A free web tool that keeps your screen awake during downloads, work sessions, presentations, and long-running processes. No installation needed - works directly in your browser with custom timer settings from 1-480 minutes.
+A free web tool that keeps your screen awake during downloads, work sessions, presentations, and long-running processes. No installation needed - works directly in your browser with custom timer settings from 1 minute to 12 hours.
 
 ## ✨ Key Features
 
 - 🚫 **Prevent Screen Sleep** - Keep your device awake with one click
-- ⏰ **Smart Timer System** - Set auto-sleep timers from 1 to 480 minutes (up to 8 hours)
+- ⏰ **Smart Timer System** - Set auto-sleep timers from 1 minute to 12 hours, or until a time of day
 - 🪟 **Floating Window Mode** - Always-on-top popup window that stays visible
 - 🎨 **Visual Feedback** - Animated sun/moon icons show active status
 - 📱 **Cross-Platform** - Works on desktop computers, tablets, and mobile phones
@@ -29,13 +29,13 @@ NoSleep uses your browser's built-in [Screen Wake Lock API](https://developer.mo
 
 ### Simple 3-Step Process
 1. **Click the button** to activate wake lock
-2. **Set a timer** (optional) - choose 1-480 minutes or run until you manually stop
+2. **Set a timer** (optional) - choose 1 minute to 12 hours, an end time, or run until you manually stop
 3. **Keep the tab active** or use the floating window feature
 
 ### Smart Features
 - **Instant Activation**: One click starts keeping your screen awake
 - **Animated Status Icons**: Sun animation when active, moon when sleeping
-- **Flexible Timers**: Preset durations (15 min, 1 hour, 4 hours) or custom slider (1-480 min)
+- **Flexible Timers**: Preset durations (1, 4 or 8 hours), a custom slider (1-720 min) or an end time
 - **Floating Window**: Dedicated popup that stays on top and syncs with main page
 - **Auto-Release**: Automatically allows sleep when timer expires
 - **Cross-Window Sync**: Controls in floating window update the main page in real-time
@@ -76,8 +76,8 @@ npm run typecheck        # Run TypeScript type checking
 ### Using the Timer Feature
 1. **Click "Set Timer"** below the main button
 2. **Choose your duration**:
-   - Select a preset: 15 minutes, 1 hour, or 4 hours
-   - Or choose "Custom" and use the slider (1-480 minutes)
+   - Select a preset: 1, 4 or 8 hours
+   - Or choose "Custom" and use the slider (1-720 minutes), or "Until…" to stop at a time of day
 3. **Click "Start Timer"** to begin
 4. **Relax** - your screen stays awake until the timer expires
 5. **Cancel anytime** if you finish early
