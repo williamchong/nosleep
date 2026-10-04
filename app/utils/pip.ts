@@ -46,6 +46,11 @@ export function isPipHandshakeMessage(data: unknown): data is PipHandshakeMessag
 export type PipMessage =
   | { type: 'wake-lock-sync', state: WakeLockState }
   | { type: 'color-mode-sync', mode: string }
+  // Carries no state, so the once-only state handoff is untouched (see focusPipWindow).
+  | { type: 'pip-attention' }
+
+/** How long the floating window pulses after the main window asks for attention. */
+export const PIP_ATTENTION_MS = 1200
 
 const PIP_SIZE_KEY = 'nosleep-pip-size'
 const PIP_SIZE_MINIMIZED = 'minimized'

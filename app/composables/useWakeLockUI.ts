@@ -41,17 +41,9 @@ export const useWakeLockUI = (wakeLockState: ReturnType<typeof useWakeLockState>
   // Which control the user clicked, so the hero button and the sun/moon can be told apart.
   const handleToggle = async (source: 'button' | 'orb') => {
     // If parent has active PiP window, focus to it instead
-    if (hasActivePipWindow.value && !isPipMode && wakeLockState.pipWindowRef) {
-      try {
-        if (!wakeLockState.pipWindowRef.closed) {
-          wakeLockState.pipWindowRef.focus()
-          trackEvent('pip_focus', { source: `main_${source}` }, { posthog: false })
-          return
-        }
-      } catch (e) {
-        // Handle cross-origin exception - treat as closed
-        console.warn('Could not access PiP window:', e)
-      }
+    if (hasActivePipWindow.value && !isPipMode && wakeLockState.focusPipWindow()) {
+      trackEvent('pip_focus', { source: `main_${source}` }, { posthog: false })
+      return
     }
 
     try {

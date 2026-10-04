@@ -22,6 +22,7 @@
             @click="handleWakeLockToggle('orb')"
           >
             <span :class="compactEmojiClass" :style="compactEmojiStyle">{{ compactEmoji }}</span>
+            <span v-if="wakeLock.pipAttention" :class="attentionPulseClass" aria-hidden="true" />
             <TimerRing
               class="-inset-1"
               :active="wakeLock.timerActive"
@@ -134,6 +135,7 @@
         <ClientOnly>
           <div class="relative w-fit mx-auto">
             <StatusAnimation :is-active="wakeLock.isEffectivelyActive" :size="orbSize" @toggle="handleWakeLockToggle('orb')" />
+            <span v-if="wakeLock.pipAttention" :class="attentionPulseClass" aria-hidden="true" />
             <TimerRing
               :class="wakeLock.isPipMode ? '-inset-2' : '-inset-3 sm:-inset-4'"
               :active="wakeLock.timerActive"
@@ -247,6 +249,9 @@ const showTimerSection = ref(false)
 const heroOpensPip = computed(() => props.pipSupported && !wakeLock.isPipMode)
 
 const timerTotalSeconds = computed(() => wakeLock.timerDuration * 60)
+
+// Answers the main window's "Focus to Floating Window"; a steady ring under reduced motion.
+const attentionPulseClass = 'pointer-events-none absolute inset-0 rounded-full ring-4 ring-primary motion-safe:animate-ping'
 
 // The composable only raises it in the main window, where the hero opens the floating window.
 const showSuspensionNotice = computed(() => wakeLock.suspensionNotice !== null)

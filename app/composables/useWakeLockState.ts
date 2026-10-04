@@ -74,6 +74,9 @@ const pipPort = shallowRef<MessagePort | null>(null)
 // transport stays inside this module.
 const pipColorMode = ref<string | null>(null)
 
+/** PiP iframe only: true while the window pulses in answer to the main window's focus button. */
+const pipAttention = ref(false)
+
 const _selfWindow = shallowRef<Window>()
 
 /**
@@ -313,6 +316,26 @@ const { start: startHandoffTimeout, stop: stopHandoffTimeout } = useTimeoutFn(()
   pendingHandoff = null
   trackEvent('client_error', { kind: 'pip_handoff_timeout' })
 }, PIP_HANDOFF_TIMEOUT_MS, { immediate: false })
+
+const { start: startAttentionTimeout, stop: stopAttentionTimeout } = useTimeoutFn(() => {
+  pipAttention.value = false
+}, PIP_ATTENTION_MS, { immediate: false })
+
+/**
+ * Main window only. Bring the floating window forward and have it pulse: it is already always
+ * on top, so focus alone shows nothing, and people kept clicking. False if there is no window.
+ */
+function focusPipWindow(): boolean {
+  const pipWin = pipWindowRef.value
+  if (!pipWin || pipWin.closed) return false
+  try {
+    pipWin.focus()
+  } catch (e) {
+    console.warn('Could not focus PiP window:', e)
+  }
+  postToPip({ type: 'pip-attention' })
+  return true
+}
 
 const { start: startConnectTimeout, stop: stopConnectTimeout } = useTimeoutFn(() => {
   failPipConnection('connect_timeout')
@@ -593,6 +616,11 @@ function handlePortMessage(event: MessageEvent<PipMessage>) {
   }
   if (event.data.type === 'color-mode-sync') {
     pipColorMode.value = event.data.mode
+    return
+  }
+  if (event.data.type === 'pip-attention') {
+    pipAttention.value = true
+    startAttentionTimeout()
   }
 }
 
@@ -610,6 +638,8 @@ function cleanup() {
   hiddenAt = null
   suspensionReportedFor = null
   suspensionNotice.value = null
+  pipAttention.value = false
+  stopAttentionTimeout()
   // Drop the PiP reference first, or release() bails on isParentWithActivePip and the sentinel
   // is discarded below without ever being released.
   pipWindowRef.value = null
@@ -644,6 +674,8 @@ const wakeLockState = reactive({
   handlePipClosed,
   postToPip,
   pipColorMode,
+  pipAttention,
+  focusPipWindow,
   suspensionNotice,
   dismissSuspensionNotice,
   cleanup

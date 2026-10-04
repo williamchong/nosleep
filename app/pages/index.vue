@@ -232,14 +232,9 @@ const openFloatingWindow = async (source: PipOpenSource) => {
   }
 
   // If PiP window is already open, just focus it
-  if (wakeLock.hasActivePipWindow) {
-    try {
-      wakeLock.pipWindowRef!.focus()
-      trackEvent('pip_focus', { source }, { posthog: false })
-      return
-    } catch (e) {
-      console.warn('Could not focus PiP window:', e)
-    }
+  if (wakeLock.focusPipWindow()) {
+    trackEvent('pip_focus', { source }, { posthog: false })
+    return
   }
 
   // Open Document PiP window

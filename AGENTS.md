@@ -24,7 +24,7 @@ The app uses the **Document Picture-in-Picture API** (`useDocumentPiP.ts`) for a
 
 **Cross-Window Communication** (all in `useWakeLockState.ts`; `useDocumentPiP.ts` only opens/closes the window):
 - The PiP window hosts the app in an iframe (`isIframePip` flag). The window bus carries only the handshake: the iframe posts `pip-ready` to its parent (the PiP window), and the main window replies into the iframe with `pip-connect`, transferring `port2` of a new `MessageChannel`
-- All steady-state traffic (`wake-lock-sync`, `color-mode-sync`) goes over that port. After the handoff only the iframe sends state (`syncWakeLockState()` is a no-op in the main window)
+- All steady-state traffic (`wake-lock-sync`, `color-mode-sync`, `pip-attention`) goes over that port. After the handoff only the iframe sends state (`syncWakeLockState()` is a no-op in the main window). `pip-attention` carries no state: it makes the floating window pulse when the main window's "Focus to Floating Window" is clicked
 - No `pip-ready` within `PIP_CONNECT_TIMEOUT_MS` → the main window closes the PiP window (`failPipConnection`)
 
 **State Synchronization Rules**:

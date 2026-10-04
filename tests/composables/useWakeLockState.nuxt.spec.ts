@@ -305,6 +305,20 @@ describe('wakeLock state', () => {
     })
   })
 
+  describe('focusPipWindow', () => {
+    it('focuses an open floating window', () => {
+      const pipWin = { ...fakePipWindow(), focus: vi.fn() } as unknown as Window
+      state.pipWindowRef = pipWin
+      expect(state.focusPipWindow()).toBe(true)
+      expect(pipWin.focus).toHaveBeenCalled()
+    })
+
+    it('reports false when there is no window to focus', () => {
+      state.pipWindowRef = null
+      expect(state.focusPipWindow()).toBe(false)
+    })
+  })
+
   describe('suspension notice', () => {
     beforeEach(async () => {
       vi.useFakeTimers()
