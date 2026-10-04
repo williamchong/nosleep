@@ -50,16 +50,43 @@ export type PipMessage =
 const PIP_SIZE_KEY = 'nosleep-pip-size'
 const PIP_SIZE_MINIMIZED = 'minimized'
 
-export function getPipSizePreference(): 'minimized' | 'restored' {
+function readStorage(key: string): string | null {
   try {
-    return localStorage.getItem(PIP_SIZE_KEY) === PIP_SIZE_MINIMIZED ? 'minimized' : 'restored'
+    return localStorage.getItem(key)
   } catch {
-    return 'restored'
+    return null
   }
 }
 
-export function setPipSizePreference(size: 'minimized' | 'restored'): void {
+function writeStorage(key: string, value: string): void {
   try {
-    localStorage.setItem(PIP_SIZE_KEY, size)
+    localStorage.setItem(key, value)
   } catch { /* Private browsing or quota exceeded — ignore */ }
+}
+
+export function getPipSizePreference(): 'minimized' | 'restored' {
+  return readStorage(PIP_SIZE_KEY) === PIP_SIZE_MINIMIZED ? 'minimized' : 'restored'
+}
+
+export function setPipSizePreference(size: 'minimized' | 'restored'): void {
+  writeStorage(PIP_SIZE_KEY, size)
+}
+
+/** The hero button, told apart by whether the prompt after a lapsed lock was showing. */
+export type PipOpenSource = 'hero' | 'hero_with_notice'
+
+/**
+ * How long the main tab has to stay hidden before its lapsed lock is worth a prompt. Shorter
+ * gaps are harmless — screens rarely dim that fast — and prompting on them would nag.
+ */
+export const SUSPENSION_NOTICE_MIN_SECONDS = 60
+
+const SUSPENSION_NOTICE_DISMISSED_KEY = 'nosleep-suspension-notice-dismissed'
+
+export function isSuspensionNoticeDismissed(): boolean {
+  return readStorage(SUSPENSION_NOTICE_DISMISSED_KEY) === '1'
+}
+
+export function dismissSuspensionNoticeForGood(): void {
+  writeStorage(SUSPENSION_NOTICE_DISMISSED_KEY, '1')
 }

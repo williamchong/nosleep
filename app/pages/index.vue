@@ -199,7 +199,7 @@ const setupPipIframe = (pipWin: Window, iframe: HTMLIFrameElement) => {
   pipWin.document.body.replaceChildren(iframe)
 }
 
-const openDocumentPiP = async () => {
+const openDocumentPiP = async (source: PipOpenSource) => {
   try {
     const preferMinimized = getPipSizePreference() === 'minimized'
     const { window: pipWin, status } = await documentPip.openPipWindow(
@@ -207,7 +207,7 @@ const openDocumentPiP = async () => {
       preferMinimized ? PIP_MINIMIZED_HEIGHT : PIP_RESTORED_HEIGHT
     )
 
-    trackEvent('pip_window_open', { result: status, source: 'hero' })
+    trackEvent('pip_window_open', { result: status, source })
 
     if (!pipWin) return false
 
@@ -218,12 +218,12 @@ const openDocumentPiP = async () => {
   } catch (error) {
     pipIframe.value = null
     console.error('Failed to open Document PiP:', error)
-    trackEvent('pip_window_open', { result: 'exception', source: 'hero' })
+    trackEvent('pip_window_open', { result: 'exception', source })
     return false
   }
 }
 
-const openFloatingWindow = async () => {
+const openFloatingWindow = async (source: PipOpenSource) => {
   // If PiP is not supported, do nothing
   if (!documentPip.isPipSupported.value) {
     console.warn('Document Picture-in-Picture is not supported in this browser')
@@ -234,7 +234,7 @@ const openFloatingWindow = async () => {
   if (wakeLock.hasActivePipWindow) {
     try {
       wakeLock.pipWindowRef!.focus()
-      trackEvent('pip_focus', { source: 'hero' }, { posthog: false })
+      trackEvent('pip_focus', { source }, { posthog: false })
       return
     } catch (e) {
       console.warn('Could not focus PiP window:', e)
@@ -242,6 +242,6 @@ const openFloatingWindow = async () => {
   }
 
   // Open Document PiP window
-  await openDocumentPiP()
+  await openDocumentPiP(source)
 }
 </script>

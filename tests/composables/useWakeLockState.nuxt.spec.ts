@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { computed, shallowRef } from 'vue'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { useWakeLockState, transferStateToPip, handleWakeLockSync, handlePagehide } from '~/composables/useWakeLockState'
+import { useWakeLockState, transferStateToPip, handleWakeLockSync, handlePagehide, handleVisibilityChange } from '~/composables/useWakeLockState'
 import type { UseWakeLockReturn } from '@vueuse/core'
-import { PIP_CONNECT_TIMEOUT_MS } from '~/utils/pip'
+import { PIP_CONNECT_TIMEOUT_MS, SUSPENSION_NOTICE_MIN_SECONDS } from '~/utils/pip'
 
 const { mockTrackEvent } = vi.hoisted(() => ({ mockTrackEvent: vi.fn() }))
 mockNuxtImport('useAnalytics', () => () => ({ trackEvent: mockTrackEvent }))
@@ -302,6 +302,80 @@ describe('wakeLock state', () => {
       const calls = sessionEndCalls()
       expect(calls).toHaveLength(1)
       expect(calls[0][1]).toMatchObject({ ended_by: 'cleanup' })
+    })
+  })
+
+  describe('suspension notice', () => {
+    beforeEach(async () => {
+      vi.useFakeTimers()
+      vi.stubGlobal('documentPictureInPicture', {})
+      localStorage.clear()
+      state.cleanup()
+      state = useWakeLockState({ nativeWakeLock: createMockNativeWakeLock(true) })
+      // cleanup() leaves a release in flight, and acquire() bails while one is running.
+      await Promise.resolve()
+      expect(await state.acquire()).toBe(true)
+    })
+
+    afterEach(() => {
+      vi.unstubAllGlobals()
+      vi.useRealTimers()
+    })
+
+    const hideFor = (ms: number) => {
+      handleVisibilityChange('hidden')
+      vi.advanceTimersByTime(ms)
+      handleVisibilityChange('visible')
+    }
+
+    it('offers the floating window after a long enough gap', () => {
+      hideFor(SUSPENSION_NOTICE_MIN_SECONDS * 1000)
+      expect(state.suspensionNotice).toBe(SUSPENSION_NOTICE_MIN_SECONDS)
+    })
+
+    it('stays quiet after a short gap, while still reporting it', () => {
+      hideFor(5_000)
+      expect(state.suspensionNotice).toBeNull()
+      expect(mockTrackEvent).toHaveBeenCalledWith('wake_lock_suspended', expect.objectContaining({ hidden_seconds: 5 }))
+    })
+
+    it('offers it on a later long gap even after the session was already reported', () => {
+      hideFor(5_000)
+      hideFor(120_000)
+      expect(state.suspensionNotice).toBe(120)
+      expect(mockTrackEvent.mock.calls.filter(([name]) => name === 'wake_lock_suspended')).toHaveLength(1)
+    })
+
+    it('stays quiet when the lock was off while hidden', async () => {
+      await state.release()
+      hideFor(120_000)
+      expect(state.suspensionNotice).toBeNull()
+    })
+
+    it('clears when the lock is turned off', async () => {
+      hideFor(120_000)
+      await state.release()
+      expect(state.suspensionNotice).toBeNull()
+    })
+
+    it('never comes back once dismissed', () => {
+      hideFor(120_000)
+      state.dismissSuspensionNotice()
+      expect(state.suspensionNotice).toBeNull()
+      hideFor(120_000)
+      expect(state.suspensionNotice).toBeNull()
+    })
+
+    it('stays quiet where there is no floating window to offer', () => {
+      vi.unstubAllGlobals()
+      hideFor(120_000)
+      expect(state.suspensionNotice).toBeNull()
+    })
+
+    it('clears once the floating window opens', () => {
+      hideFor(120_000)
+      state.adoptPipWindow(fakePipWindow())
+      expect(state.suspensionNotice).toBeNull()
     })
   })
 

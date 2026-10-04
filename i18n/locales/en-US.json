@@ -77,6 +77,11 @@
     "focusButton": "Focus to Floating Window",
     "alternative": "(Alternatively: Keep this tab always active)"
   },
+  "suspensionNotice": {
+    "title": "Your screen could sleep while this tab was in the background",
+    "description": "Browsers pause the wake lock in hidden tabs. Open the floating window above to keep it on while you use other tabs and apps.",
+    "dismiss": "Don't show this again"
+  },
   "pip": {
     "title": "NoSleep - Floating Window",
     "minimize": "Minimize window",

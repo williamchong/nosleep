@@ -77,6 +77,11 @@
     "focusButton": "切換至浮動視窗",
     "alternative": "（或者：保持此分頁始終活躍）"
   },
+  "suspensionNotice": {
+    "title": "此分頁在背景期間，螢幕可能已進入休眠",
+    "description": "瀏覽器會在隱藏的分頁暫停螢幕喚醒鎖。開啟上方的浮動視窗，即使切換到其他分頁或應用程式，螢幕仍會保持開啟。",
+    "dismiss": "不再顯示"
+  },
   "pip": {
     "title": "NoSleep - 浮動視窗",
     "minimize": "最小化視窗",

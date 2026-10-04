@@ -36,6 +36,12 @@ let hiddenAt: number | null = null
 /** sessionStartedAt of the session already reported as suspended, so each is reported once. */
 let suspensionReportedFor: number | null = null
 
+/**
+ * Seconds the main tab last spent hidden with its lock suspended, long enough to be worth
+ * offering the floating window. Null when there is nothing to prompt about.
+ */
+const suspensionNotice = ref<number | null>(null)
+
 /** Snapshot handed to the PiP iframe, held until it confirms it adopted the state. */
 let pendingHandoff: WakeLockState | null = null
 
@@ -115,17 +121,32 @@ function handleVisibilityChange(visibility: DocumentVisibilityState) {
     hiddenAt = isActive.value ? Date.now() : null
     return
   }
-  const startedAt = sessionStartedAt.value
-  if (hiddenAt !== null && isActive.value && startedAt !== null && suspensionReportedFor !== startedAt) {
-    suspensionReportedFor = startedAt
-    trackEvent('wake_lock_suspended', {
-      hidden_seconds: Math.round((Date.now() - hiddenAt) / 1000),
-      had_timer: timerActive.value,
-      // Mobile hides the page on every screen lock and has no floating window to offer instead.
-      is_pip_supported: hasDocumentPip(),
-    })
+  if (hiddenAt !== null && isActive.value) {
+    const hiddenSeconds = Math.round((Date.now() - hiddenAt) / 1000)
+    // Mobile hides the page on every screen lock and has no floating window to offer instead.
+    const isPipSupported = hasDocumentPip()
+    const startedAt = sessionStartedAt.value
+    if (startedAt !== null && suspensionReportedFor !== startedAt) {
+      suspensionReportedFor = startedAt
+      trackEvent('wake_lock_suspended', {
+        hidden_seconds: hiddenSeconds,
+        had_timer: timerActive.value,
+        is_pip_supported: isPipSupported,
+      })
+    }
+    if (isPipSupported && hiddenSeconds >= SUSPENSION_NOTICE_MIN_SECONDS && !isSuspensionNoticeDismissed()) {
+      suspensionNotice.value = hiddenSeconds
+      trackEvent('suspension_notice_shown', { hidden_seconds: hiddenSeconds })
+    }
   }
   hiddenAt = null
+}
+
+/** Dismissing is for good: someone who keeps the tab in front on purpose should not be asked again. */
+function dismissSuspensionNotice() {
+  suspensionNotice.value = null
+  dismissSuspensionNoticeForGood()
+  trackEvent('suspension_notice_dismissed')
 }
 
 function onTimerTick() {
@@ -232,6 +253,8 @@ async function release(endedBy: SessionEndReason = 'user_toggle') {
     await releaseNativeWakeLock('Failed to release wake lock:')
 
     isActive.value = false
+    // With the lock off there is nothing left for the floating window to keep on.
+    suspensionNotice.value = null
     endSession(endedBy)
 
     // stopTimer() ends with syncWakeLockState(), which broadcasts the state set above.
@@ -340,6 +363,7 @@ function pipIframeReadyState(pipWin: Window): string | null {
 function adoptPipWindow(pipWin: Window) {
   pipWindowRef.value = pipWin
   pipOpenedAt = Date.now()
+  suspensionNotice.value = null
   startConnectTimeout()
 }
 
@@ -585,6 +609,7 @@ function cleanup() {
   pipOpenedAt = null
   hiddenAt = null
   suspensionReportedFor = null
+  suspensionNotice.value = null
   // Drop the PiP reference first, or release() bails on isParentWithActivePip and the sentinel
   // is discarded below without ever being released.
   pipWindowRef.value = null
@@ -619,12 +644,16 @@ const wakeLockState = reactive({
   handlePipClosed,
   postToPip,
   pipColorMode,
+  suspensionNotice,
+  dismissSuspensionNotice,
   cleanup
 })
 
 // Both sides of the PiP handoff. Production drives these through the port listener; they are
 // exported so tests can exercise the exchange without two real windows.
 export { transferStateToPip, handleWakeLockSync, handlePagehide }
+// Driven by useDocumentVisibility in a component; exported so tests can hide and show the tab.
+export { handleVisibilityChange }
 
 /**
  * Call this once per window. All the state above is module-level, so a second caller in the

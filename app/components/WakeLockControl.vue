@@ -157,7 +157,18 @@
             icon="i-lucide-picture-in-picture-2"
             :label="wakeLock.hasActivePipWindow ? $t('floatingWindow.focusButton') : $t('floatingWindow.openButton')"
             :ui="heroButtonUi"
-            @click="$emit('open-window')"
+            @click="$emit('open-window', showSuspensionNotice ? 'hero_with_notice' : 'hero')"
+          />
+
+          <UAlert
+            v-if="showSuspensionNotice"
+            color="warning"
+            variant="subtle"
+            icon="i-lucide-moon"
+            :title="$t('suspensionNotice.title')"
+            :description="$t('suspensionNotice.description')"
+            :actions="[{ label: $t('suspensionNotice.dismiss'), color: 'warning', variant: 'link', class: 'px-0', onClick: wakeLock.dismissSuspensionNotice }]"
+            class="text-left"
           />
 
           <p v-if="!wakeLock.hasActivePipWindow" class="text-xs text-muted italic">
@@ -228,7 +239,7 @@ const props = withDefaults(defineProps<Props>(), {
   pipSupported: false
 })
 
-defineEmits<{ 'open-window': [] }>()
+defineEmits<{ 'open-window': [source: PipOpenSource] }>()
 
 const wakeLock = props.wakeLock
 const showTimerSection = ref(false)
@@ -236,6 +247,9 @@ const showTimerSection = ref(false)
 const heroOpensPip = computed(() => props.pipSupported && !wakeLock.isPipMode)
 
 const timerTotalSeconds = computed(() => wakeLock.timerDuration * 60)
+
+// The composable only raises it in the main window, where the hero opens the floating window.
+const showSuspensionNotice = computed(() => wakeLock.suspensionNotice !== null)
 
 // :ui.base merges over UButton's size variant via tailwind-merge, letting these oversized utilities win.
 const heroButtonUi = {
