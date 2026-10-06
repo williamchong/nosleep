@@ -42,8 +42,8 @@ useHead({
     {
       type: 'application/ld+json',
       innerHTML: JSON.stringify({
-      '@context': 'https://schema.org',
-      '@graph': [
+        '@context': 'https://schema.org',
+        '@graph': [
       {
         '@type': 'HowTo',
         name: t('structuredData.howTo.main.name'),
@@ -208,8 +208,8 @@ useHead({
           }
         ]
       }
-    ]
-    })
+        ]
+      })
     }
   ]
 })

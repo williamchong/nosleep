@@ -10,11 +10,11 @@
 definePageMeta({ pip: true })
 
 const wakeLock = useWakeLockState()
+const route = useRoute()
+const colorMode = useColorMode()
 
 // The floating-window surface is not a landing page; keep it out of search results.
 useSeoMeta({ robots: 'noindex' })
-const route = useRoute()
-const colorMode = useColorMode()
 
 // The parent passes the initial theme via ?colorMode= so the first paint is already correct —
 // waiting for the port would flash the wrong theme. Watch it rather than reading once: on the

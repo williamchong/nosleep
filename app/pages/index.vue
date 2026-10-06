@@ -123,15 +123,15 @@
         />
         <nav :aria-label="$t('sections.about.languages')" class="flex flex-wrap justify-center gap-x-4 gap-y-2 pt-4 text-sm">
           <NuxtLink
-            v-for="l in locales"
-            :key="l.code"
-            :to="switchLocalePath(l.code)"
-            :lang="l.language"
-            :hreflang="l.language"
-            :aria-current="l.code === locale ? 'page' : undefined"
-            :class="l.code === locale ? 'text-highlighted font-semibold' : 'text-muted hover:text-primary'"
+            v-for="loc in locales"
+            :key="loc.code"
+            :to="switchLocalePath(loc.code)"
+            :lang="loc.language"
+            :hreflang="loc.language"
+            :aria-current="loc.code === locale ? 'page' : undefined"
+            :class="loc.code === locale ? 'text-highlighted font-semibold' : 'text-muted hover:text-primary'"
           >
-            {{ l.name }}
+            {{ loc.name }}
           </NuxtLink>
         </nav>
       </section>

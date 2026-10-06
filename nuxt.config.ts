@@ -31,7 +31,7 @@ export default defineNuxtConfig({
 
   sitemap: {
     // /en duplicates / (prefix_and_default) and /pip is the floating-window surface.
-    exclude: ['/en', '/en/**', '/pip', '/pip/**', '/*/pip', '/*/pip/**'],
+    exclude: ['/en', '/pip', '/*/pip'],
   },
 
   scripts: {
