@@ -112,6 +112,20 @@ export default defineNuxtConfig({
     client: 'hidden'
   },
 
+  hooks: {
+    // @vite-pwa/nuxt precaches pages/pip/index.html as "pip", but every link and the PiP iframe
+    // request "/pip/" (i18n.trailingSlash), which workbox never matches to a slashless key.
+    // Runs before the module's own transform, which then leaves these non-.html URLs alone.
+    'pwa:beforeBuildServiceWorker'(options) {
+      options.workbox.manifestTransforms?.unshift((entries) => {
+        for (const entry of entries) {
+          if (entry.url.endsWith('/index.html')) entry.url = entry.url.slice(0, -'index.html'.length)
+        }
+        return { manifest: entries, warnings: [] }
+      })
+    },
+  },
+
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
@@ -129,7 +143,7 @@ export default defineNuxtConfig({
     },
     workbox: {
       globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2}'],
-      // Strip the colorMode query so /pip?colorMode=dark matches the precached /pip entry.
+      // Strip the colorMode query so /pip/?colorMode=dark matches the precached /pip/ entry.
       ignoreURLParametersMatching: [/^colorMode$/],
       // Disable @vite-pwa/nuxt's default navigateFallback ('/'), which otherwise registers a
       // catch-all NavigationRoute that serves index.html for any precache miss — hijacking
