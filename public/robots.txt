@@ -1,1 +1,4 @@
+User-agent: *
+Allow: /
 
+Sitemap: https://nosleep.williamchong.cloud/sitemap_index.xml

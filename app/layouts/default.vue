@@ -9,7 +9,7 @@
 const { t } = useI18n()
 const i18nHead = useLocaleHead()
 
-const siteUrl = useRuntimeConfig().public.siteUrl as string
+const siteUrl = useSiteConfig().url
 
 useSeoMeta({
   title: t('site.title'),
@@ -41,7 +41,9 @@ useHead({
   script: [
     {
       type: 'application/ld+json',
-      innerHTML: JSON.stringify([
+      innerHTML: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@graph': [
       {
         '@type': 'HowTo',
         name: t('structuredData.howTo.main.name'),
@@ -139,7 +141,7 @@ useHead({
         '@type': 'WebApplication',
         name: t('site.name'),
         description: t('meta.applicationDescription'),
-        url: 'https://nosleep.williamchong.cloud',
+        url: siteUrl,
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'Web Browser',
         author: {
@@ -206,7 +208,8 @@ useHead({
           }
         ]
       }
-    ])
+    ]
+    })
     }
   ]
 })

@@ -24,6 +24,14 @@ export default defineNuxtConfig({
   site: {
     url: 'https://nosleep.williamchong.cloud',
     name: 'NoSleep',
+    // Static hosting serves /zh as a 301 to /zh/, so canonical, hreflang and sitemap URLs
+    // must carry the slash or they all point at redirects.
+    trailingSlash: true,
+  },
+
+  sitemap: {
+    // /en duplicates / (prefix_and_default) and /pip is the floating-window surface.
+    exclude: ['/en', '/en/**', '/pip', '/pip/**', '/*/pip', '/*/pip/**'],
   },
 
   scripts: {
@@ -68,6 +76,7 @@ export default defineNuxtConfig({
       },
     ],
     strategy: 'prefix_and_default',
+    trailingSlash: true,
     defaultLocale: 'en',
   },
 

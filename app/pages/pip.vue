@@ -10,6 +10,9 @@
 definePageMeta({ pip: true })
 
 const wakeLock = useWakeLockState()
+
+// The floating-window surface is not a landing page; keep it out of search results.
+useSeoMeta({ robots: 'noindex' })
 const route = useRoute()
 const colorMode = useColorMode()
 
