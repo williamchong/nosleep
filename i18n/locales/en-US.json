@@ -202,7 +202,8 @@
     "about": {
       "title": "About",
       "description": "Built by William Chong as a simple, useful web tool. Check out more projects and articles on my blog.",
-      "visitBlog": "Visit My Blog"
+      "visitBlog": "Visit My Blog",
+      "languages": "Languages"
     }
   },
   "structuredData": {

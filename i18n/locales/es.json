@@ -202,7 +202,8 @@
     "about": {
       "title": "Acerca de",
       "description": "Creado por William Chong como una herramienta web sencilla y útil. Descubre más proyectos y artículos en mi blog.",
-      "visitBlog": "Visitar Mi Blog"
+      "visitBlog": "Visitar Mi Blog",
+      "languages": "Idiomas"
     }
   },
   "structuredData": {

@@ -202,7 +202,8 @@
     "about": {
       "title": "について",
       "description": "William Chongによって構築されたシンプルで便利なWebツール。私のブログで他のプロジェクトや記事をチェックしてください。",
-      "visitBlog": "私のブログを訪問"
+      "visitBlog": "私のブログを訪問",
+      "languages": "言語"
     }
   },
   "structuredData": {

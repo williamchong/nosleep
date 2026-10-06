@@ -201,7 +201,8 @@
     "about": {
       "title": "關於",
       "description": "由 William Chong 開發的簡單實用網頁工具。歡迎瀏覽我的博客查看更多專案和文章。",
-      "visitBlog": "瀏覽我的博客"
+      "visitBlog": "瀏覽我的博客",
+      "languages": "語言"
     }
   },
   "structuredData": {

@@ -121,6 +121,19 @@
           :label="$t('sections.about.visitBlog')"
           @click="handleExternalLinkClick"
         />
+        <nav :aria-label="$t('sections.about.languages')" class="flex flex-wrap justify-center gap-x-4 gap-y-2 pt-4 text-sm">
+          <NuxtLink
+            v-for="l in locales"
+            :key="l.code"
+            :to="switchLocalePath(l.code)"
+            :lang="l.language"
+            :hreflang="l.language"
+            :aria-current="l.code === locale ? 'page' : undefined"
+            :class="l.code === locale ? 'text-highlighted font-semibold' : 'text-muted hover:text-primary'"
+          >
+            {{ l.name }}
+          </NuxtLink>
+        </nav>
       </section>
     </div>
   </div>
@@ -129,8 +142,9 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core'
 
-const { t } = useI18n()
+const { t, locale, locales } = useI18n()
 const localePath = useLocalePath()
+const switchLocalePath = useSwitchLocalePath()
 const wakeLock = useWakeLockState()
 const documentPip = useDocumentPiP()
 const colorMode = useColorMode()
