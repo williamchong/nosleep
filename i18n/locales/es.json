@@ -158,6 +158,7 @@
       "title": "Preguntas Frecuentes",
       "useCases": {
         "question": "Mejores Usos del Screen Wake Lock",
+        "claudeCodeTip": "¿Usas Claude Code en un Mac? Este mod mantiene la pantalla encendida solo mientras Claude trabaja:",
         "answers": [
           "Descargas y subidas: temporizadores de 30-60 min para evitar interrupciones",
           "Sesiones de trabajo: temporizadores de enfoque de 15-30 min para programar y ser productivo",

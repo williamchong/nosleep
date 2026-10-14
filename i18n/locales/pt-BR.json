@@ -158,6 +158,7 @@
       "title": "Perguntas Frequentes",
       "useCases": {
         "question": "Melhores Usos para o Screen Wake Lock",
+        "claudeCodeTip": "Usa o Claude Code em um Mac? Este mod mantém a tela ligada só enquanto o Claude está trabalhando:",
         "answers": [
           "Downloads e uploads: timers de 30-60 min para evitar interrupções",
           "Sessões de trabalho: timers de foco de 15-30 min para programar e produzir",

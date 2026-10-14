@@ -158,6 +158,7 @@
       "title": "Frequently Asked Questions",
       "useCases": {
         "question": "Best Use Cases for Screen Wake Lock",
+        "claudeCodeTip": "Using Claude Code on a Mac? This mod keeps your screen awake only while Claude is working:",
         "answers": [
           "Downloads & uploads: Set 30-60 min timers to prevent interruptions",
           "Work sessions: 15-30 min focus timers for coding and productivity",

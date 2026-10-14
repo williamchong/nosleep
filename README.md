@@ -20,7 +20,7 @@ A free web tool that keeps your screen awake during downloads, work sessions, pr
 - **Presentations & Meetings**: Keep screen active during demos and video calls
 - **Long Processes**: 2-4 hour timers for video rendering, builds, or data processing
 - **Live Streaming**: Prevent sleep during broadcasts and recording sessions
-- **AI-Assisted Coding**: Extended sessions with tools like Claude Code or GitHub Copilot
+- **AI-Assisted Coding**: Extended sessions with tools like Claude Code or GitHub Copilot. On a Mac with Claude Code, [cc-mod-caffeinate](https://github.com/williamchong/cc-mod-caffeinate) keeps the screen awake only while Claude is working
 - **Dashboard Monitoring**: Keep real-time tools and dashboards visible
 
 ## 🚀 How It Works

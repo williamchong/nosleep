@@ -83,6 +83,19 @@
             <ul class="space-y-2 text-muted">
               <li v-for="(answer, index) in $tm('sections.faq.useCases.answers')" :key="index">• {{ $rt(answer) }}</li>
             </ul>
+            <p class="mt-4 text-sm text-muted">
+              {{ $t('sections.faq.useCases.claudeCodeTip') }}
+              <ULink
+                :to="caffeinateUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                external
+                class="text-primary"
+                @click="handleExternalLinkClick('cc-mod-caffeinate')"
+              >
+                cc-mod-caffeinate
+              </ULink>
+            </p>
           </template>
 
           <template #browserSupport-body>
@@ -119,7 +132,7 @@
           size="lg"
           icon="i-lucide-badge-check"
           :label="$t('sections.about.visitBlog')"
-          @click="handleExternalLinkClick"
+          @click="handleExternalLinkClick('blog')"
         />
         <nav :aria-label="$t('sections.about.languages')" class="flex flex-wrap justify-center gap-x-4 gap-y-2 pt-4 text-sm">
           <NuxtLink
@@ -150,6 +163,7 @@ const documentPip = useDocumentPiP()
 const colorMode = useColorMode()
 
 const blogUrl = 'https://blog.williamchong.cloud/?utm_source=nosleep&utm_medium=referral&utm_campaign=about'
+const caffeinateUrl = 'https://github.com/williamchong/cc-mod-caffeinate?utm_source=nosleep&utm_medium=referral&utm_campaign=faq'
 
 const faqItems = computed(() => [
   { label: t('sections.faq.useCases.question'), slot: 'useCases' as const },
@@ -170,8 +184,8 @@ const pipIframe = ref<HTMLIFrameElement | null>(null)
 
 const { trackEvent } = useAnalytics()
 
-const handleExternalLinkClick = () => {
-  trackEvent('external_link_click', { destination: 'blog' })
+const handleExternalLinkClick = (destination: 'blog' | 'cc-mod-caffeinate') => {
+  trackEvent('external_link_click', { destination })
 }
 
 watch(() => colorMode.value, (mode) => {
