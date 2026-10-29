@@ -65,7 +65,8 @@
     "untilTime": "保持喚醒直至",
     "durationMinutes": "{minutes}分鐘",
     "durationHours": "{hours}小時",
-    "durationHoursMinutes": "{hours}小時{minutes}分鐘"
+    "durationHoursMinutes": "{hours}小時{minutes}分鐘",
+    "chime": "計時結束時播放提示音"
   },
   "instructions": {
     "title": "獲得最佳效果",

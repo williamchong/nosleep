@@ -163,6 +163,9 @@ function onTimerTick() {
   // Only the interval is paused; timerActive still reads true for endSession's had_timer.
   pauseTimer()
   trackEvent('timer_expired', { duration_minutes: timerDuration.value })
+  // Silent in a PiP iframe that adopted the timer: nothing there was clicked to unlock audio,
+  // unless the switch was flipped inside the floating window
+  if (getTimerChimePreference()) playChime()
   void release('timer_expired')
 }
 
@@ -287,6 +290,9 @@ async function startTimer(minutes: number) {
   if (isParentWithActivePip.value) {
     return false
   }
+
+  // Still inside the click that started the timer — the only chance to unlock audio for expiry
+  if (getTimerChimePreference()) void primeChime()
 
   if (!isActive.value) {
     const success = await acquire()

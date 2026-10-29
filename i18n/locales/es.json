@@ -65,7 +65,8 @@
     "untilTime": "Mantener despierto hasta",
     "durationMinutes": "{minutes} min",
     "durationHours": "{hours} h",
-    "durationHoursMinutes": "{hours} h {minutes} min"
+    "durationHoursMinutes": "{hours} h {minutes} min",
+    "chime": "Sonido al terminar el temporizador"
   },
   "instructions": {
     "title": "Para Mejores Resultados",

@@ -65,7 +65,8 @@
     "untilTime": "この時刻まで起動",
     "durationMinutes": "{minutes}分",
     "durationHours": "{hours}時間",
-    "durationHoursMinutes": "{hours}時間{minutes}分"
+    "durationHoursMinutes": "{hours}時間{minutes}分",
+    "chime": "タイマー終了時に音を鳴らす"
   },
   "instructions": {
     "title": "最適な結果を得るために",

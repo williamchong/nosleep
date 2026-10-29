@@ -65,7 +65,8 @@
     "untilTime": "Manter acordado até",
     "durationMinutes": "{minutes} min",
     "durationHours": "{hours} h",
-    "durationHoursMinutes": "{hours} h {minutes} min"
+    "durationHoursMinutes": "{hours} h {minutes} min",
+    "chime": "Som ao fim do temporizador"
   },
   "instructions": {
     "title": "Para Melhores Resultados",

@@ -3,10 +3,14 @@ import { computed, shallowRef } from 'vue'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useWakeLockState, transferStateToPip, handleWakeLockSync, handlePagehide, handleVisibilityChange } from '~/composables/useWakeLockState'
 import type { UseWakeLockReturn } from '@vueuse/core'
-import { PIP_CONNECT_TIMEOUT_MS, SUSPENSION_NOTICE_MIN_SECONDS } from '~/utils/pip'
+import { PIP_CONNECT_TIMEOUT_MS, SUSPENSION_NOTICE_MIN_SECONDS, getTimerChimePreference, setTimerChimePreference } from '~/utils/pip'
 
 const { mockTrackEvent } = vi.hoisted(() => ({ mockTrackEvent: vi.fn() }))
 mockNuxtImport('useAnalytics', () => () => ({ trackEvent: mockTrackEvent }))
+
+const { mockPlayChime, mockPrimeChime } = vi.hoisted(() => ({ mockPlayChime: vi.fn(), mockPrimeChime: vi.fn() }))
+mockNuxtImport('playChime', () => mockPlayChime)
+mockNuxtImport('primeChime', () => mockPrimeChime)
 
 const mockRelease = vi.fn()
 const mockRequest = vi.fn()
@@ -199,6 +203,47 @@ describe('wakeLock state', () => {
 
       expect(state.remainingTime).toBe(0)
       expect(mockTrackEvent.mock.calls.filter(([name]) => name === 'timer_expired')).toHaveLength(1)
+    })
+
+    describe('timer chime', () => {
+      beforeEach(() => {
+        mockPlayChime.mockReset()
+        mockPrimeChime.mockReset()
+      })
+
+      afterEach(() => {
+        localStorage.clear()
+      })
+
+      it('is off until turned on, and remembers the choice', () => {
+        expect(getTimerChimePreference()).toBe(false)
+        setTimerChimePreference(true)
+        expect(getTimerChimePreference()).toBe(true)
+      })
+
+      it('primes on start and plays once on expiry when enabled', async () => {
+        setTimerChimePreference(true)
+        await state.startTimer(1)
+        expect(mockPrimeChime).toHaveBeenCalledOnce()
+
+        vi.advanceTimersByTime(120_000)
+        expect(mockPlayChime).toHaveBeenCalledOnce()
+      })
+
+      it('stays silent when disabled', async () => {
+        await state.startTimer(1)
+        vi.advanceTimersByTime(120_000)
+        expect(mockPrimeChime).not.toHaveBeenCalled()
+        expect(mockPlayChime).not.toHaveBeenCalled()
+      })
+
+      it('does not play when the user stops the wake lock', async () => {
+        setTimerChimePreference(true)
+        await state.startTimer(1)
+        await state.toggle()
+        vi.advanceTimersByTime(120_000)
+        expect(mockPlayChime).not.toHaveBeenCalled()
+      })
     })
   })
 

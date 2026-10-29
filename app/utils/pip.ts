@@ -95,3 +95,15 @@ export function isSuspensionNoticeDismissed(): boolean {
 export function dismissSuspensionNoticeForGood(): void {
   writeStorage(SUSPENSION_NOTICE_DISMISSED_KEY, '1')
 }
+
+// Off by default: the app is used in meetings and streams, where an unasked-for sound goes out live.
+// The PiP iframe shares this origin's storage, so both windows read the same choice.
+const TIMER_CHIME_KEY = 'nosleep-timer-chime'
+
+export function getTimerChimePreference(): boolean {
+  return readStorage(TIMER_CHIME_KEY) === '1'
+}
+
+export function setTimerChimePreference(enabled: boolean): void {
+  writeStorage(TIMER_CHIME_KEY, enabled ? '1' : '0')
+}

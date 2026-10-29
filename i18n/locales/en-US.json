@@ -65,7 +65,8 @@
     "untilTime": "Keep awake until",
     "durationMinutes": "{minutes} min",
     "durationHours": "{hours} h",
-    "durationHoursMinutes": "{hours} h {minutes} min"
+    "durationHoursMinutes": "{hours} h {minutes} min",
+    "chime": "Sound when timer ends"
   },
   "instructions": {
     "title": "For Best Results",

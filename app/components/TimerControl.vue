@@ -59,6 +59,15 @@
         @click="$emit('start', minutesFor(selectedPreset, new Date()), selectedPreset)"
       />
     </div>
+
+    <USwitch
+      v-model="chimeEnabled"
+      size="xs"
+      class="justify-center"
+      :label="$t('timer.chime')"
+      :ui="{ label: 'text-xs font-normal text-muted' }"
+      @update:model-value="onChimeToggle"
+    />
   </div>
 </template>
 
@@ -81,6 +90,22 @@ const MIN_MINUTES = 1
 const MAX_MINUTES = 720
 
 const { t } = useI18n()
+const { trackEvent } = useAnalytics()
+
+// Read on mount, not during setup: storage is client-only and would mismatch the prerender
+const chimeEnabled = ref(false)
+onMounted(() => { chimeEnabled.value = getTimerChimePreference() })
+
+function onChimeToggle(enabled: boolean) {
+  setTimerChimePreference(enabled)
+  trackEvent('timer_chime_toggled', { enabled }, { posthog: false })
+  if (!enabled) {
+    suspendChime()
+    return
+  }
+  // The click unlocks audio in this window, and the preview shows how loud it will be
+  void primeChime().then(playChime)
+}
 
 const selectedPreset = ref<TimerPreset>('60')
 const customMinutes = ref(60)
