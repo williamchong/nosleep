@@ -12,26 +12,39 @@ export function primeChime(): Promise<void> {
   return Promise.resolve()
 }
 
-/** Stops the audio thread rendering silence once nothing will play. The next prime wakes it. */
-export function suspendChime(): void {
-  void context?.suspend().catch(() => {})
+/**
+ * Stops the audio thread once nothing will play. Closes rather than suspends: a suspended context
+ * keeps a ringing chime paused and plays its tail on the next resume. The next prime makes a new one.
+ */
+export function stopChime(): void {
+  void context?.close().catch(() => {})
+  context = null
 }
 
-/** Two soft falling notes, about a quarter second in all. Silent if audio was never unlocked. */
+// Bell-like partials as [frequency ratio, relative level, decay seconds]: the higher ones fade
+// first, so each strike starts bright and settles into a pure tone
+const BELL_PARTIALS = [[1, 1, 1.2], [2, 0.4, 0.8], [3, 0.2, 0.5], [4.2, 0.1, 0.3]] as const
+
+function strike(audio: AudioContext, at: number, frequency: number): void {
+  for (const [ratio, level, decay] of BELL_PARTIALS) {
+    const oscillator = audio.createOscillator()
+    const gain = audio.createGain()
+    oscillator.type = 'sine'
+    oscillator.frequency.value = frequency * ratio
+    // The short ramp in avoids a click
+    gain.gain.setValueAtTime(0, at)
+    gain.gain.linearRampToValueAtTime(0.06 * level, at + 0.005)
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + decay)
+    oscillator.connect(gain).connect(audio.destination)
+    oscillator.start(at)
+    oscillator.stop(at + decay + 0.01)
+  }
+}
+
+/** A soft "ding-dong" (E5 then C5), about a second and a half in all. Silent if audio was never unlocked. */
 export function playChime(): void {
   if (context?.state !== 'running') return
   const start = context.currentTime
-  for (const [offset, frequency] of [[0, 660], [0.12, 440]] as const) {
-    const oscillator = context.createOscillator()
-    const gain = context.createGain()
-    oscillator.type = 'sine'
-    oscillator.frequency.value = frequency
-    // Ramp in and out so the note has no click at either end
-    gain.gain.setValueAtTime(0, start + offset)
-    gain.gain.linearRampToValueAtTime(0.08, start + offset + 0.01)
-    gain.gain.exponentialRampToValueAtTime(0.0001, start + offset + 0.13)
-    oscillator.connect(gain).connect(context.destination)
-    oscillator.start(start + offset)
-    oscillator.stop(start + offset + 0.14)
-  }
+  strike(context, start, 659.25)
+  strike(context, start + 0.35, 523.25)
 }

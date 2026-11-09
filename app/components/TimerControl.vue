@@ -5,12 +5,17 @@
       <div class="font-mono text-xl sm:text-2xl font-bold text-primary">
         {{ formatTime(remainingTime) }}
       </div>
-      <UButton
-        color="error"
-        size="xs"
-        :label="$t('button.cancel')"
-        @click="$emit('cancel')"
-      />
+      <div class="flex items-center justify-center gap-1">
+        <UButton
+          color="error"
+          size="xs"
+          :label="$t('button.cancel')"
+          @click="$emit('cancel')"
+        />
+        <UTooltip :text="$t('timer.chime')">
+          <UButton v-bind="chimeButton" size="xs" @click="toggleChime" />
+        </UTooltip>
+      </div>
     </div>
 
     <!-- Timer Setup -->
@@ -49,25 +54,21 @@
       </div>
 
       <!-- Start Button -->
-      <UButton
-        ref="startButton"
-        class="scroll-mb-2"
-        :disabled="selectedMinutes < MIN_MINUTES"
-        block
-        color="primary"
-        :label="$t('timer.startWithDuration', { duration: formatDuration(selectedMinutes) })"
-        @click="$emit('start', minutesFor(selectedPreset, new Date()), selectedPreset)"
-      />
+      <div class="flex items-center gap-1">
+        <UButton
+          ref="startButton"
+          class="scroll-mb-2"
+          :disabled="selectedMinutes < MIN_MINUTES"
+          block
+          color="primary"
+          :label="$t('timer.startWithDuration', { duration: formatDuration(selectedMinutes) })"
+          @click="$emit('start', minutesFor(selectedPreset, new Date()), selectedPreset)"
+        />
+        <UTooltip :text="$t('timer.chime')">
+          <UButton v-bind="chimeButton" @click="toggleChime" />
+        </UTooltip>
+      </div>
     </div>
-
-    <USwitch
-      v-model="chimeEnabled"
-      size="xs"
-      class="justify-center"
-      :label="$t('timer.chime')"
-      :ui="{ label: 'text-xs font-normal text-muted' }"
-      @update:model-value="onChimeToggle"
-    />
   </div>
 </template>
 
@@ -96,11 +97,21 @@ const { trackEvent } = useAnalytics()
 const chimeEnabled = ref(false)
 onMounted(() => { chimeEnabled.value = getTimerChimePreference() })
 
-function onChimeToggle(enabled: boolean) {
+const chimeButton = computed(() => ({
+  'icon': chimeEnabled.value ? 'i-lucide-volume-2' : 'i-lucide-volume-x',
+  'color': chimeEnabled.value ? 'primary' : 'neutral',
+  'variant': 'ghost',
+  'aria-label': t('timer.chime'),
+  'aria-pressed': chimeEnabled.value
+}) as const)
+
+function toggleChime() {
+  const enabled = !chimeEnabled.value
+  chimeEnabled.value = enabled
   setTimerChimePreference(enabled)
   trackEvent('timer_chime_toggled', { enabled }, { posthog: false })
   if (!enabled) {
-    suspendChime()
+    stopChime()
     return
   }
   // The click unlocks audio in this window, and the preview shows how loud it will be

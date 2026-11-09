@@ -164,7 +164,7 @@ function onTimerTick() {
   pauseTimer()
   trackEvent('timer_expired', { duration_minutes: timerDuration.value })
   // Silent in a PiP iframe that adopted the timer: nothing there was clicked to unlock audio,
-  // unless the switch was flipped inside the floating window
+  // unless the sound toggle was clicked inside the floating window
   if (getTimerChimePreference()) playChime()
   void release('timer_expired')
 }
